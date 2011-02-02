@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: ReST Editor
+Bundle-SymbolicName: ReSTEditor; singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: org.isandlatech.plugins.rest.Activator
+Bundle-Vendor: Thomas Calmant
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.eclipse.jface.text,
+ org.eclipse.ui.editors,
+ org.eclipse.ui.views,
+ org.eclipse.ui.workbench.texteditor,
+ org.eclipse.jdt.ui
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ActivationPolicy: lazy
