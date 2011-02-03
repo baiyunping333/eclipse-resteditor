@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="org.psem2m.eclipse.rest.editor"
+      label="ReST Editor Feature"
+      version="1.0.0.qualifier"
+      provider-name="isandlaTech.com">
+
+   <description url="http://www.isandlatech.com">
+      A reStructuredText editor for Eclipse
+   </description>
+
+   <copyright url="http://www.isandlatech.com">
+      ReST Editor Plugin
+
+Copyright 2010 isandlaTech
+This product includes software developed by isandlaTech
+(http://www.isandlatech.com)
+   </copyright>
+
+   <license url="http://www.isandlatech.com">
+      [Enter License Description here.]
+
+TODO !
+   </license>
+
+   <requires>
+      <import plugin="org.eclipse.ui"/>
+      <import plugin="org.eclipse.core.runtime"/>
+      <import plugin="org.eclipse.jface.text"/>
+      <import plugin="org.eclipse.ui.editors"/>
+      <import plugin="org.eclipse.ui.views"/>
+      <import plugin="org.eclipse.ui.workbench.texteditor"/>
+      <import plugin="org.eclipse.jdt.ui"/>
+   </requires>
+
+   <plugin
+         id="ReSTEditor"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+</feature>
