@@ -27,8 +27,8 @@ import org.eclipse.ui.texteditor.spelling.SpellingReconcileStrategy;
 import org.eclipse.ui.texteditor.spelling.SpellingService;
 import org.isandlatech.plugins.rest.editor.contentassist.DeclarativeProposalProcessor;
 import org.isandlatech.plugins.rest.editor.contentassist.ProposalDispatcher;
+import org.isandlatech.plugins.rest.editor.formatters.GridTableFormattingStrategy;
 import org.isandlatech.plugins.rest.editor.formatters.SectionFormattingStrategy;
-import org.isandlatech.plugins.rest.editor.formatters.TableFormattingStrategy;
 import org.isandlatech.plugins.rest.editor.scanners.RestLiteralBlockScanner;
 import org.isandlatech.plugins.rest.editor.scanners.RestPartitionScanner;
 import org.isandlatech.plugins.rest.editor.scanners.RestScanner;
@@ -111,11 +111,12 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 					RestPartitionScanner.SECTION_BLOCK);
 
 			// Tables formatter
-			pDocFormatter.setFormattingStrategy(new TableFormattingStrategy(),
-					RestPartitionScanner.TABLE_BLOCK);
+			pDocFormatter.setFormattingStrategy(
+					new GridTableFormattingStrategy(),
+					RestPartitionScanner.GRID_TABLE_BLOCK);
 
-			// formatter.setFormattingStrategy(strategy,
-			// IDocument.DEFAULT_CONTENT_TYPE);
+			// TODO RestPartitionScanner.SIMPLE_TABLE_BLOCK
+			// TODO IDocument.DEFAULT_CONTENT_TYPE
 		}
 
 		return pDocFormatter;
@@ -171,8 +172,8 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 		// Table blocks
 		dr = new DefaultDamagerRepairer(new RestTableBlockScanner(
 				new TokenProvider()));
-		reconciler.setDamager(dr, RestPartitionScanner.TABLE_BLOCK);
-		reconciler.setRepairer(dr, RestPartitionScanner.TABLE_BLOCK);
+		reconciler.setDamager(dr, RestPartitionScanner.GRID_TABLE_BLOCK);
+		reconciler.setRepairer(dr, RestPartitionScanner.GRID_TABLE_BLOCK);
 
 		return reconciler;
 	}

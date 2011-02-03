@@ -127,10 +127,6 @@ public class MarkupRule extends AbstractRule {
 					return getSuccessToken();
 				}
 
-				/*
-				 * if (currentMarkupPos == pEnd.length()) { return
-				 * getSuccessToken(); }
-				 */
 			} else {
 				currentMarkupPos = 0;
 				currentEnd = "";

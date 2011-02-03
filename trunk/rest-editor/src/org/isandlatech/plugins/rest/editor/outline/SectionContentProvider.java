@@ -29,7 +29,7 @@ public class SectionContentProvider implements ITreePathContentProvider {
 
 	/** Decoration level list */
 	private final List<Character> pDecoratorsLevels = new ArrayList<Character>(
-			RestLanguage.SECTION_DECORATORS.length);
+			RestLanguage.SECTION_DECORATIONS.length);
 
 	/** Parent outline page */
 	private final RestContentOutlinePage pParentOutline;

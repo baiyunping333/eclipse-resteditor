@@ -1,5 +1,5 @@
 /**
- * File:   TableFormattingStrategy.java
+ * File:   GridTableFormattingStrategy.java
  * Author: Thomas Calmant
  * Date:   2 févr. 2011
  */
@@ -17,7 +17,7 @@ import org.isandlatech.plugins.rest.parser.RestLanguage;
  * @author Thomas Calmant
  * 
  */
-public class TableFormattingStrategy extends AbstractFormattingStrategy {
+public class GridTableFormattingStrategy extends AbstractFormattingStrategy {
 
 	/**
 	 * Extract columns content of the given line

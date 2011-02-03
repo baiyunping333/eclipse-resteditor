@@ -26,6 +26,9 @@ import org.isandlatech.plugins.rest.parser.RestLanguage;
  */
 public class RestPartitionScanner extends RuleBasedPartitionScanner {
 
+	/** ReST grid tables */
+	public static final String GRID_TABLE_BLOCK = "__section_grid_table";
+
 	/** ReST literal block (indented) */
 	public static final String LITERAL_BLOCK = "__literal_block";
 
@@ -35,16 +38,16 @@ public class RestPartitionScanner extends RuleBasedPartitionScanner {
 	/** ReST section */
 	public static final String SECTION_BLOCK = "__section_block";
 
+	/** ReST simple tables */
+	public static final String SIMPLE_TABLE_BLOCK = "__section_simple_table";
+
 	/** ReST source block */
 	public static final String SOURCE_BLOCK = "__source_block";
-
-	/** ReST tables */
-	public static final String TABLE_BLOCK = "__section_table";
 
 	/** Possible partitions types */
 	public static final String[] PARTITION_TYPES = {
 			IDocument.DEFAULT_CONTENT_TYPE, LITERAL_BLOCK, SECTION_BLOCK,
-			SOURCE_BLOCK, TABLE_BLOCK };
+			SOURCE_BLOCK, GRID_TABLE_BLOCK, SIMPLE_TABLE_BLOCK };
 
 	/**
 	 * Sets up the scanner rules
@@ -56,7 +59,9 @@ public class RestPartitionScanner extends RuleBasedPartitionScanner {
 		IToken literalToken = new Token(LITERAL_BLOCK);
 		IToken sectionToken = new Token(SECTION_BLOCK);
 		IToken sourceToken = new Token(SOURCE_BLOCK);
-		IToken tableToken = new Token(TABLE_BLOCK);
+
+		IToken gridTableToken = new Token(GRID_TABLE_BLOCK);
+		IToken simpleTableToken = new Token(SIMPLE_TABLE_BLOCK);
 
 		// Create the rules to identify tokens
 		List<IRule> rules = new ArrayList<IRule>();
@@ -65,8 +70,8 @@ public class RestPartitionScanner extends RuleBasedPartitionScanner {
 		rules.add(new DecoratedLinesRule(sectionToken));
 
 		// Tables
-		rules.add(new RestGridTableRule(tableToken));
-		rules.add(new RestSimpleTableRule(tableToken));
+		rules.add(new RestGridTableRule(gridTableToken));
+		rules.add(new RestSimpleTableRule(simpleTableToken));
 
 		// Comments / literal blocks
 		rules.add(new LinePrefixRule(".. ", false, 0,

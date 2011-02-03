@@ -88,7 +88,7 @@ public class RestGridTableRule extends AbstractRule implements RestLanguage {
 		boolean onePass = false;
 
 		while ((readChar = aController.read()) != ICharacterScanner.EOF
-				&& aController.getColumn() != 0) {
+				&& readChar != '\n') {
 
 			boolean validChar = false;
 			for (char allowedChar : GRID_TABLE_BORDERS_CHARACTERS) {

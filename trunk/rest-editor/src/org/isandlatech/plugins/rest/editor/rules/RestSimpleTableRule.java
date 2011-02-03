@@ -53,7 +53,7 @@ public class RestSimpleTableRule extends AbstractRule implements RestLanguage {
 		boolean markerLine = true;
 
 		while ((readChar = aController.read()) != ICharacterScanner.EOF
-				&& aController.getColumn() != 0) {
+				&& readChar != '\n') {
 
 			if (emptyLine && !Character.isWhitespace(readChar)) {
 				emptyLine = false;

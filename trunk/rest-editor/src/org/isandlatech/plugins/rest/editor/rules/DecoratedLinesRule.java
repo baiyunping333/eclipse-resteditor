@@ -19,7 +19,7 @@ import eclihx.ui.internal.ui.editors.ScannerController;
 public class DecoratedLinesRule extends AbstractRule {
 
 	/**
-	 * Tests is the given character is a valid ReST section decorator
+	 * Tests is the given character is a valid ReST section decoration
 	 * 
 	 * @param aChar
 	 *            The character to be tested
@@ -27,7 +27,7 @@ public class DecoratedLinesRule extends AbstractRule {
 	 *         a digit
 	 */
 	public static boolean isDecorationCharacter(final int aChar) {
-		for (char allowedDecorator : RestLanguage.SECTION_DECORATORS) {
+		for (char allowedDecorator : RestLanguage.SECTION_DECORATIONS) {
 			if (allowedDecorator == aChar) {
 				return true;
 			}
@@ -117,8 +117,8 @@ public class DecoratedLinesRule extends AbstractRule {
 			}
 
 		} else {
-			// We are on the under line, so the decorator is the first character
-			// we read
+			// We are on the under line, so the decoration is the first
+			// character we read
 			decorator = controller.read();
 
 			// If the character is invalid, then we are not in a section
@@ -132,11 +132,13 @@ public class DecoratedLinesRule extends AbstractRule {
 		}
 
 		// Underline
-		while ((readChar = controller.read()) != ICharacterScanner.EOF
-				&& controller.getColumn() != 0) {
+		while ((readChar = controller.read()) != ICharacterScanner.EOF) {
 
+			if (readChar == '\n') {
+				break;
+			}
 			// Error on first different character
-			if (readChar != decorator && !Character.isWhitespace(readChar)) {
+			else if (readChar != decorator) {
 				return undefinedToken(controller);
 			}
 		}
