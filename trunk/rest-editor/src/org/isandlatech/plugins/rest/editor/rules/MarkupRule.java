@@ -21,6 +21,9 @@ public class MarkupRule extends AbstractRule {
 	/** False if first character mustn't be a white space */
 	private boolean pNoSpace;
 
+	/** If true, the value between markers must be on a single line */
+	private boolean pSingleLine;
+
 	/** Marker start string */
 	private String pStart;
 
@@ -60,17 +63,39 @@ public class MarkupRule extends AbstractRule {
 	 *            End marker
 	 * @param aToken
 	 *            Token returned on success
-	 * @param aNoStartSpace
+	 * @param aNoBoundSpace
 	 *            If true, the marker must be follow by anything but a
 	 *            whitespace
 	 */
 	public MarkupRule(final String aMarkupStart, final String aMarkupEnd,
-			final IToken aToken, final boolean aNoStartSpace) {
+			final IToken aToken, final boolean aNoBoundSpace) {
+		this(aMarkupStart, aMarkupEnd, aToken, aNoBoundSpace, true);
+	}
+
+	/**
+	 * Configures the rule
+	 * 
+	 * @param aMarkupStart
+	 *            Start marker
+	 * @param aMarkupEnd
+	 *            End marker
+	 * @param aToken
+	 *            Token returned on success
+	 * @param aNoBoundSpace
+	 *            If true, the marker must be follow by anything but a
+	 *            whitespace
+	 * @param aSingleLine
+	 *            If true, the text between markers must be on a single line
+	 */
+	public MarkupRule(final String aMarkupStart, final String aMarkupEnd,
+			final IToken aToken, final boolean aNoBoundSpace,
+			final boolean aSingleLine) {
 		super(aToken);
 
 		pStart = aMarkupStart;
 		pEnd = aMarkupEnd;
-		pNoSpace = aNoStartSpace;
+		pNoSpace = aNoBoundSpace;
+		pSingleLine = aSingleLine;
 	}
 
 	@Override
@@ -103,10 +128,17 @@ public class MarkupRule extends AbstractRule {
 		int currentMarkupPos = 0;
 		String currentEnd = "";
 
+		int lastReadChar = 0;
 		while ((readChar = controller.read()) != ICharacterScanner.EOF) {
 			contentLength++;
 
-			if (pEnd.charAt(currentMarkupPos) == readChar) {
+			if (pSingleLine && (readChar == '\n' || readChar == '\r')) {
+				return undefinedToken(controller);
+			}
+
+			if (pEnd.charAt(currentMarkupPos) == readChar
+					&& !(pNoSpace && Character.isWhitespace(lastReadChar))) {
+
 				currentEnd += (char) readChar;
 				currentMarkupPos++;
 
@@ -131,6 +163,8 @@ public class MarkupRule extends AbstractRule {
 				currentMarkupPos = 0;
 				currentEnd = "";
 			}
+
+			lastReadChar = readChar;
 		}
 
 		return undefinedToken(controller);

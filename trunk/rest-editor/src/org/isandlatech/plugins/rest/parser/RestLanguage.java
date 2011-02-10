@@ -119,7 +119,8 @@ public interface RestLanguage {
 	/** Sphinx specific directives */
 	String[] SPHINX_DIRECTIVES = { "toctree", "versionadded", "versionchanged",
 			"deprecated", "seealso", "centered", "hlist", "index", "glossary",
-			"productionlist" };
+			"productionlist", "literalinclude", "sectionauthor", "codeauthor",
+			"only", "tabularcolumns", "code-block", "highlight" };
 
 	/** ReST global substitution marker */
 	String SUBSTITUTION_MARKER = "|";
