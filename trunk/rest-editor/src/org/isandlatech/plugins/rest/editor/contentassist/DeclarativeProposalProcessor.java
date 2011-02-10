@@ -5,14 +5,13 @@
  */
 package org.isandlatech.plugins.rest.editor.contentassist;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import org.eclipse.jface.text.contentassist.CompletionProposal;
-import org.eclipse.jface.text.contentassist.ContextInformation;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
-import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.isandlatech.plugins.rest.parser.RestLanguage;
 
 /**
@@ -26,7 +25,7 @@ public class DeclarativeProposalProcessor extends AbstractProposalProcessor {
 	 * suggestion.
 	 * 
 	 * @param aSuggestions
-	 *            List of suggestions
+	 *            A suggestion -> description mapping
 	 * @param aReplacedWord
 	 *            Replaced word
 	 * @param aOffset
@@ -35,7 +34,7 @@ public class DeclarativeProposalProcessor extends AbstractProposalProcessor {
 	 */
 	@Override
 	protected ICompletionProposal[] buildProposals(
-			final List<String> aSuggestions, final String aReplacedWord,
+			final Map<String, String> aSuggestions, final String aReplacedWord,
 			final int aOffset) {
 		if (aSuggestions == null || aSuggestions.size() == 0) {
 			return null;
@@ -45,42 +44,51 @@ public class DeclarativeProposalProcessor extends AbstractProposalProcessor {
 				.size()];
 
 		int i = 0;
-		for (String suggestion : aSuggestions) {
+		for (Entry<String, String> suggestionEntry : aSuggestions.entrySet()) {
+			String suggestion = suggestionEntry.getKey();
+			String description = suggestionEntry.getValue();
+
+			if (description == null) {
+				description = suggestion;
+			}
 
 			// Suggestion with a suffix
 			String replacementWord = suggestion + ":: ";
 
-			// Proposal description
-			IContextInformation contextInfo = new ContextInformation(
-					"A ReST declarative keyword", suggestion);
-
 			// Completion proposal
 			proposals[i++] = new CompletionProposal(replacementWord, aOffset,
 					aReplacedWord.length(), replacementWord.length(), null,
-					suggestion, contextInfo, suggestion);
+					suggestion, null, description);
 		}
 
 		return proposals;
 	}
 
 	/**
-	 * Builds a list containing all ReST directives starting with the given word
+	 * Builds a sorted map containing all ReST and Sphinx directives starting
+	 * with the given word, and a small description telling if the directive is
+	 * a ReST or a Sphinx one.
 	 * 
 	 * @param aWord
 	 *            Directive prefix
-	 * @return All directives starting with the given word, or an empty list
+	 * @return All directives starting with the given word, or an empty map
 	 */
 	@Override
-	protected List<String> buildSuggestions(final String aWord) {
-		List<String> result = new ArrayList<String>();
+	protected Map<String, String> buildSuggestions(final String aWord) {
+		SortedMap<String, String> result = new TreeMap<String, String>();
 
 		for (String keyword : RestLanguage.DIRECTIVES) {
 			if (keyword.startsWith(aWord)) {
-				result.add(keyword);
+				result.put(keyword, "A ReST declarative keyword");
 			}
 		}
 
-		Collections.sort(result);
+		for (String keyword : RestLanguage.SPHINX_DIRECTIVES) {
+			if (keyword.startsWith(aWord)) {
+				result.put(keyword, "A Sphinx specific declarative keyword");
+			}
+		}
+
 		return result;
 	}
 }

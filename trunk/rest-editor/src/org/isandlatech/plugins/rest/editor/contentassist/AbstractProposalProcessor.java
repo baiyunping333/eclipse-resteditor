@@ -5,7 +5,8 @@
  */
 package org.isandlatech.plugins.rest.editor.contentassist;
 
-import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
@@ -27,7 +28,7 @@ public abstract class AbstractProposalProcessor implements
 	 * Builds an array of completion proposals.
 	 * 
 	 * @param aSuggestions
-	 *            List of suggestions
+	 *            A suggestion -> description mapping
 	 * @param aReplacedWord
 	 *            Replaced word
 	 * @param aOffset
@@ -35,7 +36,7 @@ public abstract class AbstractProposalProcessor implements
 	 * @return An array of completion proposals, null on error
 	 */
 	protected ICompletionProposal[] buildProposals(
-			final List<String> aSuggestions, final String aReplacedWord,
+			final Map<String, String> aSuggestions, final String aReplacedWord,
 			final int aOffset) {
 		if (aSuggestions == null || aSuggestions.size() == 0) {
 			return null;
@@ -45,12 +46,18 @@ public abstract class AbstractProposalProcessor implements
 				.size()];
 
 		int i = 0;
-		for (String suggestion : aSuggestions) {
+		for (Entry<String, String> suggestionEntry : aSuggestions.entrySet()) {
+			String suggestion = suggestionEntry.getKey();
+			String description = suggestionEntry.getValue();
+
+			if (description == null) {
+				description = suggestion;
+			}
 
 			// Completion proposal
 			proposals[i++] = new CompletionProposal(suggestion, aOffset,
 					aReplacedWord.length(), suggestion.length(), null,
-					suggestion, null, suggestion);
+					suggestion, null, description);
 		}
 
 		return proposals;
@@ -61,9 +68,9 @@ public abstract class AbstractProposalProcessor implements
 	 * 
 	 * @param aWord
 	 *            Word to complete (can be empty)
-	 * @return All directives starting with the given word, or an empty list
+	 * @return All directives starting with the given word, or an empty map
 	 */
-	protected abstract List<String> buildSuggestions(final String aWord);
+	protected abstract Map<String, String> buildSuggestions(final String aWord);
 
 	/**
 	 * Based on M. Baron's code
@@ -86,7 +93,7 @@ public abstract class AbstractProposalProcessor implements
 				currentOffset--;
 			}
 
-			List<String> suggestions = buildSuggestions(currentWord);
+			Map<String, String> suggestions = buildSuggestions(currentWord);
 			return buildProposals(suggestions, currentWord, aOffset
 					- currentWord.length());
 

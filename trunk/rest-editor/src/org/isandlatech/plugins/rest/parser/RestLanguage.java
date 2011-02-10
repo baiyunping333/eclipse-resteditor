@@ -111,4 +111,9 @@ public interface RestLanguage {
 
 	/** ReST simple table line marker */
 	char SIMPLE_TABLE_MARKER = '=';
+
+	/** Sphinx specific directives */
+	String[] SPHINX_DIRECTIVES = { "toctree", "versionadded", "versionchanged",
+			"deprecated", "seealso", "centered", "hlist", "index", "glossary",
+			"productionlist" };
 }

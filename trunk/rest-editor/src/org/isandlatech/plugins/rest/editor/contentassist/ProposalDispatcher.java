@@ -6,7 +6,6 @@
 package org.isandlatech.plugins.rest.editor.contentassist;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.eclipse.jface.text.IDocument;
@@ -31,7 +30,7 @@ public class ProposalDispatcher extends AbstractProposalProcessor {
 	}
 
 	@Override
-	protected List<String> buildSuggestions(final String aWord) {
+	protected Map<String, String> buildSuggestions(final String aWord) {
 		return null;
 	}
 
