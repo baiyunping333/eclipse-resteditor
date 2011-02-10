@@ -10,52 +10,39 @@ import java.util.List;
 
 import org.eclipse.jface.text.rules.IRule;
 import org.eclipse.jface.text.rules.IToken;
-import org.eclipse.jface.text.rules.RuleBasedScanner;
-import org.isandlatech.plugins.rest.editor.rules.AbstractRule;
-import org.isandlatech.plugins.rest.editor.rules.ContiguousRules;
-import org.isandlatech.plugins.rest.editor.rules.ExactStringRule;
-import org.isandlatech.plugins.rest.editor.rules.MarkupRule;
-import org.isandlatech.plugins.rest.parser.RestLanguage;
 
 /**
- * @author Thomas Calmant
+ * Scanner for undefined partitions (default text)
  * 
+ * @author Thomas Calmant
  */
-public class RestScanner extends RuleBasedScanner implements RestLanguage {
+public class RestScanner extends AbstractRuleBasedScanner {
 
 	/**
-	 * Sets up the scanner rules
+	 * Sets the rule provider.
+	 * 
+	 * @param aRuleProvider
+	 *            The rule provider
 	 */
-	public RestScanner(final TokenProvider aTokenProvider) {
-		super();
+	public RestScanner(final RuleProvider aRuleProvider) {
+		super(aRuleProvider);
+	}
 
-		// Create the tokens
-		IToken defaultToken = aTokenProvider
-				.getTokenForElement(TokenProvider.DEFAULT);
+	/**
+	 * Sets up the plain-text scanner rules. Looks for :
+	 * 
+	 * <ul> <li>fields</li> <li>substitutions</li> <li>inline bold</li>
+	 * <li>inline emphasis</li> <li>inline literal</li> <li>links</li>
+	 * <li>footnote links</li> <li>reference links</li> <li>lists /
+	 * enumerations</li> </ul>
+	 */
+	@Override
+	protected void generateRules() {
+		RuleProvider ruleProvider = getRuleProvider();
 
-		IToken fieldToken = aTokenProvider
-				.getTokenForElement(TokenProvider.LINK);
-
-		IToken boldToken = aTokenProvider
-				.getTokenForElement(TokenProvider.INLINE_BOLD_TEXT);
-
-		IToken emphasisToken = aTokenProvider
-				.getTokenForElement(TokenProvider.INLINE_EMPHASIS_TEXT);
-
-		IToken inlineLiteralToken = aTokenProvider
-				.getTokenForElement(TokenProvider.INLINE_LITERAL);
-
-		IToken linkToken = aTokenProvider
-				.getTokenForElement(TokenProvider.LINK);
-
-		IToken linkFootnoteToken = aTokenProvider
-				.getTokenForElement(TokenProvider.LINK_FOOTNOTE);
-
-		IToken linkReferenceToken = aTokenProvider
-				.getTokenForElement(TokenProvider.LINK_REFERENCE);
-
-		IToken listBulletToken = aTokenProvider
-				.getTokenForElement(TokenProvider.LIST_BULLET);
+		// Create the token
+		IToken defaultToken = ruleProvider.getTokenProvider()
+				.getTokenForElement(ITokenConstants.DEFAULT);
 
 		// Default token
 		setDefaultReturnToken(defaultToken);
@@ -63,45 +50,29 @@ public class RestScanner extends RuleBasedScanner implements RestLanguage {
 		// Create the rules to identify tokens
 		List<IRule> rules = new ArrayList<IRule>();
 
-		// Field marker (same as role marker)
-		rules.add(new MarkupRule(FIELD_MARKER, fieldToken));
+		// Field
+		rules.add(ruleProvider.getField());
 
-		// Role rule (used 2 times)
-		MarkupRule roleRule = new MarkupRule(ROLE_MARKER, boldToken);
+		// Roles
+		rules.add(ruleProvider.getRoleWithContentRule());
+		rules.add(ruleProvider.getRoleRule());
 
-		/** Warning : sort rules in descending marker length order */
-		{
-			// Role + content rule
-			MarkupRule contentRule = new MarkupRule("`",
-					AbstractRule.DUMMY_TOKEN);
+		// In-line modifiers
+		rules.add(ruleProvider.getInlineBold());
+		rules.add(ruleProvider.getInlineEmphasis());
+		rules.add(ruleProvider.getInlineLiteral());
 
-			rules.add(new ContiguousRules(roleRule, contentRule, linkToken));
-		}
+		// Lists
+		rules.addAll(ruleProvider.getListRules());
 
-		// Simple role marker
-		rules.add(roleRule);
+		// Links
+		rules.add(ruleProvider.getLink());
+		rules.add(ruleProvider.getLinkFootnote());
+		rules.add(ruleProvider.getLinkReference());
 
-		rules.add(new MarkupRule(BOLD_MARKER, boldToken));
+		// Substitutions
+		rules.add(ruleProvider.getSubstitution());
 
-		rules.add(new MarkupRule(EMPHASIS_MARKER, emphasisToken));
-
-		rules.add(new MarkupRule(INLINE_LITERAL_MARKER, inlineLiteralToken));
-
-		for (String marker : LIST_MARKERS) {
-			rules.add(new ExactStringRule(marker, 0, true, listBulletToken));
-		}
-
-		rules.add(new MarkupRule(LINK_BEGIN, LINK_END, linkToken));
-
-		rules.add(new MarkupRule(LINK_FOOTNOTE_BEGIN, LINK_FOOTNOTE_END,
-				linkFootnoteToken));
-
-		rules.add(new MarkupRule(LINK_REFERENCE_BEGIN, LINK_REFERENCE_END,
-				linkReferenceToken));
-
-		// Pass the rules to the partitioner
-		IRule[] result = new IRule[rules.size()];
-		rules.toArray(result);
-		setRules(result);
+		setRules(rules);
 	}
 }

@@ -35,6 +35,7 @@ import org.isandlatech.plugins.rest.editor.scanners.RestScanner;
 import org.isandlatech.plugins.rest.editor.scanners.RestSectionBlockScanner;
 import org.isandlatech.plugins.rest.editor.scanners.RestSourceBlockScanner;
 import org.isandlatech.plugins.rest.editor.scanners.RestTableBlockScanner;
+import org.isandlatech.plugins.rest.editor.scanners.RuleProvider;
 import org.isandlatech.plugins.rest.editor.scanners.TokenProvider;
 
 /**
@@ -51,6 +52,12 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 
 	/** Document formatter */
 	private ContentFormatter pDocFormatter = null;
+
+	/** Token provider */
+	private TokenProvider pTokenProvider = null;
+
+	/** Scanner rule provider */
+	private RuleProvider pRuleProvider = null;
 
 	@Override
 	public String[] getConfiguredContentTypes(final ISourceViewer sourceViewer) {
@@ -129,8 +136,8 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 	 */
 	protected ITokenScanner getDocumentScanner() {
 		if (pDocScanner == null) {
-			TokenProvider provider = new TokenProvider();
-			pDocScanner = new RestScanner(provider);
+			initProviders();
+			pDocScanner = new RestScanner(pRuleProvider);
 		}
 
 		return pDocScanner;
@@ -140,6 +147,22 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 	public IPresentationReconciler getPresentationReconciler(
 			final ISourceViewer aSourceViewer) {
 
+		initProviders();
+
+		// Scanners
+		RestLiteralBlockScanner literalBlockScanner = new RestLiteralBlockScanner(
+				pRuleProvider);
+
+		RestSectionBlockScanner sectionBlockScanner = new RestSectionBlockScanner(
+				pRuleProvider);
+
+		RestSourceBlockScanner sourceBlockScanner = new RestSourceBlockScanner(
+				pTokenProvider);
+
+		RestTableBlockScanner tableBlockScanner = new RestTableBlockScanner(
+				pRuleProvider);
+
+		// Reconciler
 		PresentationReconciler reconciler = new PresentationReconciler();
 		reconciler
 				.setDocumentPartitioning(getConfiguredDocumentPartitioning(aSourceViewer));
@@ -152,26 +175,22 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 		reconciler.setRepairer(dr, IDocument.DEFAULT_CONTENT_TYPE);
 
 		// Literal blocks
-		dr = new DefaultDamagerRepairer(new RestLiteralBlockScanner(
-				new TokenProvider()));
+		dr = new DefaultDamagerRepairer(literalBlockScanner);
 		reconciler.setDamager(dr, RestPartitionScanner.LITERAL_BLOCK);
 		reconciler.setRepairer(dr, RestPartitionScanner.LITERAL_BLOCK);
 
 		// Section blocks
-		dr = new DefaultDamagerRepairer(new RestSectionBlockScanner(
-				new TokenProvider()));
+		dr = new DefaultDamagerRepairer(sectionBlockScanner);
 		reconciler.setDamager(dr, RestPartitionScanner.SECTION_BLOCK);
 		reconciler.setRepairer(dr, RestPartitionScanner.SECTION_BLOCK);
 
 		// Source blocks
-		dr = new DefaultDamagerRepairer(new RestSourceBlockScanner(
-				new TokenProvider()));
+		dr = new DefaultDamagerRepairer(sourceBlockScanner);
 		reconciler.setDamager(dr, RestPartitionScanner.SOURCE_BLOCK);
 		reconciler.setRepairer(dr, RestPartitionScanner.SOURCE_BLOCK);
 
 		// Table blocks
-		dr = new DefaultDamagerRepairer(new RestTableBlockScanner(
-				new TokenProvider()));
+		dr = new DefaultDamagerRepairer(tableBlockScanner);
 		reconciler.setDamager(dr, RestPartitionScanner.GRID_TABLE_BLOCK);
 		reconciler.setRepairer(dr, RestPartitionScanner.GRID_TABLE_BLOCK);
 
@@ -195,6 +214,26 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 		return 3;
 	}
 
+	/**
+	 * Initializes the token and rule providers if necessary
+	 */
+	private void initProviders() {
+		if (pTokenProvider == null) {
+			pTokenProvider = new TokenProvider();
+		}
+
+		if (pRuleProvider == null
+				|| pRuleProvider.getTokenProvider() != pTokenProvider) {
+			pRuleProvider = new RuleProvider(pTokenProvider);
+		}
+	}
+
+	/**
+	 * Auto formating when the editor saves the file
+	 * 
+	 * @param aSourceViewer
+	 *            The editor source viewer
+	 */
 	public void onEditorPerformSave(final ISourceViewer aSourceViewer) {
 
 		// Doc informations

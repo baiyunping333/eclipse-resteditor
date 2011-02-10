@@ -6,8 +6,9 @@
 package org.isandlatech.plugins.rest.parser;
 
 /**
- * @author Thomas Calmant
+ * Definition of the main constants describing the ReST language for scanners.
  * 
+ * @author Thomas Calmant
  */
 public interface RestLanguage {
 
@@ -101,6 +102,9 @@ public interface RestLanguage {
 	/** Python standard for section markers */
 	String PYTHON_SECTION_MARKERS = "#*=-^\"";
 
+	/** In-line role content marker */
+	String ROLE_CONTENT_MARKER = "`";
+
 	/** In-line role marker */
 	String ROLE_MARKER = ":";
 
@@ -116,4 +120,7 @@ public interface RestLanguage {
 	String[] SPHINX_DIRECTIVES = { "toctree", "versionadded", "versionchanged",
 			"deprecated", "seealso", "centered", "hlist", "index", "glossary",
 			"productionlist" };
+
+	/** ReST global substitution marker */
+	String SUBSTITUTION_MARKER = "|";
 }

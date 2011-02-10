@@ -18,8 +18,9 @@ import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.jface.text.contentassist.IContextInformationValidator;
 
 /**
- * @author Thomas Calmant
+ * Utility class for content assistant proposal generation.
  * 
+ * @author Thomas Calmant
  */
 public abstract class AbstractProposalProcessor implements
 		IContentAssistProcessor {

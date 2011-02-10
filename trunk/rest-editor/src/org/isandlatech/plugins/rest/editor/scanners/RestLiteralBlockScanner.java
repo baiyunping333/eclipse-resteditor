@@ -10,34 +10,38 @@ import java.util.List;
 
 import org.eclipse.jface.text.rules.IRule;
 import org.eclipse.jface.text.rules.IToken;
-import org.eclipse.jface.text.rules.RuleBasedScanner;
-import org.eclipse.jface.text.rules.WordRule;
-import org.isandlatech.plugins.rest.editor.rules.MarkupRule;
-import org.isandlatech.plugins.rest.parser.RestLanguage;
-import org.isandlatech.plugins.rest.parser.SingleWordDetector;
 
 /**
- * @author Thomas Calmant
+ * Literal block scanner.
  * 
+ * @author Thomas Calmant
  */
-public class RestLiteralBlockScanner extends RuleBasedScanner implements
-		RestLanguage {
+public class RestLiteralBlockScanner extends AbstractRuleBasedScanner {
 
-	public RestLiteralBlockScanner(final TokenProvider aTokenProvider) {
-		super();
+	/**
+	 * Sets the rule provider
+	 * 
+	 * @param aRuleProvider
+	 *            Rule provider
+	 */
+	public RestLiteralBlockScanner(final RuleProvider aRuleProvider) {
+		super(aRuleProvider);
+	}
 
-		// Create the tokens
-		IToken defaultToken = aTokenProvider
-				.getTokenForElement(TokenProvider.LITERAL_DEFAULT);
+	/**
+	 * Prepares the literal block (comments, directives, ...) scanner, looking
+	 * for :
+	 * 
+	 * <ul> <li>directives</li> <li>substitutions</li> <li>footnotes</li>
+	 * <li>references</li> </ul>
+	 */
+	@Override
+	protected void generateRules() {
+		RuleProvider ruleProvider = getRuleProvider();
 
-		IToken directiveToken = aTokenProvider
-				.getTokenForElement(TokenProvider.LITERAL_DIRECTIVE);
-
-		IToken linkFootnoteDefToken = aTokenProvider
-				.getTokenForElement(TokenProvider.LINK_FOOTNOTE);
-
-		IToken linkReferenceDefToken = aTokenProvider
-				.getTokenForElement(TokenProvider.LINK_REFERENCE);
+		// Create the token
+		IToken defaultToken = ruleProvider.getTokenProvider()
+				.getTokenForElement(ITokenConstants.LITERAL_DEFAULT);
 
 		// Default token
 		setDefaultReturnToken(defaultToken);
@@ -45,22 +49,16 @@ public class RestLiteralBlockScanner extends RuleBasedScanner implements
 		// Create the rules to identify tokens
 		List<IRule> rules = new ArrayList<IRule>();
 
-		WordRule directiveRule = new WordRule(new SingleWordDetector());
-		for (String directive : RestLanguage.DIRECTIVES) {
-			directiveRule.addWord(directive + "::", directiveToken);
-		}
+		// Directives (ReST and Sphinx)
+		rules.add(ruleProvider.getDirectives());
 
-		rules.add(directiveRule);
+		// Substitutions
+		rules.add(ruleProvider.getSubstitution());
 
-		rules.add(new MarkupRule(LINK_FOOTNOTE_DEF_BEGIN,
-				LINK_FOOTNOTE_DEF_END, linkFootnoteDefToken));
+		// Links definitions
+		rules.add(ruleProvider.getLinkDefFootnote());
+		rules.add(ruleProvider.getLinkDefReference());
 
-		rules.add(new MarkupRule(LINK_REFERENCE_DEF_BEGIN,
-				LINK_REFERENCE_DEF_END, linkReferenceDefToken));
-
-		// Pass the rules to the partitioner
-		IRule[] result = new IRule[rules.size()];
-		rules.toArray(result);
-		setRules(result);
+		setRules(rules);
 	}
 }

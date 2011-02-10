@@ -21,8 +21,9 @@ import org.isandlatech.plugins.rest.editor.rules.RestSimpleTableRule;
 import org.isandlatech.plugins.rest.parser.RestLanguage;
 
 /**
- * @author Thomas Calmant
+ * Partition scanner : partitions the document into sub blocks.
  * 
+ * @author Thomas Calmant
  */
 public class RestPartitionScanner extends RuleBasedPartitionScanner {
 
@@ -50,7 +51,10 @@ public class RestPartitionScanner extends RuleBasedPartitionScanner {
 			SOURCE_BLOCK, GRID_TABLE_BLOCK, SIMPLE_TABLE_BLOCK };
 
 	/**
-	 * Sets up the scanner rules
+	 * Sets up the scanner rules. Looks for :
+	 * 
+	 * <ul> <li>literal blocks</li> <li>source code blocks</li> <li>tables</li>
+	 * <li>sections</li> </ul>
 	 */
 	public RestPartitionScanner() {
 		super();
@@ -66,13 +70,6 @@ public class RestPartitionScanner extends RuleBasedPartitionScanner {
 		// Create the rules to identify tokens
 		List<IRule> rules = new ArrayList<IRule>();
 
-		// Sections (can conflict with RestSimpleTableRule)
-		rules.add(new DecoratedLinesRule(sectionToken));
-
-		// Tables
-		rules.add(new RestGridTableRule(gridTableToken));
-		rules.add(new RestSimpleTableRule(simpleTableToken));
-
 		// Comments / literal blocks
 		rules.add(new LinePrefixRule(".. ", false, 0,
 				RestLanguage.LITERAL_BLOCK_PREFIXES, false, literalToken));
@@ -83,6 +80,15 @@ public class RestPartitionScanner extends RuleBasedPartitionScanner {
 		// Source blocks
 		rules.add(new LinePrefixRule("::", true, -1,
 				RestLanguage.LITERAL_BLOCK_PREFIXES, false, sourceToken));
+
+		// Grid tables
+		rules.add(new RestGridTableRule(gridTableToken));
+
+		// Sections (can conflict with RestSimpleTableRule)
+		rules.add(new DecoratedLinesRule(sectionToken));
+
+		// Simple tables
+		rules.add(new RestSimpleTableRule(simpleTableToken));
 
 		// Pass the rules to the partitioner
 		IPredicateRule[] result = new IPredicateRule[rules.size()];

@@ -14,9 +14,6 @@ import eclihx.ui.internal.ui.editors.ScannerController;
 
 public abstract class AbstractRule implements IPredicateRule {
 
-	/** Dummy token (for contiguous rules) */
-	public static IToken DUMMY_TOKEN = new Token("__abstract_dummy_token");
-
 	/**
 	 * Tests if the given token is not null, not undefined and not a whitespace
 	 * nor an EOF.

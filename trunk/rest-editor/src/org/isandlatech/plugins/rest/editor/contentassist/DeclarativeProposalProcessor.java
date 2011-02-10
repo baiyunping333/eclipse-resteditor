@@ -15,8 +15,10 @@ import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.isandlatech.plugins.rest.parser.RestLanguage;
 
 /**
- * @author Thomas Calmant
+ * Content assistant processor for literal blocks. Fills it with all possible
+ * declarative keywords.
  * 
+ * @author Thomas Calmant
  */
 public class DeclarativeProposalProcessor extends AbstractProposalProcessor {
 

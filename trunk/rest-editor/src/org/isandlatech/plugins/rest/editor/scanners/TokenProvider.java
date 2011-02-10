@@ -19,48 +19,6 @@ import org.eclipse.swt.widgets.Display;
  */
 public class TokenProvider {
 
-	/** Default element */
-	public static final String DEFAULT = "default";
-
-	/** In-line bold text element **/
-	public static final String INLINE_BOLD_TEXT = "inline.text.bold";
-
-	/** In-line italic text element **/
-	public static final String INLINE_EMPHASIS_TEXT = "inline.text.emphasis";
-
-	/** In-line literal element **/
-	public static final String INLINE_LITERAL = "inline.literal";
-
-	/** Link element */
-	public static final String LINK = "link";
-
-	/** Footnote */
-	public static final String LINK_FOOTNOTE = "link.footnote";
-
-	/** Reference */
-	public static final String LINK_REFERENCE = "link.reference";
-
-	/** List bullet */
-	public static final String LIST_BULLET = "list.bullet";
-
-	/** Literal block default element */
-	public static final String LITERAL_DEFAULT = "literal.default";
-
-	/** Literal block directive */
-	public static final String LITERAL_DIRECTIVE = "literal.directive";
-
-	/** Section block element */
-	public static final String SECTION = "section";
-
-	/** Substitution */
-	public static final String SUBSTITUTION = "substitution";
-
-	/** Source block */
-	public static final String SOURCE = "source";
-
-	/** Table block element */
-	public static final String TABLE = "table";
-
 	/**
 	 * Prepares a text token
 	 * 
@@ -112,47 +70,50 @@ public class TokenProvider {
 	 */
 	public IToken getTokenForElement(final String aElement) {
 
-		if (aElement.equals(INLINE_LITERAL)) {
+		if (aElement.equals(ITokenConstants.INLINE_LITERAL)) {
 			return getToken(new RGB(63, 127, 95), null, SWT.ITALIC);
 		}
 
-		if (aElement.equals(INLINE_EMPHASIS_TEXT)) {
+		if (aElement.equals(ITokenConstants.INLINE_EMPHASIS_TEXT)) {
 			return getToken(new RGB(77, 77, 77), null, SWT.ITALIC);
 		}
 
-		if (aElement.equals(INLINE_BOLD_TEXT)) {
+		if (aElement.equals(ITokenConstants.INLINE_BOLD_TEXT)) {
 			return getToken(new RGB(77, 77, 77), null, SWT.BOLD);
 		}
 
-		if (aElement.equals(LINK)) {
+		if (aElement.equals(ITokenConstants.LINK)
+				|| aElement.equals(ITokenConstants.FIELD)) {
 			return getToken(new RGB(0, 0, 128), null, SWT.ITALIC);
 		}
 
-		if (aElement.equals(LINK_REFERENCE) || aElement.equals(LINK_FOOTNOTE)) {
+		if (aElement.equals(ITokenConstants.LINK_REFERENCE)
+				|| aElement.equals(ITokenConstants.LINK_FOOTNOTE)
+				|| aElement.equals(ITokenConstants.SUBSTITUTION)) {
 			return getToken(new RGB(0, 0, 128), null, SWT.BOLD);
 		}
 
-		if (aElement.equals(LIST_BULLET)) {
+		if (aElement.equals(ITokenConstants.LIST_BULLET)) {
 			return getToken(new RGB(45, 170, 45), null, SWT.ITALIC | SWT.BOLD);
 		}
 
-		if (aElement.equals(LITERAL_DEFAULT)) {
+		if (aElement.equals(ITokenConstants.LITERAL_DEFAULT)) {
 			return getToken(new RGB(73, 116, 230));
 		}
 
-		if (aElement.equals(LITERAL_DIRECTIVE)) {
+		if (aElement.equals(ITokenConstants.LITERAL_DIRECTIVE)) {
 			return getToken(new RGB(0, 0, 255), null, SWT.BOLD);
 		}
 
-		if (aElement.equals(SECTION)) {
+		if (aElement.equals(ITokenConstants.SECTION)) {
 			return getToken(new RGB(255, 165, 0), null, SWT.BOLD);
 		}
 
-		if (aElement.equals(SOURCE)) {
+		if (aElement.equals(ITokenConstants.SOURCE)) {
 			return getToken(new RGB(63, 127, 95), null, SWT.NORMAL);
 		}
 
-		if (aElement.equals(TABLE)) {
+		if (aElement.equals(ITokenConstants.TABLE)) {
 			return getToken(new RGB(165, 42, 42));
 		}
 

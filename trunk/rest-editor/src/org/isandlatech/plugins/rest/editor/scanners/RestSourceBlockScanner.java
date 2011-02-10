@@ -9,17 +9,24 @@ import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.RuleBasedPartitionScanner;
 
 /**
- * @author Thomas Calmant
+ * Source code block scanner
  * 
+ * @author Thomas Calmant
  */
 public class RestSourceBlockScanner extends RuleBasedPartitionScanner {
 
+	/**
+	 * Only sets the default token
+	 * 
+	 * @param aTokenProvider
+	 *            Token provider
+	 */
 	public RestSourceBlockScanner(final TokenProvider aTokenProvider) {
 		super();
 
 		// Create the tokens
 		IToken defaultToken = aTokenProvider
-				.getTokenForElement(TokenProvider.SOURCE);
+				.getTokenForElement(ITokenConstants.SOURCE);
 
 		// Default token
 		setDefaultReturnToken(defaultToken);
