@@ -5,7 +5,6 @@
  */
 package org.isandlatech.plugins.rest.editor.formatters;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -19,6 +18,20 @@ import org.isandlatech.plugins.rest.parser.RestLanguage;
  * 
  */
 public class GridTableFormattingStrategy extends AbstractFormattingStrategy {
+
+	/**
+	 * Kind of separation line
+	 * 
+	 * @author Thomas Calmant
+	 */
+	private enum KindOfLine {
+		/** Grid line with '-' */
+		SIMPLE_SEPARATOR,
+		/** Grid line with '=' */
+		DOUBLE_SEPARATOR,
+		/** Line content */
+		CONTENT,
+	}
 
 	/**
 	 * Extract columns content of the given line
@@ -56,10 +69,11 @@ public class GridTableFormattingStrategy extends AbstractFormattingStrategy {
 
 					// Surround with spaces (for eye candy grids)
 					String currentPartString = ' ' + currentPart.toString()
-							.trim() + ' ';
+							.trim();
 
-					System.out.println("New column content found : "
-							+ currentPartString);
+					if (currentPartString.length() > 1) {
+						currentPartString += ' ';
+					}
 
 					lineContent.put(column, currentPartString);
 					currentPart = new StringBuffer();
@@ -78,17 +92,16 @@ public class GridTableFormattingStrategy extends AbstractFormattingStrategy {
 		String[] tableLines = getLines(normalizeEndOfLines(aContent));
 
 		int maxCols = 0;
-		int nbLines = -1;
+		int nbLines = 0;
 
 		Map<Integer, Map<Integer, String>> tableContent = new HashMap<Integer, Map<Integer, String>>();
-		List<Character> kindOfSeparators = new LinkedList<Character>();
+		List<KindOfLine> kindOfLine = new LinkedList<KindOfLine>();
 
 		// Analyze the grid
 		for (String line : tableLines) {
 
 			if (line.charAt(0) == RestLanguage.GRID_TABLE_MARKER) {
-
-				System.out.println("New line");
+				// Grid line
 
 				// Look for the character used for separation ('-' or '=' in
 				// theory...)
@@ -101,17 +114,10 @@ public class GridTableFormattingStrategy extends AbstractFormattingStrategy {
 					}
 				}
 
-				System.out.println("Found separator : " + separator);
-
 				// Force normalization
 				if (separator != '=') {
 					separator = '-';
 				}
-
-				System.out.println("Selected separator : " + separator);
-
-				// Store the separator
-				kindOfSeparators.add(separator);
 
 				// Grid border
 				int nbCols = countOccurrences(RestLanguage.GRID_TABLE_MARKER,
@@ -121,26 +127,30 @@ public class GridTableFormattingStrategy extends AbstractFormattingStrategy {
 					maxCols = nbCols;
 				}
 
-				nbLines++;
+				if (separator == '=') {
+					kindOfLine.add(KindOfLine.DOUBLE_SEPARATOR);
+				} else {
+					kindOfLine.add(KindOfLine.SIMPLE_SEPARATOR);
+				}
 
 			} else {
 				// Row content
-				Map<Integer, String> oldMap = tableContent.get(nbLines);
-				Map<Integer, String> newMap = extractLineContent(line);
+				Map<Integer, String> lineMap = extractLineContent(line);
+				tableContent.put(nbLines++, lineMap);
 
-				if (oldMap == null) {
-					oldMap = newMap;
-				} else {
-					mergeMaps(oldMap, newMap);
+				// We want the outer limit of the column count
+				// (like if you count the gaps or the poles)
+				int nbCols = lineMap.size() + 1;
+				if (nbCols > maxCols) {
+					maxCols = nbCols;
 				}
 
-				// Should not be necessary
-				tableContent.put(nbLines, oldMap);
+				kindOfLine.add(KindOfLine.CONTENT);
 			}
 		}
 
 		// Set up a new grid
-		return generateGrid(tableContent, maxCols, kindOfSeparators);
+		return generateGrid(tableContent, maxCols, kindOfLine);
 	}
 
 	/**
@@ -156,26 +166,12 @@ public class GridTableFormattingStrategy extends AbstractFormattingStrategy {
 	 */
 	private String generateGrid(
 			final Map<Integer, Map<Integer, String>> aTableContent,
-			final int aMaxNbColumns, final List<Character> aKindOfSeparators) {
+			final int aMaxNbColumns, final List<KindOfLine> aKindOfLine) {
 
 		StringBuffer content = new StringBuffer();
 
-		int[] columnsSizes = new int[aMaxNbColumns];
-		Arrays.fill(columnsSizes, 0);
-
-		// 1st pass : columns sizes
-		for (Map<Integer, String> lineContent : aTableContent.values()) {
-			int column = 0;
-			for (String columnContent : lineContent.values()) {
-				int columnLength = columnContent.length();
-
-				if (columnLength > columnsSizes[column]) {
-					columnsSizes[column] = columnLength;
-				}
-
-				column++;
-			}
-		}
+		// Get columns maximum sizes
+		int[] columnsSizes = getColumnsSizes(aTableContent, aMaxNbColumns);
 
 		// Generate marker lines
 		String markerLineSimple = generateMarkerLine(aMaxNbColumns,
@@ -183,65 +179,74 @@ public class GridTableFormattingStrategy extends AbstractFormattingStrategy {
 		String markerLineDouble = generateMarkerLine(aMaxNbColumns,
 				columnsSizes, '=');
 
-		System.out.println("Generated lines :\n" + markerLineSimple
-				+ markerLineDouble);
-
-		// -1 : the line break does'nt count
+		// -1 : the line break doesn't count
 		final int markerLineLength = markerLineSimple.length() - 1;
 
-		// 2nd pass : fill the grid
-		int currentSeparatorLine = 0;
-		for (Map<Integer, String> lineContent : aTableContent.values()) {
+		int currentLine = 0;
+		for (KindOfLine kindOfLine : aKindOfLine) {
+			switch (kindOfLine) {
+			case SIMPLE_SEPARATOR:
+				content.append(markerLineSimple);
+				break;
 
-			// add starting marker
-			switch (aKindOfSeparators.get(currentSeparatorLine++)) {
-			case '=':
-				content.append(markerLineDouble).append('|');
+			case DOUBLE_SEPARATOR:
+				content.append(markerLineDouble);
+				break;
+
+			case CONTENT:
+				generateLine(content, aTableContent.get(currentLine++),
+						columnsSizes, markerLineLength);
 				break;
 
 			default:
-				content.append(markerLineSimple).append('|');
+				// Do nothing
 				break;
 			}
+		}
 
-			// 1 for the starting pipe
-			int linePos = 1;
+		return content.toString();
+	}
 
-			int column = 0;
-			for (String columnContent : lineContent.values()) {
+	private void generateLine(final StringBuffer aContent,
+			final Map<Integer, String> aCellsContent,
+			final int[] aColumnsSizes, final int aMarkerLineLength) {
 
-				// Surround with spaces
-				content.append(columnContent);
-				linePos += columnContent.length();
+		if (aCellsContent == null) {
+			return;
+		}
 
-				for (int i = columnContent.length(); i < columnsSizes[column]; i++) {
-					content.append(' ');
-					linePos++;
-				}
+		int column = 0;
+		int linePos = 1;
 
-				content.append('|');
-				column++;
+		aContent.append(RestLanguage.GRID_TABLE_ROW_MARKER);
+
+		for (String columnContent : aCellsContent.values()) {
+
+			// Surround with spaces
+			aContent.append(columnContent);
+			linePos += columnContent.length();
+
+			for (int i = columnContent.length(); i < aColumnsSizes[column]; i++) {
+				aContent.append(' ');
 				linePos++;
 			}
 
-			// Insufficient number of columns : span the last one
-			if (linePos < markerLineLength) {
-				int len = markerLineLength - linePos;
-				char[] padding = new char[len];
-
-				Arrays.fill(padding, ' ');
-				padding[len - 1] = '|';
-
-				content.append(padding);
-			}
-
-			content.append('\n');
+			aContent.append(RestLanguage.GRID_TABLE_ROW_MARKER);
+			column++;
+			linePos++;
 		}
 
-		// add ending marker line
-		content.append(markerLineSimple);
+		// Insufficient number of columns : span the last one
+		if (linePos < aMarkerLineLength) {
+			int len = aMarkerLineLength - linePos - 1;
+			char[] padding = new char[len];
+			Arrays.fill(padding, ' ');
 
-		return content.toString();
+			aContent.append(padding);
+			aContent.append(RestLanguage.GRID_TABLE_ROW_MARKER);
+		}
+
+		aContent.append('\n');
 	}
 
 	/**
@@ -277,34 +282,36 @@ public class GridTableFormattingStrategy extends AbstractFormattingStrategy {
 		return new String(markerLineChars);
 	}
 
-	private Map<Integer, String> mergeMaps(final Map<Integer, String> aMapOrg,
-			final Map<Integer, String> aMapAdd) {
+	/**
+	 * Retrieves the maximum size of each grid column
+	 * 
+	 * @param aTableContent
+	 *            Grid table content
+	 * @param aMaxNbColumns
+	 *            Maximum amount of columns
+	 * @return An array containing the maximum size of each column
+	 */
+	private int[] getColumnsSizes(
+			final Map<Integer, Map<Integer, String>> aTableContent,
+			final int aMaxNbColumns) {
 
-		List<Integer> treated = new ArrayList<Integer>(aMapOrg.size());
+		int[] columnsSizes = new int[aMaxNbColumns];
+		Arrays.fill(columnsSizes, 0);
 
-		for (Integer column : aMapOrg.keySet()) {
-			String toAdd = aMapAdd.get(column);
+		// complete pass to get columns sizes
+		for (Map<Integer, String> lineContent : aTableContent.values()) {
+			int column = 0;
+			for (String columnContent : lineContent.values()) {
+				int columnLength = columnContent.length();
 
-			if (toAdd != null) {
-				// Surround with spaces (for eye candy grids)
-				StringBuffer newContent = new StringBuffer();
-				newContent.append(' ').append(aMapOrg.get(column).trim())
-						.append(' ').append(toAdd.trim()).append(' ');
+				if (columnLength > columnsSizes[column]) {
+					columnsSizes[column] = columnLength;
+				}
 
-				aMapOrg.put(column, newContent.toString());
+				column++;
 			}
-
-			treated.add(column);
 		}
 
-		for (Integer column : aMapAdd.keySet()) {
-			if (!treated.contains(column)) {
-				// If we have not treated this column, then it is a valid one
-				// not present in aMapOrg
-				aMapOrg.put(column, aMapAdd.get(column));
-			}
-		}
-
-		return aMapOrg;
+		return columnsSizes;
 	}
 }

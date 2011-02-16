@@ -5,9 +5,14 @@
  */
 package org.isandlatech.plugins.rest.editor;
 
+import java.util.Arrays;
+
+import org.eclipse.jface.text.DefaultLineTracker;
+import org.eclipse.jface.text.IAutoEditStrategy;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.Region;
+import org.eclipse.jface.text.TabsToSpacesConverter;
 import org.eclipse.jface.text.contentassist.ContentAssistant;
 import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
 import org.eclipse.jface.text.contentassist.IContentAssistant;
@@ -58,6 +63,18 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 
 	/** Scanner rule provider */
 	private RuleProvider pRuleProvider = null;
+
+	@Override
+	public IAutoEditStrategy[] getAutoEditStrategies(
+			final ISourceViewer aSourceViewer, final String aContentType) {
+
+		// Automatic tabs to space conversion
+		TabsToSpacesConverter tabs2spaces = new TabsToSpacesConverter();
+		tabs2spaces.setNumberOfSpacesPerTab(getTabWidth(aSourceViewer));
+		tabs2spaces.setLineTracker(new DefaultLineTracker());
+
+		return new IAutoEditStrategy[] { tabs2spaces };
+	}
 
 	@Override
 	public String[] getConfiguredContentTypes(final ISourceViewer sourceViewer) {
@@ -129,6 +146,12 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 		return pDocFormatter;
 	}
 
+	@Override
+	public String[] getDefaultPrefixes(final ISourceViewer aSourceViewer,
+			final String aContentType) {
+		return getIndentPrefixes(aSourceViewer, aContentType);
+	}
+
 	/**
 	 * Retrieves the instance unique token pDocScanner
 	 * 
@@ -141,6 +164,24 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 		}
 
 		return pDocScanner;
+	}
+
+	// FIXME doesn't work as expected
+	@Override
+	public String[] getIndentPrefixes(final ISourceViewer aSourceViewer,
+			final String aContentType) {
+		// TODO use preferences
+		return new String[] { "   ", "\t", "", };
+	}
+
+	// FIXME doesn't work as expected
+	@Override
+	protected String[] getIndentPrefixesForTab(final int aTabWidth) {
+		// TODO use preferences
+		char[] array = new char[3];
+		Arrays.fill(array, ' ');
+
+		return new String[] { new String(array) };
 	}
 
 	@Override
