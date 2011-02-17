@@ -57,15 +57,15 @@ public class ProjectAdvancedPropertiesPage extends AbstractWizardPage {
 	/**
 	 * @return the latexParts
 	 */
-	public Button getLatexParts() {
-		return pLatexParts;
+	public boolean getLatexParts() {
+		return pLatexParts.getSelection();
 	}
 
 	/**
 	 * @return the master document name
 	 */
-	public Text getMasterDocumentName() {
-		return pMasterDocumentName;
+	public String getMasterDocumentName() {
+		return pMasterDocumentName.getText();
 	}
 
 	@Override
@@ -76,14 +76,14 @@ public class ProjectAdvancedPropertiesPage extends AbstractWizardPage {
 	/**
 	 * @return the source encoding
 	 */
-	public Text getSourceEncoding() {
-		return pSourceEncoding;
+	public String getSourceEncoding() {
+		return pSourceEncoding.getText();
 	}
 
 	/**
 	 * @return the static folders prefix
 	 */
-	public Text getStaticFoldersPrefix() {
-		return pStaticFoldersPrefix;
+	public String getStaticFoldersPrefix() {
+		return pStaticFoldersPrefix.getText();
 	}
 }

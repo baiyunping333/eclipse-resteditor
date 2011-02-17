@@ -16,14 +16,6 @@ import org.eclipse.swt.widgets.Text;
  */
 public class ProjectPropertiesPage extends AbstractWizardPage {
 
-	public static final String[] HTML_STYLES = { "", "default", "sphinxdoc",
-			"scrolls", "agogo", "traditional", "nature", "haiku" };
-
-	/** Possible languages */
-	public static final String[] LANGUAGES = { "", "en", "fr", "bn", "ca",
-			"cs", "da", "de", "es", "fi", "hr", "it", "ja", "lt", "nl", "pl",
-			"pt_BR", "ru", "sl", "tr", "uk_UA", "zh_CN", "zh_TW" };
-
 	/** Project authors */
 	private Text pAuthors;
 
@@ -65,10 +57,10 @@ public class ProjectPropertiesPage extends AbstractWizardPage {
 		pVersion = addTextField("Version :");
 		pRelease = addTextField("Release :");
 
-		pLanguage = addComboBox("Language", LANGUAGES);
+		pLanguage = addComboBox("Language", IConfigConstants.LANGUAGES);
 		pLanguage.select(1);
 
-		pStyle = addComboBox("HTML Theme :", HTML_STYLES);
+		pStyle = addComboBox("HTML Theme :", IConfigConstants.HTML_STYLES);
 		pStyle.select(1);
 
 		pSeparateSourceBuild = addCheckBox("Separate source and build folders");

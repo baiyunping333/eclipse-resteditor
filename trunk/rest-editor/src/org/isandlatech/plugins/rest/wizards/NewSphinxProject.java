@@ -58,7 +58,21 @@ public class NewSphinxProject extends BasicNewProjectResourceWizard {
 	 */
 	@Override
 	public boolean performFinish() {
-		// TODO prepare and create the conf.py file
+
+		ConfigGenerator generator = new ConfigGenerator();
+
+		// TODO retrieve it correctly
+		String projectName = "test";
+
+		generator.setBaseProjectInformations(projectName,
+				pPropertiesPage.getAuthors(), pPropertiesPage.getVersion(),
+				pPropertiesPage.getRelease(),
+				pAdvancedPropertiesPage.getMasterDocumentName());
+
+		generator.setLanguage(pPropertiesPage.getLanguage());
+
+		System.out.println(generator.generateConfigurationContent());
+
 		return super.performFinish();
 	}
 }
