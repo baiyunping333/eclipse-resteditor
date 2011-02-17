@@ -7,10 +7,10 @@ import org.osgi.framework.BundleContext;
 /**
  * The activator class controls the plug-in life cycle
  */
-public class Activator extends AbstractUIPlugin {
+public class RestPlugin extends AbstractUIPlugin {
 
 	// The shared instance
-	private static Activator plugin;
+	private static RestPlugin plugin;
 
 	// The plug-in ID
 	public static final String PLUGIN_ID = "ReSTEditor"; //$NON-NLS-1$
@@ -20,7 +20,7 @@ public class Activator extends AbstractUIPlugin {
 	 *
 	 * @return the shared instance
 	 */
-	public static Activator getDefault() {
+	public static RestPlugin getDefault() {
 		return plugin;
 	}
 
@@ -38,7 +38,7 @@ public class Activator extends AbstractUIPlugin {
 	/**
 	 * The constructor
 	 */
-	public Activator() {
+	public RestPlugin() {
 	}
 
 	/*

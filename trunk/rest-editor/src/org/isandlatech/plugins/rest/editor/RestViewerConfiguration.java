@@ -7,6 +7,7 @@ package org.isandlatech.plugins.rest.editor;
 
 import java.util.Arrays;
 
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.DefaultLineTracker;
 import org.eclipse.jface.text.IAutoEditStrategy;
 import org.eclipse.jface.text.IDocument;
@@ -30,6 +31,7 @@ import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.editors.text.TextSourceViewerConfiguration;
 import org.eclipse.ui.texteditor.spelling.SpellingReconcileStrategy;
 import org.eclipse.ui.texteditor.spelling.SpellingService;
+import org.isandlatech.plugins.rest.RestPlugin;
 import org.isandlatech.plugins.rest.editor.contentassist.DeclarativeProposalProcessor;
 import org.isandlatech.plugins.rest.editor.contentassist.ProposalDispatcher;
 import org.isandlatech.plugins.rest.editor.formatters.GridTableFormattingStrategy;
@@ -42,6 +44,7 @@ import org.isandlatech.plugins.rest.editor.scanners.RestSourceBlockScanner;
 import org.isandlatech.plugins.rest.editor.scanners.RestTableBlockScanner;
 import org.isandlatech.plugins.rest.editor.scanners.RuleProvider;
 import org.isandlatech.plugins.rest.editor.scanners.TokenProvider;
+import org.isandlatech.plugins.rest.prefs.IEditorPreferenceConstants;
 
 /**
  * @author Thomas Calmant
@@ -64,16 +67,32 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 	/** Scanner rule provider */
 	private RuleProvider pRuleProvider = null;
 
+	/** Preference store */
+	private IPreferenceStore pPreferenceStore = null;
+
+	/**
+	 * Prepares the configuration. Get a preference store reference.
+	 */
+	public RestViewerConfiguration() {
+		super();
+		pPreferenceStore = RestPlugin.getDefault().getPreferenceStore();
+	}
+
 	@Override
 	public IAutoEditStrategy[] getAutoEditStrategies(
 			final ISourceViewer aSourceViewer, final String aContentType) {
 
-		// Automatic tabs to space conversion
-		TabsToSpacesConverter tabs2spaces = new TabsToSpacesConverter();
-		tabs2spaces.setNumberOfSpacesPerTab(getTabWidth(aSourceViewer));
-		tabs2spaces.setLineTracker(new DefaultLineTracker());
+		if (pPreferenceStore
+				.getBoolean(IEditorPreferenceConstants.EDITOR_TABS_TO_SPACES)) {
 
-		return new IAutoEditStrategy[] { tabs2spaces };
+			// Automatic tabs to space conversion
+			TabsToSpacesConverter tabs2spaces = new TabsToSpacesConverter();
+			tabs2spaces.setNumberOfSpacesPerTab(getTabWidth(aSourceViewer));
+			tabs2spaces.setLineTracker(new DefaultLineTracker());
+			return new IAutoEditStrategy[] { tabs2spaces };
+		}
+
+		return super.getAutoEditStrategies(aSourceViewer, aContentType);
 	}
 
 	@Override
@@ -251,8 +270,7 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 
 	@Override
 	public int getTabWidth(final ISourceViewer aSourceViewer) {
-		// TODO use preferences
-		return 3;
+		return pPreferenceStore.getInt(IEditorPreferenceConstants.EDITOR_TABS_LENGTH);
 	}
 
 	/**
@@ -277,11 +295,15 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 	 */
 	public void onEditorPerformSave(final ISourceViewer aSourceViewer) {
 
-		// Doc informations
-		IDocument document = aSourceViewer.getDocument();
-		IRegion docRegion = new Region(0, document.getLength());
+		if (pPreferenceStore
+				.getBoolean(IEditorPreferenceConstants.EDITOR_SAVE_FORMAT)) {
 
-		// Format the document
-		pDocFormatter.format(document, docRegion);
+			// Doc informations
+			IDocument document = aSourceViewer.getDocument();
+			IRegion docRegion = new Region(0, document.getLength());
+
+			// Format the document
+			pDocFormatter.format(document, docRegion);
+		}
 	}
 }

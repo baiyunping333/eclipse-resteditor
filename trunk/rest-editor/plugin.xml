@@ -13,5 +13,19 @@
             id="org.isandlatech.plugins.rest.editor.RestEditor">
       </editor>
    </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            class="org.isandlatech.plugins.rest.prefs.EditorPreferencePage"
+            id="org.isandlatech.plugins.rest.prefs.EditorPreferencePage"
+            name="ReST Editor">
+      </page>
+   </extension>
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer
+            class="org.isandlatech.plugins.rest.prefs.EditorPreferenceInitializer">
+      </initializer>
+   </extension>
 
 </plugin>
