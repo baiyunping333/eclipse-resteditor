@@ -27,5 +27,20 @@
             class="org.isandlatech.plugins.rest.prefs.EditorPreferenceInitializer">
       </initializer>
    </extension>
+   <extension
+         point="org.eclipse.ui.newWizards">
+      <category
+            id="org.isandlatech.plugins.rest.wizards"
+            name="ReST Editor">
+      </category>
+      <wizard
+            category="org.isandlatech.plugins.rest.wizards"
+            class="org.isandlatech.plugins.rest.wizards.NewSphinxProject"
+            icon="icons/isandlatech_16.gif"
+            id="org.isandlatech.plugins.rest.wizards.NewSphinxProject"
+            name="Sphinx project"
+            project="true">
+      </wizard>
+   </extension>
 
 </plugin>
