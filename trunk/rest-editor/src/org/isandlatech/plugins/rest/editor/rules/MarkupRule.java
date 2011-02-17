@@ -7,6 +7,7 @@ package org.isandlatech.plugins.rest.editor.rules;
 
 import org.eclipse.jface.text.rules.ICharacterScanner;
 import org.eclipse.jface.text.rules.IToken;
+import org.isandlatech.plugins.rest.parser.RestLanguage;
 
 import eclihx.ui.internal.ui.editors.ScannerController;
 
@@ -104,6 +105,17 @@ public class MarkupRule extends AbstractRule {
 		int readChar;
 		int contentLength = 0;
 
+		// If the previous character is an escape one, ignore the starting
+		// marker
+		if (aScanner.getColumn() > 0) {
+			aScanner.unread();
+			readChar = aScanner.read();
+
+			if (readChar == RestLanguage.ESCAPE_CHARACTER) {
+				return undefinedToken(null);
+			}
+		}
+
 		// Test markup beginning
 		for (int i = 0; i < pStart.length(); i++) {
 			readChar = controller.read();
@@ -132,8 +144,16 @@ public class MarkupRule extends AbstractRule {
 		while ((readChar = controller.read()) != ICharacterScanner.EOF) {
 			contentLength++;
 
+			// EOL in single line mode -> stop
 			if (pSingleLine && (readChar == '\n' || readChar == '\r')) {
 				return undefinedToken(controller);
+			}
+
+			// Escaped character -> restart pEnd search
+			if (lastReadChar == RestLanguage.ESCAPE_CHARACTER) {
+				currentMarkupPos = 0;
+				currentEnd = "";
+				continue;
 			}
 
 			if (pEnd.charAt(currentMarkupPos) == readChar

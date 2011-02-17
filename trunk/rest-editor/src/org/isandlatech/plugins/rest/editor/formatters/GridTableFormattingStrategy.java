@@ -14,8 +14,9 @@ import java.util.Map;
 import org.isandlatech.plugins.rest.parser.RestLanguage;
 
 /**
- * @author Thomas Calmant
+ * reStructuredText grid tables formatter. Automatically aligns columns.
  * 
+ * @author Thomas Calmant
  */
 public class GridTableFormattingStrategy extends AbstractFormattingStrategy {
 
@@ -24,7 +25,7 @@ public class GridTableFormattingStrategy extends AbstractFormattingStrategy {
 	 * 
 	 * @author Thomas Calmant
 	 */
-	private enum KindOfLine {
+	public enum KindOfGridLine {
 		/** Grid line with '-' */
 		SIMPLE_SEPARATOR,
 		/** Grid line with '=' */
@@ -34,13 +35,13 @@ public class GridTableFormattingStrategy extends AbstractFormattingStrategy {
 	}
 
 	/**
-	 * Extract columns content of the given line
+	 * Extracts columns content of the given line
 	 * 
 	 * @param aLine
 	 *            A grid table line ('|' column separation)
 	 * @return A column-content mapping
 	 */
-	private Map<Integer, String> extractLineContent(final String aLine) {
+	protected Map<Integer, String> extractLineContent(final String aLine) {
 
 		Map<Integer, String> lineContent = new HashMap<Integer, String>();
 
@@ -85,6 +86,9 @@ public class GridTableFormattingStrategy extends AbstractFormattingStrategy {
 		return lineContent;
 	}
 
+	/**
+	 * Formats the complete grid table.
+	 */
 	@Override
 	public String format(final String aContent, final boolean aIsLineStart,
 			final String aIndentation, final int[] aPositions) {
@@ -95,7 +99,7 @@ public class GridTableFormattingStrategy extends AbstractFormattingStrategy {
 		int nbLines = 0;
 
 		Map<Integer, Map<Integer, String>> tableContent = new HashMap<Integer, Map<Integer, String>>();
-		List<KindOfLine> kindOfLine = new LinkedList<KindOfLine>();
+		List<KindOfGridLine> kindOfLine = new LinkedList<KindOfGridLine>();
 
 		// Analyze the grid
 		for (String line : tableLines) {
@@ -128,9 +132,9 @@ public class GridTableFormattingStrategy extends AbstractFormattingStrategy {
 				}
 
 				if (separator == '=') {
-					kindOfLine.add(KindOfLine.DOUBLE_SEPARATOR);
+					kindOfLine.add(KindOfGridLine.DOUBLE_SEPARATOR);
 				} else {
-					kindOfLine.add(KindOfLine.SIMPLE_SEPARATOR);
+					kindOfLine.add(KindOfGridLine.SIMPLE_SEPARATOR);
 				}
 
 			} else {
@@ -145,7 +149,7 @@ public class GridTableFormattingStrategy extends AbstractFormattingStrategy {
 					maxCols = nbCols;
 				}
 
-				kindOfLine.add(KindOfLine.CONTENT);
+				kindOfLine.add(KindOfGridLine.CONTENT);
 			}
 		}
 
@@ -160,13 +164,13 @@ public class GridTableFormattingStrategy extends AbstractFormattingStrategy {
 	 *            Line -> Column -> Content mapping
 	 * @param aMaxNbColumns
 	 *            Maximum number of column for a line
-	 * @param aKindOfSeparators
-	 *            For each line, which separator must be used
+	 * @param aKindOfLine
+	 *            For each line, the kind of treatment to applied
 	 * @return The formatted grid table string
 	 */
-	private String generateGrid(
+	protected String generateGrid(
 			final Map<Integer, Map<Integer, String>> aTableContent,
-			final int aMaxNbColumns, final List<KindOfLine> aKindOfLine) {
+			final int aMaxNbColumns, final List<KindOfGridLine> aKindOfLine) {
 
 		StringBuffer content = new StringBuffer();
 
@@ -183,7 +187,7 @@ public class GridTableFormattingStrategy extends AbstractFormattingStrategy {
 		final int markerLineLength = markerLineSimple.length() - 1;
 
 		int currentLine = 0;
-		for (KindOfLine kindOfLine : aKindOfLine) {
+		for (KindOfGridLine kindOfLine : aKindOfLine) {
 			switch (kindOfLine) {
 			case SIMPLE_SEPARATOR:
 				content.append(markerLineSimple);
@@ -207,7 +211,22 @@ public class GridTableFormattingStrategy extends AbstractFormattingStrategy {
 		return content.toString();
 	}
 
-	private void generateLine(final StringBuffer aContent,
+	/**
+	 * Generates a grid line with the given cells content. Appends the line to
+	 * the working String buffer. Adds the end line character.
+	 * 
+	 * @param aContent
+	 *            Current grid content
+	 * @param aCellsContent
+	 *            A mapping : column number -> column content (for the current
+	 *            line)
+	 * @param aColumnsSizes
+	 *            An array containing the width of each column
+	 * @param aMarkerLineLength
+	 *            The length of the marker lines, i.e. the width of the grid
+	 *            table
+	 */
+	protected void generateLine(final StringBuffer aContent,
 			final Map<Integer, String> aCellsContent,
 			final int[] aColumnsSizes, final int aMarkerLineLength) {
 
