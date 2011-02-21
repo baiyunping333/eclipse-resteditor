@@ -41,25 +41,28 @@ public interface IConfigConstants {
 		}
 	};
 
+	/** Master document name */
+	String MASTER_DOCUMENT_NAME = "master_doc";
+
+	/** Master document default name */
+	String DEFAULT_MASTER_DOCUMENT_NAME = "index";
+
+	/** Build folder name */
+	String BUILD_FOLDER_NAME = "build";
+
 	/** Sphinx configuration file name */
 	String CONFIG_FILE_NAME = "conf.py";
 
 	/** Common conf.py part */
-	String CONFIG_PREFIX = "# -*- coding: utf-8 -*-\n\n"
+	String CONFIG_PREFIX = "# -*- coding: utf-8 -*-\n"
 			+ "import sys, os\n\n"
-			+ "# Add any paths that contain templates here, relative to this directory.\n"
-			+ "templates_path = ['_templates']\n"
 			+ "# The suffix of source filenames.\n"
 			+ "source_suffix = '.rst'\n"
 			+ "# List of patterns, relative to source directory, that match files and\n"
 			+ "# directories to ignore when looking for source files.\n"
 			+ "exclude_patterns = []\n"
 			+ "# The name of the Pygments (syntax highlighting) style to use.\n"
-			+ "pygments_style = 'sphinx'\n"
-			+ "# Add any paths that contain custom static files (such as style sheets) here,\n"
-			+ "# relative to this directory. They are copied after the builtin static files,\n"
-			+ "# so a file named \"default.css\" will overwrite the builtin \"default.css\".\n"
-			+ "html_static_path = ['_static']\n\n"
+			+ "pygments_style = 'sphinx'\n\n"
 			+ "# Beginning of generated configuration\n";
 
 	/** Generated HTML documents style */
@@ -97,4 +100,25 @@ public interface IConfigConstants {
 
 	/** Project version */
 	String PROJECT_VERSION = "version";
+
+	/** Make.bat template, relative to the plugin JAR file root */
+	String RESOURCE_MAKEBAT_TEMPLATE = "/make.bat.template";
+
+	/** Makefile template, relative to the plugin JAR file root */
+	String RESOURCE_MAKEFILE_TEMPLATE = "/Makefile.template";
+
+	/** Templates source folder variable */
+	String RESOURCE_TEMPLATE_SOURCE_VAR = "${OUTPUT_SOURCE_FOLDER}";
+
+	/** ReST file extension (with the dot) */
+	String REST_FILE_EXTENSION = ".rst";
+
+	/** Source folder name */
+	String SOURCE_FOLDER_NAME = "source";
+
+	/** HTML static path */
+	String STATIC_PATH = "html_static_path";
+
+	/** Template path */
+	String TEMPLATE_PATH = "templates_path";
 }

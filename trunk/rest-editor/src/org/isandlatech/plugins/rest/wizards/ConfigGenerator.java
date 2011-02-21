@@ -18,7 +18,7 @@ import java.util.Map.Entry;
 public class ConfigGenerator {
 
 	/** Configuration content */
-	private Map<String, String> pConfiguration;
+	private final Map<String, String> pConfiguration;
 
 	/**
 	 * Prepares the configuration map
@@ -37,12 +37,53 @@ public class ConfigGenerator {
 
 		if (pConfiguration != null) {
 			for (Entry<String, String> entry : pConfiguration.entrySet()) {
+
 				config.append(entry.getKey()).append(" = ")
 						.append(entry.getValue()).append('\n');
 			}
 		}
 
 		return config.toString();
+	}
+
+	/**
+	 * Retrieves the value associated to the given key
+	 * 
+	 * @param aProperty
+	 *            Property key
+	 * @return The property value (can be null)
+	 */
+	public String getProperty(final String aProperty) {
+		String result = pConfiguration.get(aProperty);
+
+		if (result == null) {
+			return null;
+		}
+
+		// FIXME ugly trick to handle array values
+		// If the value is an array, return its first value
+		if (result.startsWith("[")) {
+			int endOfFirstValue = result.indexOf(',');
+
+			// Only one value, find the end of the array
+			if (endOfFirstValue == -1) {
+				endOfFirstValue = result.indexOf(']');
+			}
+
+			// If found, extract the value
+			if (endOfFirstValue != -1) {
+				result = result.substring(1, endOfFirstValue).trim();
+			}
+
+			// Continue the string treatment
+		}
+
+		// Python unicode prefix found, remove it
+		if (result.startsWith("u'")) {
+			return result.substring(2, result.length() - 1).trim();
+		}
+
+		return result;
 	}
 
 	/**
@@ -133,6 +174,20 @@ public class ConfigGenerator {
 	}
 
 	/**
+	 * Sets the static and template folders names
+	 * 
+	 * @param aFolderPrefix
+	 *            The prefix to be used
+	 */
+	public void setStaticFoldersPrefix(final String aFolderPrefix) {
+		pConfiguration.put(IConfigConstants.TEMPLATE_PATH, "[u'"
+				+ aFolderPrefix + "templates']");
+
+		pConfiguration.put(IConfigConstants.STATIC_PATH, "[u'" + aFolderPrefix
+				+ "static']");
+	}
+
+	/**
 	 * Sets a configuration string property
 	 * 
 	 * @param aProperty
@@ -153,5 +208,25 @@ public class ConfigGenerator {
 		}
 
 		pConfiguration.put(aProperty, aValue);
+	}
+
+	/**
+	 * Sets a configuration string property
+	 * 
+	 * @param aProperty
+	 *            Property entry
+	 * @param aValue
+	 *            Property value
+	 * @param aDefaultValue
+	 *            Value to be used if aValue is null or empty
+	 */
+	public void setStringProperty(final String aProperty, final String aValue,
+			final String aDefaultValue) {
+
+		if (aValue == null || aValue.isEmpty()) {
+			setStringProperty(aProperty, aDefaultValue);
+		} else {
+			setStringProperty(aProperty, aValue);
+		}
 	}
 }
