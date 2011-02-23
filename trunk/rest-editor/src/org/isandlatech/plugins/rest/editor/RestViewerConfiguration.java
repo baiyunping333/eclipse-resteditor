@@ -27,7 +27,6 @@ import org.eclipse.jface.text.reconciler.MonoReconciler;
 import org.eclipse.jface.text.rules.DefaultDamagerRepairer;
 import org.eclipse.jface.text.rules.ITokenScanner;
 import org.eclipse.jface.text.source.ISourceViewer;
-import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.editors.text.TextSourceViewerConfiguration;
 import org.eclipse.ui.texteditor.spelling.SpellingReconcileStrategy;
 import org.eclipse.ui.texteditor.spelling.SpellingService;
@@ -260,9 +259,11 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 	@Override
 	public IReconciler getReconciler(final ISourceViewer aSourceViewer) {
 
-		SpellingService spellingService = EditorsUI.getSpellingService();
+		// Uses the preferences to select the spell engine
+		SpellingService selectedService = new SpellingService(pPreferenceStore);
+
 		IReconcilingStrategy strategy = new SpellingReconcileStrategy(
-				aSourceViewer, spellingService);
+				aSourceViewer, selectedService);
 
 		MonoReconciler reconciler = new MonoReconciler(strategy, false);
 		return reconciler;
@@ -270,7 +271,8 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 
 	@Override
 	public int getTabWidth(final ISourceViewer aSourceViewer) {
-		return pPreferenceStore.getInt(IEditorPreferenceConstants.EDITOR_TABS_LENGTH);
+		return pPreferenceStore
+				.getInt(IEditorPreferenceConstants.EDITOR_TABS_LENGTH);
 	}
 
 	/**
