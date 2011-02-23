@@ -19,12 +19,16 @@ public interface RestLanguage {
 	String[] DIRECTIVES = {
 			// Admonitions:
 			"attention", "caution", "danger", "error", "hint", "important",
-			"note", "tip", "warning",
+			"note", "tip",
+			"warning",
 			"admonition",
 
 			// Images:
 			"image",
 			"figure",
+
+			// Substitutions
+			"replace",
 
 			// Additional body elements:
 			"contents", "container", "rubric", "topic", "sidebar",
