@@ -113,7 +113,7 @@ public class EditorPreferencePage extends FieldEditorPreferencePage implements
 		int i = 0;
 		for (SpellingEngineDescriptor descr : descriptors) {
 			descriptorsNames[i][0] = descr.getLabel();
-			descriptorsNames[i][1] = descr.getLabel();
+			descriptorsNames[i][1] = descr.getId();
 			i++;
 		}
 		return descriptorsNames;

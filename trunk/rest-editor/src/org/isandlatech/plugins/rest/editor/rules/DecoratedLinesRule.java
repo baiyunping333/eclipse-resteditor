@@ -52,7 +52,7 @@ public class DecoratedLinesRule extends AbstractRule {
 		boolean decorativeLine = true;
 
 		for (char character : aLine.toCharArray()) {
-			if (character == '\n') {
+			if (isAnEOL(character)) {
 				break;
 			}
 
@@ -98,7 +98,7 @@ public class DecoratedLinesRule extends AbstractRule {
 		if (isDecorationCharacter(decorator)) {
 			while ((readChar = controller.read()) != ICharacterScanner.EOF
 					&& controller.getColumn() != 0) {
-				if (readChar != decorator && !Character.isWhitespace(readChar)) {
+				if (readChar != decorator && !isAnEOL(readChar)) {
 					upperline = false;
 				}
 			}
@@ -134,7 +134,7 @@ public class DecoratedLinesRule extends AbstractRule {
 		// Underline
 		while ((readChar = controller.read()) != ICharacterScanner.EOF) {
 
-			if (readChar == '\n') {
+			if (isAnEOL(readChar)) {
 				break;
 			}
 			// Error on first different character

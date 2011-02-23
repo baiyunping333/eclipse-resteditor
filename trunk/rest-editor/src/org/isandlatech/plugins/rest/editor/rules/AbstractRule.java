@@ -15,6 +15,17 @@ import eclihx.ui.internal.ui.editors.ScannerController;
 public abstract class AbstractRule implements IPredicateRule {
 
 	/**
+	 * Test if the given character can considered as an end of line character
+	 * 
+	 * @param codePoint
+	 *            The character to be tested
+	 * @return True if the given character is an EOL character
+	 */
+	public static boolean isAnEOL(final int codePoint) {
+		return codePoint == '\n' || codePoint == '\r';
+	}
+
+	/**
 	 * Tests if the given token is not null, not undefined and not a whitespace
 	 * nor an EOF.
 	 * 

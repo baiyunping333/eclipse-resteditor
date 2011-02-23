@@ -5,6 +5,7 @@ package eclihx.ui.internal.ui.editors;
 
 import org.eclipse.jface.text.rules.ICharacterScanner;
 import org.eclipse.jface.text.rules.IWordDetector;
+import org.isandlatech.plugins.rest.editor.rules.AbstractRule;
 
 /**
  * Simple class which extend number of operations available for
@@ -130,13 +131,18 @@ public final class ScannerController {
 	 */
 	public boolean skipLine() {
 		boolean emptyLine = true;
+		int readChar;
 
 		do {
-			if (read() == ICharacterScanner.EOF) {
+			readChar = read();
+			if (readChar == ICharacterScanner.EOF) {
 				break;
 			}
 
-			if (emptyLine && scanner.getColumn() > 0) {
+			if (emptyLine
+					&& scanner.getColumn() > 0
+					&& (!Character.isWhitespace(readChar) || AbstractRule
+							.isAnEOL(readChar))) {
 				emptyLine = false;
 			}
 
