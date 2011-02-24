@@ -148,6 +148,26 @@ public class NewSphinxProject extends BasicNewProjectResourceWizard {
 				pAdvancedPropertiesPage.getMasterDocumentName(),
 				IConfigConstants.DEFAULT_MASTER_DOCUMENT_NAME);
 
+		// HTML theme
+		generator.setStringProperty(IConfigConstants.HTML_THEME,
+				pPropertiesPage.getTheme());
+
+		// Source encoding
+		generator.setStringProperty(IConfigConstants.SOURCE_ENCODING,
+				pAdvancedPropertiesPage.getSourceEncoding());
+
+		// LaTex use parts
+		generator.setBooleanProperty(IConfigConstants.LATEX_USE_PARTS,
+				pAdvancedPropertiesPage.getLatexParts());
+
+		// LaTex page format
+		generator.setStringProperty(IConfigConstants.LATEX_PAPER_SIZE,
+				pAdvancedPropertiesPage.getLatexPaperSize());
+
+		// LaTex font size
+		generator.setStringProperty(IConfigConstants.LATEX_FONT_SIZE,
+				pAdvancedPropertiesPage.getLatexPageFontSize());
+
 		// Constructs the project content
 		try {
 			setProjectContent(generator);

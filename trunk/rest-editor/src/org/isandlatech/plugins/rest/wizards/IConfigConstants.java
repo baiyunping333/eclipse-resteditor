@@ -41,12 +41,6 @@ public interface IConfigConstants {
 		}
 	};
 
-	/** Master document name */
-	String MASTER_DOCUMENT_NAME = "master_doc";
-
-	/** Master document default name */
-	String DEFAULT_MASTER_DOCUMENT_NAME = "index";
-
 	/** Build folder name */
 	String BUILD_FOLDER_NAME = "build";
 
@@ -65,9 +59,15 @@ public interface IConfigConstants {
 			+ "pygments_style = 'sphinx'\n\n"
 			+ "# Beginning of generated configuration\n";
 
+	/** Master document default name */
+	String DEFAULT_MASTER_DOCUMENT_NAME = "index";
+
 	/** Generated HTML documents style */
-	String[] HTML_STYLES = { "", "default", "sphinxdoc", "scrolls", "agogo",
+	String[] HTML_THEMES = { "", "default", "sphinxdoc", "scrolls", "agogo",
 			"traditional", "nature", "haiku" };
+
+	/** HTML theme property */
+	String HTML_THEME = "html_theme";
 
 	/** Generated documents language */
 	String LANGUAGE = "language";
@@ -83,11 +83,20 @@ public interface IConfigConstants {
 	/** Latex snippet (Python dictionary). Used for babel package configuration */
 	String LATEX_ELEMENTS = "latex_elements";
 
+	/** Latex font size */
+	String LATEX_FONT_SIZE = "latex_font_size";
+
 	/** Latex paper size */
 	String LATEX_PAPER_SIZE = "latex_paper_size";
 
+	/** Use parts or chapters as root element in LaTex */
+	String LATEX_USE_PARTS = "latex_use_parts";
+
 	/** Man pages informations */
 	String MAN_DOCUMENT = "man_pages";
+
+	/** Master document name */
+	String MASTER_DOCUMENT_NAME = "master_doc";
 
 	/** Copyright */
 	String PROJECT_COPYRIGHT = "copyright";
@@ -112,6 +121,9 @@ public interface IConfigConstants {
 
 	/** ReST file extension (with the dot) */
 	String REST_FILE_EXTENSION = ".rst";
+
+	/** Input source encoding */
+	String SOURCE_ENCODING = "source_encoding";
 
 	/** Source folder name */
 	String SOURCE_FOLDER_NAME = "source";

@@ -15,6 +15,12 @@ import org.eclipse.swt.widgets.Text;
  */
 public class ProjectAdvancedPropertiesPage extends AbstractWizardPage {
 
+	/** LaTex font size (10pt, ...) */
+	private Text pLatexPageFontSize;
+
+	/** LaTex output page format (a4, ...) */
+	private Text pLatexPaperSize;
+
 	/** Use parts instead of chapters in LaTex */
 	private Button pLatexParts;
 
@@ -50,8 +56,28 @@ public class ProjectAdvancedPropertiesPage extends AbstractWizardPage {
 		pSourceEncoding = addTextField("Source encoding :");
 		pSourceEncoding.setText("utf-8-sig");
 
+		pLatexPaperSize = addTextField("LaTex page format :");
+		pLatexPaperSize.setText("a4");
+
+		pLatexPageFontSize = addTextField("LaTex font size :");
+		pLatexPageFontSize.setText("10pt");
+
 		pLatexParts = addCheckBox("Use parts instead of chapters in LaTex");
 		pLatexParts.setSelection(false);
+	}
+
+	/**
+	 * @return the latex font size
+	 */
+	public String getLatexPageFontSize() {
+		return pLatexPageFontSize.getText();
+	}
+
+	/**
+	 * @return the latex paper size
+	 */
+	public String getLatexPaperSize() {
+		return pLatexPaperSize.getText();
 	}
 
 	/**

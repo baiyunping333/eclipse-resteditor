@@ -25,8 +25,8 @@ public class ProjectPropertiesPage extends AbstractWizardPage {
 	/** Project sub-version */
 	private Text pRelease;
 
-	/** Generated documents style */
-	private Combo pStyle;
+	/** Generated HTML documents theme */
+	private Combo pTheme;
 
 	/** Project version */
 	private Text pVersion;
@@ -54,14 +54,16 @@ public class ProjectPropertiesPage extends AbstractWizardPage {
 	@Override
 	protected void createFields() {
 		pAuthors = addTextField("Authors :");
-		pVersion = addTextField("Version :");
-		pRelease = addTextField("Release :");
+		pVersion = addTextField("Version (X.Y) :");
+		pRelease = addTextField("Release (X.Y.z ...) :");
 
+		// TODO use preferences to select the default one
 		pLanguage = addComboBox("Language", IConfigConstants.LANGUAGES);
 		pLanguage.select(1);
 
-		pStyle = addComboBox("HTML Theme :", IConfigConstants.HTML_STYLES);
-		pStyle.select(1);
+		// TODO use preferences to select the default one
+		pTheme = addComboBox("HTML Theme :", IConfigConstants.HTML_THEMES);
+		pTheme.select(1);
 
 		pSeparateSourceBuild = addCheckBox("Separate source and build folders");
 		pSeparateSourceBuild.setSelection(true);
@@ -90,21 +92,27 @@ public class ProjectPropertiesPage extends AbstractWizardPage {
 	 * @return the version release
 	 */
 	public String getRelease() {
-		return pRelease.getText();
+		String release = pRelease.getText().trim();
+
+		if (release.isEmpty()) {
+			release = getVersion();
+		}
+
+		return release;
 	}
 
 	/**
-	 * @return the HTML style
+	 * @return the HTML theme
 	 */
-	public String getStyle() {
-		return pStyle.getText();
+	public String getTheme() {
+		return pTheme.getText();
 	}
 
 	/**
 	 * @return the version
 	 */
 	public String getVersion() {
-		return pVersion.getText();
+		return pVersion.getText().trim();
 	}
 
 	/**
