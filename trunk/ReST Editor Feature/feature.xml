@@ -2,17 +2,20 @@
 <feature
       id="org.psem2m.eclipse.rest.editor"
       label="ReST Editor"
-      version="1.0.1.qualifier"
+      version="1.0.2.qualifier"
       provider-name="isandlaTech.com">
 
    <description url="http://www.isandlatech.com">
-      A reStructuredText editor for Eclipse
+      A reStructuredText editor for Eclipse with :
+
+* Syntax coloring
+* Minimalist content assistant
+* New Sphinx project wizard
    </description>
 
    <copyright url="http://www.isandlatech.com">
       ReST Editor Plugin
-
-Copyright 2010 isandlaTech
+Copyright 2010 isandlaTech, T. Calmant
 This product includes software developed by isandlaTech
 (http://www.isandlatech.com)
    </copyright>
@@ -118,7 +121,8 @@ This Agreement is governed by the laws of the State of New York and the intellec
       <import plugin="org.eclipse.ui.editors"/>
       <import plugin="org.eclipse.ui.views"/>
       <import plugin="org.eclipse.ui.workbench.texteditor"/>
-      <import plugin="org.eclipse.jdt.ui"/>
+      <import plugin="org.eclipse.ui.ide" version="3.6.1" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.core.resources" version="3.6.0" match="greaterOrEqual"/>
    </requires>
 
    <plugin
