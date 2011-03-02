@@ -96,7 +96,7 @@ public class LinePrefixRule extends AbstractRule {
 		if (pBlockPrefix != null) {
 
 			if (pMaxBlockPrefixColumn >= 0
-					&& aScanner.getColumn() != pMaxBlockPrefixColumn) {
+					&& aScanner.getColumn() > pMaxBlockPrefixColumn) {
 				return Token.UNDEFINED;
 			}
 
@@ -110,7 +110,7 @@ public class LinePrefixRule extends AbstractRule {
 			}
 
 			// Go to next line
-			while (aScanner.getColumn() != 0) {
+			do {
 				readChar = aScanner.read();
 
 				// Handle EOF
@@ -128,7 +128,8 @@ public class LinePrefixRule extends AbstractRule {
 						&& !Character.isWhitespace(readChar)) {
 					return Token.UNDEFINED;
 				}
-			}
+			} while (readChar != '\n');
+
 		} else if (aScanner.getColumn() != 0) {
 			// We can't return valid values if we're not at the beginning of a
 			// line

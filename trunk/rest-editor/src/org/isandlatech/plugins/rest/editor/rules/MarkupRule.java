@@ -143,7 +143,7 @@ public class MarkupRule extends AbstractRule {
 			contentLength++;
 
 			// EOL in single line mode -> stop
-			if (pSingleLine && (readChar == '\n' || readChar == '\r')) {
+			if (pSingleLine && MarkedCharacterScanner.isAnEOL(readChar)) {
 				return Token.UNDEFINED;
 			}
 

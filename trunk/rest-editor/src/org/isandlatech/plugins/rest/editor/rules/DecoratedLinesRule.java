@@ -87,18 +87,26 @@ public class DecoratedLinesRule extends AbstractRule {
 		int decorator = aScanner.read();
 
 		if (aScanner.getColumn() <= 0) {
-			// Empty line
+			// Empty line or EOF
 			return Token.UNDEFINED;
 		}
 
 		if (isDecorationCharacter(decorator)) {
-			while ((readChar = aScanner.read()) != ICharacterScanner.EOF
-					&& aScanner.getColumn() != 0) {
-				if (readChar != decorator && !MarkedCharacterScanner.isAnEOL(readChar)) {
+			// Decoration found, test the complete line
+			readChar = decorator;
+			do {
+
+				if (readChar != decorator) {
 					upperline = false;
+					break;
 				}
-			}
+				readChar = aScanner.read();
+
+			} while (readChar != ICharacterScanner.EOF
+					&& !MarkedCharacterScanner.isAnEOL(readChar));
+
 		} else {
+			// No decoration found, assume we are reading the content line
 			upperline = false;
 			if (aScanner.skipLine()) {
 				return Token.UNDEFINED;
@@ -127,6 +135,8 @@ public class DecoratedLinesRule extends AbstractRule {
 		}
 
 		// Underline
+		int nbUnderlineDecorators = 0;
+
 		while ((readChar = aScanner.read()) != ICharacterScanner.EOF) {
 
 			if (MarkedCharacterScanner.isAnEOL(readChar)) {
@@ -136,6 +146,12 @@ public class DecoratedLinesRule extends AbstractRule {
 			else if (readChar != decorator) {
 				return Token.UNDEFINED;
 			}
+
+			nbUnderlineDecorators++;
+		}
+
+		if (nbUnderlineDecorators < 2) {
+			return Token.UNDEFINED;
 		}
 
 		return getSuccessToken();
