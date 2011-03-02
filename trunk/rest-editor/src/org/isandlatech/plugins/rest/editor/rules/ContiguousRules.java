@@ -5,7 +5,6 @@
  */
 package org.isandlatech.plugins.rest.editor.rules;
 
-import org.eclipse.jface.text.rules.ICharacterScanner;
 import org.eclipse.jface.text.rules.IRule;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.Token;
@@ -37,23 +36,17 @@ public class ContiguousRules extends AbstractRule {
 	}
 
 	@Override
-	public IToken evaluate(final ICharacterScanner aScanner) {
-
-		MarkedCharacterScanner markedScanner = new MarkedCharacterScanner(
-				aScanner);
+	public IToken evaluate(final MarkedCharacterScanner aScanner) {
 
 		// Evaluate first rule
-		IToken result = pFirstRule.evaluate(markedScanner);
+		IToken result = pFirstRule.evaluate(aScanner);
 		if (!isValidToken(result)) {
 			return Token.UNDEFINED;
 		}
 
 		// Evaluate the second rule
-		result = pSecondRule.evaluate(markedScanner);
+		result = pSecondRule.evaluate(aScanner);
 		if (!isValidToken(result)) {
-			// Return to the previous position
-			markedScanner.reset();
-
 			return Token.UNDEFINED;
 		}
 

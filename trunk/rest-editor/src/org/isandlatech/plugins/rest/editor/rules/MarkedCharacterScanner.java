@@ -13,6 +13,17 @@ import org.eclipse.jface.text.rules.ICharacterScanner;
  */
 public class MarkedCharacterScanner implements ICharacterScanner {
 
+	/**
+	 * Test if the given character can considered as an end of line character
+	 * 
+	 * @param codePoint
+	 *            The character to be tested
+	 * @return True if the given character is an EOL character
+	 */
+	public static boolean isAnEOL(final int codePoint) {
+		return codePoint == '\n' || codePoint == '\r';
+	}
+
 	/** Character count */
 	private long pReadCharacters;
 
@@ -71,14 +82,39 @@ public class MarkedCharacterScanner implements ICharacterScanner {
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * Skips the current line
 	 * 
-	 * @see org.eclipse.jface.text.rules.ICharacterScanner#unread()
+	 * @return true if the line was empty, else false
 	 */
+	public boolean skipLine() {
+		int readChar;
+		boolean emptyLine = true;
+
+		do {
+			readChar = read();
+
+			if (readChar != EOF && !Character.isWhitespace(readChar)) {
+				emptyLine = false;
+			}
+
+		} while (!isAnEOL(readChar) && readChar != EOF);
+
+		return emptyLine;
+	}
+
 	@Override
 	public void unread() {
 		pReadCharacters--;
 		pRealScanner.unread();
+	}
+
+	/**
+	 * Unread all characters until the current column is 0
+	 */
+	public void unreadLine() {
+		while (getColumn() != 0) {
+			unread();
+		}
 	}
 }

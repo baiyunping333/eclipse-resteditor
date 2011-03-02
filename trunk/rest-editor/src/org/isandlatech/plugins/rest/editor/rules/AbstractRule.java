@@ -10,20 +10,7 @@ import org.eclipse.jface.text.rules.IPredicateRule;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.Token;
 
-import eclihx.ui.internal.ui.editors.ScannerController;
-
 public abstract class AbstractRule implements IPredicateRule {
-
-	/**
-	 * Test if the given character can considered as an end of line character
-	 * 
-	 * @param codePoint
-	 *            The character to be tested
-	 * @return True if the given character is an EOL character
-	 */
-	public static boolean isAnEOL(final int codePoint) {
-		return codePoint == '\n' || codePoint == '\r';
-	}
 
 	/**
 	 * Tests if the given token is not null, not undefined and not a whitespace
@@ -51,7 +38,18 @@ public abstract class AbstractRule implements IPredicateRule {
 	}
 
 	@Override
-	public abstract IToken evaluate(final ICharacterScanner aScanner);
+	public IToken evaluate(final ICharacterScanner aScanner) {
+
+		MarkedCharacterScanner markedScanner = new MarkedCharacterScanner(
+				aScanner);
+		IToken result = evaluate(markedScanner);
+
+		if (result.isUndefined()) {
+			markedScanner.reset();
+		}
+
+		return result;
+	}
 
 	@Override
 	public IToken evaluate(final ICharacterScanner aScanner,
@@ -67,6 +65,16 @@ public abstract class AbstractRule implements IPredicateRule {
 		return Token.UNDEFINED;
 	}
 
+	/**
+	 * Evaluates the token at the given scanner position. If the result token is
+	 * undefined, the scanner will be automatically reset.
+	 * 
+	 * @param aScanner
+	 *            A character scanner
+	 * @return The evaluated token, or an undefined one
+	 */
+	public abstract IToken evaluate(final MarkedCharacterScanner aScanner);
+
 	@Override
 	public IToken getSuccessToken() {
 		return pSuccessToken;
@@ -80,19 +88,5 @@ public abstract class AbstractRule implements IPredicateRule {
 	 */
 	public void setSuccessToken(final IToken aSuccessToken) {
 		pSuccessToken = aSuccessToken;
-	}
-
-	/**
-	 * Resets the scanner and returns the undefined token
-	 * 
-	 * @param aScannerController
-	 *            ICharacterScanner controller
-	 * @return The token UNDEFINED
-	 */
-	protected IToken undefinedToken(final ScannerController aScannerController) {
-		if (aScannerController != null) {
-			aScannerController.unreadAll();
-		}
-		return Token.UNDEFINED;
 	}
 }

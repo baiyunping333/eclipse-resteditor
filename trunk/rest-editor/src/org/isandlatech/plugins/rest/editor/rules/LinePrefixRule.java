@@ -10,8 +10,7 @@ import java.util.List;
 
 import org.eclipse.jface.text.rules.ICharacterScanner;
 import org.eclipse.jface.text.rules.IToken;
-
-import eclihx.ui.internal.ui.editors.ScannerController;
+import org.eclipse.jface.text.rules.Token;
 
 /**
  * @author Thomas Calmant
@@ -90,35 +89,34 @@ public class LinePrefixRule extends AbstractRule {
 	}
 
 	@Override
-	public IToken evaluate(final ICharacterScanner aScanner) {
-		ScannerController controller = new ScannerController(aScanner);
+	public IToken evaluate(final MarkedCharacterScanner aScanner) {
 		int readChar = 0;
 
 		// Test block begin
 		if (pBlockPrefix != null) {
 
 			if (pMaxBlockPrefixColumn >= 0
-					&& controller.getColumn() != pMaxBlockPrefixColumn) {
-				return undefinedToken(controller);
+					&& aScanner.getColumn() != pMaxBlockPrefixColumn) {
+				return Token.UNDEFINED;
 			}
 
 			for (int i = 0; i < pBlockPrefix.length(); i++) {
-				readChar = controller.read();
+				readChar = aScanner.read();
 
 				if (readChar == ICharacterScanner.EOF
 						|| readChar != pBlockPrefix.charAt(i)) {
-					return undefinedToken(controller);
+					return Token.UNDEFINED;
 				}
 			}
 
 			// Go to next line
-			while (controller.getColumn() != 0) {
-				readChar = controller.read();
+			while (aScanner.getColumn() != 0) {
+				readChar = aScanner.read();
 
 				// Handle EOF
 				if (readChar == ICharacterScanner.EOF) {
 					if (pFailOnEOF) {
-						return undefinedToken(controller);
+						return Token.UNDEFINED;
 					}
 
 					return getSuccessToken();
@@ -126,15 +124,15 @@ public class LinePrefixRule extends AbstractRule {
 
 				// Error on none whitespace character, if the block begins the
 				// next line
-				if (pBeginLineAfterBlockPrefix && controller.getColumn() != 0
+				if (pBeginLineAfterBlockPrefix && aScanner.getColumn() != 0
 						&& !Character.isWhitespace(readChar)) {
-					return undefinedToken(controller);
+					return Token.UNDEFINED;
 				}
 			}
-		} else if (controller.getColumn() != 0) {
+		} else if (aScanner.getColumn() != 0) {
 			// We can't return valid values if we're not at the beginning of a
 			// line
-			return undefinedToken(controller);
+			return Token.UNDEFINED;
 		}
 
 		// Test lines
@@ -150,7 +148,7 @@ public class LinePrefixRule extends AbstractRule {
 		String readData = "";
 
 		do {
-			readChar = controller.read();
+			readChar = aScanner.read();
 			readData += (char) readChar;
 
 			// Stop on EOF
@@ -162,7 +160,7 @@ public class LinePrefixRule extends AbstractRule {
 				break;
 			}
 
-			int column = controller.getColumn();
+			int column = aScanner.getColumn();
 			if (column == 0) {
 
 				if (!validPrefixFound && impureLine) {
@@ -220,7 +218,7 @@ public class LinePrefixRule extends AbstractRule {
 				}
 
 				if (impureLine && selectedPrefixes.size() == 0) {
-					controller.unreadLine();
+					aScanner.unreadLine();
 					break;
 				}
 			}
@@ -230,7 +228,7 @@ public class LinePrefixRule extends AbstractRule {
 		if (caughtLines > 0) {
 			return getSuccessToken();
 		} else {
-			return undefinedToken(controller);
+			return Token.UNDEFINED;
 		}
 	}
 }

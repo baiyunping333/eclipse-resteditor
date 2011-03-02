@@ -9,8 +9,6 @@ import org.eclipse.jface.text.rules.ICharacterScanner;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.Token;
 
-import eclihx.ui.internal.ui.editors.ScannerController;
-
 /**
  * @author Thomas Calmant
  * 
@@ -78,36 +76,34 @@ public class ExactStringRule extends AbstractRule {
 	}
 
 	@Override
-	public IToken evaluate(final ICharacterScanner aScanner) {
+	public IToken evaluate(final MarkedCharacterScanner aScanner) {
 
 		if (pPatternCharArray == null) {
 			return Token.UNDEFINED;
 		}
-
-		ScannerController controller = new ScannerController(aScanner);
 
 		// Skip white spaces
 		int trimmed = 0;
 		if (pTrimLeft) {
 			int readChar;
 			do {
-				readChar = controller.read();
+				readChar = aScanner.read();
 				trimmed++;
 			} while (readChar != ICharacterScanner.EOF
 					&& Character.isWhitespace(readChar));
 
 			// Unread the last character
 			trimmed--;
-			controller.unread();
+			aScanner.unread();
 		}
 
 		if (pMaxColumn >= 0 && aScanner.getColumn() - trimmed > pMaxColumn) {
-			return undefinedToken(controller);
+			return Token.UNDEFINED;
 		}
 
 		for (char character : pPatternCharArray) {
-			if (character != controller.read()) {
-				return undefinedToken(controller);
+			if (character != aScanner.read()) {
+				return Token.UNDEFINED;
 			}
 		}
 

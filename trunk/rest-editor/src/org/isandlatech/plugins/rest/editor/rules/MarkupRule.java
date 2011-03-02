@@ -7,9 +7,8 @@ package org.isandlatech.plugins.rest.editor.rules;
 
 import org.eclipse.jface.text.rules.ICharacterScanner;
 import org.eclipse.jface.text.rules.IToken;
+import org.eclipse.jface.text.rules.Token;
 import org.isandlatech.plugins.rest.parser.RestLanguage;
-
-import eclihx.ui.internal.ui.editors.ScannerController;
 
 /**
  * @author Thomas Calmant
@@ -100,8 +99,7 @@ public class MarkupRule extends AbstractRule {
 	}
 
 	@Override
-	public IToken evaluate(final ICharacterScanner aScanner) {
-		ScannerController controller = new ScannerController(aScanner);
+	public IToken evaluate(final MarkedCharacterScanner aScanner) {
 		int readChar;
 		int contentLength = 0;
 
@@ -112,27 +110,27 @@ public class MarkupRule extends AbstractRule {
 			readChar = aScanner.read();
 
 			if (readChar == RestLanguage.ESCAPE_CHARACTER) {
-				return undefinedToken(null);
+				return Token.UNDEFINED;
 			}
 		}
 
 		// Test markup beginning
 		for (int i = 0; i < pStart.length(); i++) {
-			readChar = controller.read();
+			readChar = aScanner.read();
 
 			if (readChar == ICharacterScanner.EOF
 					|| pStart.charAt(i) != readChar) {
-				return undefinedToken(controller);
+				return Token.UNDEFINED;
 			}
 		}
 
 		// Test first character
 		if (pNoSpace) {
-			readChar = controller.read();
+			readChar = aScanner.read();
 
 			if (readChar == ICharacterScanner.EOF
 					|| Character.isWhitespace(readChar)) {
-				return undefinedToken(controller);
+				return Token.UNDEFINED;
 			}
 		}
 
@@ -141,12 +139,12 @@ public class MarkupRule extends AbstractRule {
 		String currentEnd = "";
 
 		int lastReadChar = 0;
-		while ((readChar = controller.read()) != ICharacterScanner.EOF) {
+		while ((readChar = aScanner.read()) != ICharacterScanner.EOF) {
 			contentLength++;
 
 			// EOL in single line mode -> stop
 			if (pSingleLine && (readChar == '\n' || readChar == '\r')) {
-				return undefinedToken(controller);
+				return Token.UNDEFINED;
 			}
 
 			// Escaped character -> restart pEnd search
@@ -164,7 +162,7 @@ public class MarkupRule extends AbstractRule {
 
 				if (currentEnd.endsWith(pEnd)) {
 					do {
-						readChar = controller.read();
+						readChar = aScanner.read();
 						if (readChar != ICharacterScanner.EOF) {
 							currentEnd += (char) readChar;
 						} else {
@@ -173,7 +171,7 @@ public class MarkupRule extends AbstractRule {
 					} while (currentEnd.endsWith(pEnd));
 
 					if (readChar != ICharacterScanner.EOF) {
-						controller.unread();
+						aScanner.unread();
 					}
 
 					return getSuccessToken();
@@ -187,6 +185,6 @@ public class MarkupRule extends AbstractRule {
 			lastReadChar = readChar;
 		}
 
-		return undefinedToken(controller);
+		return Token.UNDEFINED;
 	}
 }
