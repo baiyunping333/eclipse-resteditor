@@ -3,7 +3,7 @@
  * Author: Thomas Calmant
  * Date:   10 févr. 2011
  */
-package org.isandlatech.plugins.rest.editor.scanners;
+package org.isandlatech.plugins.rest.editor.providers;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +14,7 @@ import org.eclipse.jface.text.rules.WordRule;
 import org.isandlatech.plugins.rest.editor.rules.ContiguousRules;
 import org.isandlatech.plugins.rest.editor.rules.ExactStringRule;
 import org.isandlatech.plugins.rest.editor.rules.MarkupRule;
+import org.isandlatech.plugins.rest.editor.scanners.ITokenConstants;
 import org.isandlatech.plugins.rest.parser.RestLanguage;
 import org.isandlatech.plugins.rest.parser.SingleWordDetector;
 

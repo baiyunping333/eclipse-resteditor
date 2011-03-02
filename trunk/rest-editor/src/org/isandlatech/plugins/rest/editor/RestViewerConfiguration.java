@@ -35,14 +35,14 @@ import org.isandlatech.plugins.rest.editor.contentassist.DeclarativeProposalProc
 import org.isandlatech.plugins.rest.editor.contentassist.ProposalDispatcher;
 import org.isandlatech.plugins.rest.editor.formatters.GridTableFormattingStrategy;
 import org.isandlatech.plugins.rest.editor.formatters.SectionFormattingStrategy;
+import org.isandlatech.plugins.rest.editor.providers.RuleProvider;
+import org.isandlatech.plugins.rest.editor.providers.TokenProvider;
 import org.isandlatech.plugins.rest.editor.scanners.RestLiteralBlockScanner;
 import org.isandlatech.plugins.rest.editor.scanners.RestPartitionScanner;
 import org.isandlatech.plugins.rest.editor.scanners.RestScanner;
 import org.isandlatech.plugins.rest.editor.scanners.RestSectionBlockScanner;
 import org.isandlatech.plugins.rest.editor.scanners.RestSourceBlockScanner;
 import org.isandlatech.plugins.rest.editor.scanners.RestTableBlockScanner;
-import org.isandlatech.plugins.rest.editor.scanners.RuleProvider;
-import org.isandlatech.plugins.rest.editor.scanners.TokenProvider;
 import org.isandlatech.plugins.rest.prefs.IEditorPreferenceConstants;
 
 /**

@@ -10,6 +10,7 @@ import java.util.List;
 
 import org.eclipse.jface.text.rules.IRule;
 import org.eclipse.jface.text.rules.IToken;
+import org.isandlatech.plugins.rest.editor.providers.RuleProvider;
 
 /**
  * Grid and simple tables scanner

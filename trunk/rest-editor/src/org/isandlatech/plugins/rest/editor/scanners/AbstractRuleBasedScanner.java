@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.eclipse.jface.text.rules.IRule;
 import org.eclipse.jface.text.rules.RuleBasedScanner;
+import org.isandlatech.plugins.rest.editor.providers.RuleProvider;
 
 /**
  * Utility class to ease scanner definition.

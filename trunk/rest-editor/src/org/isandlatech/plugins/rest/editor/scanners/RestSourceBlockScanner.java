@@ -7,6 +7,7 @@ package org.isandlatech.plugins.rest.editor.scanners;
 
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.RuleBasedPartitionScanner;
+import org.isandlatech.plugins.rest.editor.providers.TokenProvider;
 
 /**
  * Source code block scanner
