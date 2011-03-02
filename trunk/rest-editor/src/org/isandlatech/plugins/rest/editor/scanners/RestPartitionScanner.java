@@ -79,7 +79,7 @@ public class RestPartitionScanner extends RuleBasedPartitionScanner {
 
 		// Source blocks
 		rules.add(new LinePrefixRule("::", true, -1,
-				RestLanguage.LITERAL_BLOCK_PREFIXES, false, sourceToken));
+				RestLanguage.SOURCE_BLOCK_PREFIXES, false, sourceToken));
 
 		// Grid tables
 		rules.add(new RestGridTableRule(gridTableToken));

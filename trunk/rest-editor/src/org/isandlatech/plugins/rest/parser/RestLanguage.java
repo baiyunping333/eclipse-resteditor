@@ -120,6 +120,9 @@ public interface RestLanguage {
 	/** ReST simple table line marker */
 	char SIMPLE_TABLE_MARKER = '=';
 
+	/** Line prefixes of source code blocks */
+	String[] SOURCE_BLOCK_PREFIXES = { "   ", "\t" };
+
 	/** Sphinx specific directives */
 	String[] SPHINX_DIRECTIVES = { "toctree", "versionadded", "versionchanged",
 			"deprecated", "seealso", "centered", "hlist", "index", "glossary",

@@ -39,15 +39,21 @@ public class ContiguousRules extends AbstractRule {
 	@Override
 	public IToken evaluate(final ICharacterScanner aScanner) {
 
+		MarkedCharacterScanner markedScanner = new MarkedCharacterScanner(
+				aScanner);
+
 		// Evaluate first rule
-		IToken result = pFirstRule.evaluate(aScanner);
+		IToken result = pFirstRule.evaluate(markedScanner);
 		if (!isValidToken(result)) {
 			return Token.UNDEFINED;
 		}
 
 		// Evaluate the second rule
-		result = pSecondRule.evaluate(aScanner);
+		result = pSecondRule.evaluate(markedScanner);
 		if (!isValidToken(result)) {
+			// Return to the previous position
+			markedScanner.reset();
+
 			return Token.UNDEFINED;
 		}
 

@@ -298,7 +298,7 @@ public class RuleProvider {
 	 */
 	public IRule getRoleWithContentRule() {
 		if (pRoleWithContentRule == null) {
-			IToken token = pTokenProvider
+			IToken contentToken = pTokenProvider
 					.getTokenForElement(ITokenConstants.ROLE);
 
 			IRule roleRule = getRoleRule();
@@ -307,7 +307,7 @@ public class RuleProvider {
 					ITokenConstants.DUMMY_TOKEN);
 
 			pRoleWithContentRule = new ContiguousRules(roleRule, contentRule,
-					token);
+					contentToken);
 		}
 
 		return pRoleWithContentRule;

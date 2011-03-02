@@ -31,8 +31,8 @@ public class RestScanner extends AbstractRuleBasedScanner {
 	/**
 	 * Sets up the plain-text scanner rules. Looks for :
 	 * 
-	 * <ul> <li>fields</li> <li>substitutions</li> <li>inline bold</li>
-	 * <li>inline emphasis</li> <li>inline literal</li> <li>links</li>
+	 * <ul> <li>fields</li> <li>substitutions</li> <li>in-line bold</li>
+	 * <li>in-line emphasis</li> <li>in-line literal</li> <li>links</li>
 	 * <li>footnote links</li> <li>reference links</li> <li>lists /
 	 * enumerations</li> </ul>
 	 */
@@ -50,12 +50,12 @@ public class RestScanner extends AbstractRuleBasedScanner {
 		// Create the rules to identify tokens
 		List<IRule> rules = new ArrayList<IRule>();
 
-		// Field
-		rules.add(ruleProvider.getField());
-
 		// Roles
 		rules.add(ruleProvider.getRoleWithContentRule());
 		rules.add(ruleProvider.getRoleRule());
+
+		// Field
+		rules.add(ruleProvider.getField());
 
 		// In-line modifiers
 		rules.add(ruleProvider.getInlineBold());

@@ -70,6 +70,7 @@ public class TokenProvider {
 	 */
 	public IToken getTokenForElement(final String aElement) {
 
+		// In-line modifiers
 		if (aElement.equals(ITokenConstants.INLINE_LITERAL)) {
 			return getToken(new RGB(63, 127, 95), null, SWT.ITALIC);
 		}
@@ -82,6 +83,7 @@ public class TokenProvider {
 			return getToken(new RGB(77, 77, 77), null, SWT.BOLD);
 		}
 
+		// Links
 		if (aElement.equals(ITokenConstants.LINK)
 				|| aElement.equals(ITokenConstants.FIELD)) {
 			return getToken(new RGB(0, 0, 128), null, SWT.ITALIC);
@@ -93,10 +95,12 @@ public class TokenProvider {
 			return getToken(new RGB(0, 0, 128), null, SWT.BOLD);
 		}
 
+		// Lists
 		if (aElement.equals(ITokenConstants.LIST_BULLET)) {
 			return getToken(new RGB(45, 170, 45), null, SWT.ITALIC | SWT.BOLD);
 		}
 
+		// Literals
 		if (aElement.equals(ITokenConstants.LITERAL_DEFAULT)) {
 			return getToken(new RGB(73, 116, 230));
 		}
@@ -105,18 +109,27 @@ public class TokenProvider {
 			return getToken(new RGB(0, 0, 255), null, SWT.BOLD);
 		}
 
+		// Section
 		if (aElement.equals(ITokenConstants.SECTION)) {
 			return getToken(new RGB(255, 165, 0), null, SWT.BOLD);
 		}
 
+		// Code block
 		if (aElement.equals(ITokenConstants.SOURCE)) {
 			return getToken(new RGB(63, 127, 95), null, SWT.NORMAL);
 		}
 
+		// Table (grid and simple)
 		if (aElement.equals(ITokenConstants.TABLE)) {
 			return getToken(new RGB(165, 42, 42));
 		}
 
+		// Role
+		if (aElement.equals(ITokenConstants.ROLE)) {
+			return getToken(new RGB(0, 0, 128), null, SWT.NORMAL);
+		}
+
+		// Default
 		return getToken(new RGB(0, 0, 0));
 	}
 }
