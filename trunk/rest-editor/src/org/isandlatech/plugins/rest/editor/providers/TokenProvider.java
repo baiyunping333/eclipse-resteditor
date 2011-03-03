@@ -109,9 +109,11 @@ public class TokenProvider {
 		pTokensRegistry.put(ITokenConstants.INLINE_LITERAL,
 				getToken(new RGB(63, 127, 95), null, SWT.ITALIC));
 
-		commonToken = getToken(new RGB(77, 77, 77), null, SWT.ITALIC);
-		pTokensRegistry.put(ITokenConstants.INLINE_EMPHASIS_TEXT, commonToken);
-		pTokensRegistry.put(ITokenConstants.INLINE_BOLD_TEXT, commonToken);
+		pTokensRegistry.put(ITokenConstants.INLINE_EMPHASIS_TEXT,
+				getToken(new RGB(77, 77, 77), null, SWT.ITALIC));
+
+		pTokensRegistry.put(ITokenConstants.INLINE_BOLD_TEXT,
+				getToken(new RGB(77, 77, 77), null, SWT.BOLD));
 
 		// Links, fields, roles
 		commonToken = getToken(new RGB(0, 0, 128), null, SWT.ITALIC);
