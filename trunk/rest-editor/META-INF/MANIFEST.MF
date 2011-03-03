@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: ReST Editor
 Bundle-SymbolicName: ReSTEditor; singleton:=true
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 1.0.3.qualifier
 Bundle-Activator: org.isandlatech.plugins.rest.RestPlugin
 Bundle-Vendor: Thomas Calmant
 Require-Bundle: org.eclipse.ui,
