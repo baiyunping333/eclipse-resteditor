@@ -168,6 +168,13 @@ public class NewSphinxProject extends BasicNewProjectResourceWizard {
 		generator.setStringProperty(IConfigConstants.LATEX_FONT_SIZE,
 				pAdvancedPropertiesPage.getLatexPageFontSize());
 
+		// Todo directive extension
+		if (pPropertiesPage.isExtensionTodoActivated()) {
+			generator.addExtensionPackage(IConfigConstants.EXT_TODO_PACKAGE);
+			generator.setBooleanProperty(IConfigConstants.EXT_TODO_ACTIVATION,
+					true);
+		}
+
 		// Constructs the project content
 		try {
 			setProjectContent(generator);

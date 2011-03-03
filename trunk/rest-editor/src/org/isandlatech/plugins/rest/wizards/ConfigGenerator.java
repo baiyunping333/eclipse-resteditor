@@ -5,8 +5,10 @@
  */
 package org.isandlatech.plugins.rest.wizards;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -20,11 +22,27 @@ public class ConfigGenerator {
 	/** Configuration content */
 	private final Map<String, String> pConfiguration;
 
+	/** Extension packages list */
+	private final List<String> pExtensionPackages;
+
 	/**
 	 * Prepares the configuration map
 	 */
 	public ConfigGenerator() {
 		pConfiguration = new HashMap<String, String>();
+		pExtensionPackages = new ArrayList<String>();
+	}
+
+	/**
+	 * Adds the given package to the extensions list (if needed)
+	 * 
+	 * @param aPackageName
+	 *            Extension package name
+	 */
+	public void addExtensionPackage(final String aPackageName) {
+		if (!pExtensionPackages.contains(aPackageName)) {
+			pExtensionPackages.add(aPackageName);
+		}
 	}
 
 	/**
@@ -35,6 +53,8 @@ public class ConfigGenerator {
 	public String generateConfigurationContent() {
 		StringBuilder config = new StringBuilder(IConfigConstants.CONFIG_PREFIX);
 
+		generateExtensionList();
+
 		if (pConfiguration != null) {
 			for (Entry<String, String> entry : pConfiguration.entrySet()) {
 
@@ -44,6 +64,35 @@ public class ConfigGenerator {
 		}
 
 		return config.toString();
+	}
+
+	/**
+	 * Generates the extension packages list and stores it in the configuration
+	 * dictionary.
+	 * 
+	 * Automatically called by {@link #generateConfigurationContent()}.
+	 */
+	private void generateExtensionList() {
+
+		StringBuilder extensionListStr = new StringBuilder();
+		extensionListStr.append('[');
+
+		int i = 0;
+		int nbExtensions = pExtensionPackages.size();
+
+		for (String extensionPackage : pExtensionPackages) {
+			extensionListStr.append('\'').append(extensionPackage).append('\'');
+
+			if (++i < nbExtensions) {
+				extensionListStr.append(", ");
+			}
+		}
+
+		extensionListStr.append(']');
+
+		// Store the list
+		pConfiguration.put(IConfigConstants.EXTENSION_LIST_NAME,
+				extensionListStr.toString());
 	}
 
 	/**

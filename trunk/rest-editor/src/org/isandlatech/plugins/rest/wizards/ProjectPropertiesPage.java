@@ -19,20 +19,23 @@ public class ProjectPropertiesPage extends AbstractWizardPage {
 	/** Project authors */
 	private Text pAuthors;
 
+	/** Activate "todo" extension */
+	private Button pExtensionTodo;
+
 	/** Generated documents language */
 	private Combo pLanguage;
 
 	/** Project sub-version */
 	private Text pRelease;
 
+	/** Separate source and build */
+	private Button pSeparateSourceBuild;
+
 	/** Generated HTML documents theme */
 	private Combo pTheme;
 
 	/** Project version */
 	private Text pVersion;
-
-	/** Separate source and build */
-	private Button pSeparateSourceBuild;
 
 	/**
 	 * Sets up the wizard page
@@ -67,6 +70,9 @@ public class ProjectPropertiesPage extends AbstractWizardPage {
 
 		pSeparateSourceBuild = addCheckBox("Separate source and build folders");
 		pSeparateSourceBuild.setSelection(true);
+
+		pExtensionTodo = addCheckBox("Activate the todo:: directive extension");
+		pExtensionTodo.setSelection(true);
 	}
 
 	/**
@@ -113,6 +119,13 @@ public class ProjectPropertiesPage extends AbstractWizardPage {
 	 */
 	public String getVersion() {
 		return pVersion.getText().trim();
+	}
+
+	/**
+	 * @return True if the "todo::" directive extension is activated
+	 */
+	public boolean isExtensionTodoActivated() {
+		return pExtensionTodo.getSelection();
 	}
 
 	/**

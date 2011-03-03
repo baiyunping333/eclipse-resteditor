@@ -62,12 +62,21 @@ public interface IConfigConstants {
 	/** Master document default name */
 	String DEFAULT_MASTER_DOCUMENT_NAME = "index";
 
-	/** Generated HTML documents style */
-	String[] HTML_THEMES = { "", "default", "sphinxdoc", "scrolls", "agogo",
-			"traditional", "nature", "haiku" };
+	/** todo:: extension activation */
+	String EXT_TODO_ACTIVATION = "todo_include_todos";
+
+	/** todo:: extension package */
+	String EXT_TODO_PACKAGE = "sphinx.ext.todo";
+
+	/** Extensions list name */
+	String EXTENSION_LIST_NAME = "extensions";
 
 	/** HTML theme property */
 	String HTML_THEME = "html_theme";
+
+	/** Generated HTML documents style */
+	String[] HTML_THEMES = { "", "default", "sphinxdoc", "scrolls", "agogo",
+			"traditional", "nature", "haiku" };
 
 	/** Generated documents language */
 	String LANGUAGE = "language";
