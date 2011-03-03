@@ -129,6 +129,9 @@ public interface RestLanguage {
 			"productionlist", "literalinclude", "sectionauthor", "codeauthor",
 			"only", "tabularcolumns", "code-block", "highlight" };
 
+	/** Sphinx extensions' directives */
+	String[] SPHINX_EXTENSTIONS_DIRECTIVES = { "todo", "todolist" };
+
 	/** ReST global substitution marker */
 	String SUBSTITUTION_MARKER = "|";
 }

@@ -91,6 +91,13 @@ public class DeclarativeProposalProcessor extends AbstractProposalProcessor {
 			}
 		}
 
+		for (String keyword : RestLanguage.SPHINX_EXTENSTIONS_DIRECTIVES) {
+			if (keyword.startsWith(aWord)) {
+				result.put(keyword,
+						"A Sphinx extension specific declarative keyword");
+			}
+		}
+
 		return result;
 	}
 }
