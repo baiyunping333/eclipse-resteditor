@@ -5,6 +5,8 @@
  */
 package org.isandlatech.plugins.rest.wizards;
 
+import java.io.IOException;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -12,18 +14,26 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.isandlatech.plugins.rest.RestPlugin;
+
 /**
- * Generates the Sphinx conf.py file
+ * Generates the Sphinx conf.py file from a template
  * 
  * @author Thomas Calmant
  */
-public class ConfigGenerator {
+public final class ConfigGenerator {
 
 	/** Configuration content */
 	private final Map<String, String> pConfiguration;
 
 	/** Extension packages list */
 	private final List<String> pExtensionPackages;
+
+	/** Project name */
+	private String pProjectName;
+
+	/** Project name (without spaces) */
+	private String pNoSpaceProjectName;
 
 	/**
 	 * Prepares the configuration map
@@ -46,23 +56,32 @@ public class ConfigGenerator {
 	}
 
 	/**
-	 * Generates the configuration file content
+	 * Generates the configuration file content from a template file in the
+	 * bundle
 	 * 
 	 * @return the configuration file content
+	 * @throws IOException
 	 */
-	public String generateConfigurationContent() {
-		StringBuilder config = new StringBuilder(IConfigConstants.CONFIG_PREFIX);
+	public String generateConfigurationContent() throws IOException {
+		// Open and read the template file
+		String configTemplate = RestPlugin.getDefault().getBundleFileContent(
+				IConfigConstants.RESOURCE_CONF_PY_TEMPLATE);
 
+		// Transform it into a String builder
+		StringBuilder config = new StringBuilder(configTemplate);
+
+		// Generate the extension packages list
 		generateExtensionList();
 
+		// Set the configuration values
 		if (pConfiguration != null) {
 			for (Entry<String, String> entry : pConfiguration.entrySet()) {
-
-				config.append(entry.getKey()).append(" = ")
-						.append(entry.getValue()).append('\n');
+				setConfigLine(config, entry.getKey(), entry.getValue());
 			}
 		}
 
+		// Set the last fields
+		replacePluginFields(config);
 		return config.toString();
 	}
 
@@ -136,6 +155,62 @@ public class ConfigGenerator {
 	}
 
 	/**
+	 * Replaces all plug-in specific fields in the template
+	 * 
+	 * @param aConfig
+	 *            Configuration template content
+	 */
+	private void replacePluginFields(final StringBuilder aConfig) {
+
+		// Project name
+		searchAndReplace(aConfig, IConfigConstants.EXTRA_PROJECT_NAME,
+				pProjectName);
+
+		searchAndReplace(aConfig, IConfigConstants.EXTRA_PROJECT_NAME_NOSPACE,
+				pNoSpaceProjectName);
+
+		// Plug-in name
+		searchAndReplace(aConfig, IConfigConstants.EXTRA_PLUGIN_NAME,
+				RestPlugin.PLUGIN_NAME);
+
+		// Date of creation
+		String dateOfCreation = DateFormat.getDateInstance().format(
+				Calendar.getInstance().getTime());
+
+		searchAndReplace(aConfig, IConfigConstants.EXTRA_DATE, dateOfCreation);
+	}
+
+	/**
+	 * Search and replace all occurrences of the given pattern by the given
+	 * string.
+	 * 
+	 * Returns true on success, false if the pattern wasn't found.
+	 * 
+	 * @param aText
+	 *            Text to search in
+	 * @param aPattern
+	 *            Pattern to be replaced
+	 * @param aReplacement
+	 *            Replacement string
+	 * @return True on success, False if no replacement have been done
+	 */
+	private boolean searchAndReplace(final StringBuilder aText,
+			final String aPattern, final String aReplacement) {
+
+		// Find the pattern
+		int index = aText.indexOf(aPattern);
+		boolean replaced = (index != -1);
+
+		while (index != -1) {
+			// Known configuration key : replace it
+			aText.replace(index, index + aPattern.length(), aReplacement);
+			index = aText.indexOf(aPattern);
+		}
+
+		return replaced;
+	}
+
+	/**
 	 * Sets the base project informations
 	 * 
 	 * @param aProjectName
@@ -156,7 +231,8 @@ public class ConfigGenerator {
 		int currentYear = Calendar.getInstance().get(Calendar.YEAR);
 
 		String infos;
-		String noSpaceProjectName = aProjectName.replace(" ", "");
+		pProjectName = aProjectName;
+		pNoSpaceProjectName = aProjectName.replace(" ", "");
 		String copyright = currentYear + ", " + aAuthors;
 
 		setStringProperty(IConfigConstants.PROJECT_NAME, aProjectName);
@@ -169,7 +245,7 @@ public class ConfigGenerator {
 		 * List of tuples # (source start file, target name, title, author,
 		 * documentclass [howto/manual]).
 		 */
-		infos = "[('" + aBaseFile + "', '" + noSpaceProjectName + ".tex', u'"
+		infos = "[('" + aBaseFile + "', '" + pNoSpaceProjectName + ".tex', u'"
 				+ aProjectName + " Documentation', u'" + aAuthors
 				+ "', 'manual')]";
 
@@ -179,7 +255,7 @@ public class ConfigGenerator {
 		 * Man informations # One entry per manual page. List of tuples #
 		 * (source start file, name, description, authors, manual section).
 		 */
-		infos = "[('" + aBaseFile + "', '" + noSpaceProjectName + "', u'"
+		infos = "[('" + aBaseFile + "', '" + pNoSpaceProjectName + "', u'"
 				+ aProjectName + " Documentation', [u'" + aAuthors + "'], 1)]";
 
 		pConfiguration.put(IConfigConstants.MAN_DOCUMENT, infos);
@@ -200,6 +276,34 @@ public class ConfigGenerator {
 		}
 
 		pConfiguration.put(aProperty, aValue ? "True" : "False");
+	}
+
+	/**
+	 * Adds the given configuration entry to the configuration content.
+	 * 
+	 * If the key is found as a replaceable entry, then it replaces it, else it
+	 * is appended.s
+	 * 
+	 * @param aConfig
+	 *            Configuration content builder
+	 * @param aKey
+	 *            Configuration entry key
+	 * @param aValue
+	 *            Entry value
+	 */
+	private void setConfigLine(final StringBuilder aConfig, final String aKey,
+			final String aValue) {
+
+		// Key to be searched
+		String configKey = "${" + aKey + "}";
+
+		// Replacement line
+		String configLine = aKey + " = " + aValue + '\n';
+
+		if (!searchAndReplace(aConfig, configKey, configLine)) {
+			// Key not found : append the line
+			aConfig.append(configLine);
+		}
 	}
 
 	/**

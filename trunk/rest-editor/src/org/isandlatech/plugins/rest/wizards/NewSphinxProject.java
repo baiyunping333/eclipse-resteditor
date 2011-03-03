@@ -5,10 +5,8 @@
  */
 package org.isandlatech.plugins.rest.wizards;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.Arrays;
@@ -17,8 +15,6 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.ui.wizards.newresource.BasicNewProjectResourceWizard;
 import org.isandlatech.plugins.rest.RestPlugin;
@@ -199,23 +195,13 @@ public class NewSphinxProject extends BasicNewProjectResourceWizard {
 	 */
 	protected String prepareTemplate(final String aTemplateFile)
 			throws IOException {
-		StringBuilder builder = new StringBuilder();
 
-		// Read the template file
-		Path templatePath = new Path(aTemplateFile);
+		// Open and read the template file
+		String templateContent = RestPlugin.getDefault().getBundleFileContent(
+				aTemplateFile);
 
-		InputStream templateStream = FileLocator.openStream(RestPlugin
-				.getDefault().getBundle(), templatePath, false);
-
-		BufferedReader templateReader = new BufferedReader(
-				new InputStreamReader(templateStream));
-
-		int charsRead = 0;
-		char[] buffer = new char[2048];
-
-		while ((charsRead = templateReader.read(buffer)) > 0) {
-			builder.append(buffer, 0, charsRead);
-		}
+		// Transform it into a String builder
+		StringBuilder builder = new StringBuilder(templateContent);
 
 		// Replace the source folder variable
 		int varStart = builder

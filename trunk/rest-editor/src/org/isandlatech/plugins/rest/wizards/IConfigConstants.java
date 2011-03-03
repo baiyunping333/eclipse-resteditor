@@ -71,6 +71,18 @@ public interface IConfigConstants {
 	/** Extensions list name */
 	String EXTENSION_LIST_NAME = "extensions";
 
+	/** Date of creation */
+	String EXTRA_DATE = "${date}";
+
+	/** Plugin name */
+	String EXTRA_PLUGIN_NAME = "${plugin}";
+
+	/** Project name */
+	String EXTRA_PROJECT_NAME = "${project.name}";
+
+	/** Project name without spaces */
+	String EXTRA_PROJECT_NAME_NOSPACE = "${project.name.nospace}";
+
 	/** HTML theme property */
 	String HTML_THEME = "html_theme";
 
@@ -119,10 +131,13 @@ public interface IConfigConstants {
 	/** Project version */
 	String PROJECT_VERSION = "version";
 
-	/** Make.bat template, relative to the plugin JAR file root */
+	/** Conf.py template, relative to the plug-in JAR file root */
+	String RESOURCE_CONF_PY_TEMPLATE = "/conf.py.template";
+
+	/** Make.bat template, relative to the plug-in JAR file root */
 	String RESOURCE_MAKEBAT_TEMPLATE = "/make.bat.template";
 
-	/** Makefile template, relative to the plugin JAR file root */
+	/** Makefile template, relative to the plug-in JAR file root */
 	String RESOURCE_MAKEFILE_TEMPLATE = "/Makefile.template";
 
 	/** Templates source folder variable */
