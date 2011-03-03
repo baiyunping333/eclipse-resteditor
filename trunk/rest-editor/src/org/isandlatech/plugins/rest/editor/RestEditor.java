@@ -13,7 +13,6 @@ import org.eclipse.ui.texteditor.ContentAssistAction;
 import org.eclipse.ui.texteditor.ITextEditorActionConstants;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
-import org.isandlatech.plugins.rest.RestPlugin;
 import org.isandlatech.plugins.rest.editor.outline.RestContentOutlinePage;
 
 /**
@@ -95,12 +94,6 @@ public class RestEditor extends TextEditor {
 		}
 
 		return super.getAdapter(adapter);
-	}
-
-	@Override
-	protected void initializeEditor() {
-		super.initializeEditor();
-		setPreferenceStore(RestPlugin.getDefault().getPreferenceStore());
 	}
 
 	@Override
