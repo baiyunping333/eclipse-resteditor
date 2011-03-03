@@ -95,11 +95,12 @@ public class DecoratedLinesRule extends AbstractRule {
 			// Decoration found, test the complete line
 			readChar = decorator;
 			do {
-
 				if (readChar != decorator) {
 					upperline = false;
+					aScanner.skipLine();
 					break;
 				}
+
 				readChar = aScanner.read();
 
 			} while (readChar != ICharacterScanner.EOF

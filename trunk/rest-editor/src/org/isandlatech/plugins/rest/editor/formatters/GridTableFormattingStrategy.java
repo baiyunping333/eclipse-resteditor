@@ -35,7 +35,8 @@ public class GridTableFormattingStrategy extends AbstractFormattingStrategy {
 	}
 
 	/**
-	 * Extracts columns content of the given line
+	 * Extracts columns content of the given line. Takes care of substitution
+	 * markers.
 	 * 
 	 * @param aLine
 	 *            A grid table line ('|' column separation)
@@ -46,27 +47,49 @@ public class GridTableFormattingStrategy extends AbstractFormattingStrategy {
 		Map<Integer, String> lineContent = new HashMap<Integer, String>();
 
 		int column = 0;
-		StringBuffer currentPart = new StringBuffer();
+		boolean substitution = false;
+		StringBuilder currentPart = new StringBuilder();
 
-		for (String token : aLine.split("\\|")) {
+		for (String token : aLine.split("\\"
+				+ RestLanguage.GRID_TABLE_ROW_MARKER)) {
 
-			if (token.length() != 0
-					&& token.charAt(token.length() - 1) == RestLanguage.ESCAPE_CHARACTER) {
-				currentPart.append(token).append(
-						RestLanguage.GRID_TABLE_ROW_MARKER);
+			if (column > 0
+					&& token.length() > 0
+					&& Character.isLetterOrDigit(token.charAt(0))
+					&& Character
+							.isLetterOrDigit(token.charAt(token.length() - 1))) {
+				// Substitution
+				substitution = true;
+
+				// We are again in the last saved column
+				column--;
+				StringBuilder newPart = new StringBuilder();
+
+				String oldPart = lineContent.get(column);
+				if (oldPart != null) {
+					newPart.append(oldPart);
+				}
+
+				newPart.append(currentPart);
+				currentPart = newPart;
+
+				currentPart.append(RestLanguage.SUBSTITUTION_MARKER).append(
+						token);
 
 			} else {
-				if (column > 0) {
-					currentPart.append(token);
+				// Standard token
 
-					// TODO If the pipe is followed immediately by a letter,
-					// then
-					// it's a substitution
-					// if (token.length() > 1
-					// && Character.isLetterOrDigit(token.charAt(1))) {
-					// System.out.println("Substitution found : " + token);
-					// continue;
-					// }
+				if (column > 0) {
+
+					if (substitution) {
+						// Close the substitution
+						substitution = false;
+						currentPart.append(RestLanguage.SUBSTITUTION_MARKER)
+								.append(token);
+
+					} else {
+						currentPart.append(token);
+					}
 
 					// Surround with spaces (for eye candy grids)
 					String currentPartString = ' ' + currentPart.toString()
@@ -76,10 +99,15 @@ public class GridTableFormattingStrategy extends AbstractFormattingStrategy {
 						currentPartString += ' ';
 					}
 
+					// Store the column content
 					lineContent.put(column, currentPartString);
-					currentPart = new StringBuffer();
+					currentPart = new StringBuilder();
+					column++;
+
+				} else {
+					// Forget the first token (beginning of the line)
+					column++;
 				}
-				column++;
 			}
 		}
 
