@@ -7,11 +7,13 @@ package org.isandlatech.plugins.rest.editor;
 
 import java.util.Arrays;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.DefaultLineTracker;
 import org.eclipse.jface.text.IAutoEditStrategy;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
+import org.eclipse.jface.text.ITextHover;
 import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.TabsToSpacesConverter;
 import org.eclipse.jface.text.contentassist.ContentAssistant;
@@ -28,11 +30,13 @@ import org.eclipse.jface.text.rules.DefaultDamagerRepairer;
 import org.eclipse.jface.text.rules.ITokenScanner;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.ui.editors.text.TextSourceViewerConfiguration;
+import org.eclipse.ui.texteditor.spelling.ISpellingEngine;
 import org.eclipse.ui.texteditor.spelling.SpellingReconcileStrategy;
 import org.eclipse.ui.texteditor.spelling.SpellingService;
 import org.isandlatech.plugins.rest.RestPlugin;
 import org.isandlatech.plugins.rest.editor.contentassist.DeclarativeProposalProcessor;
 import org.isandlatech.plugins.rest.editor.contentassist.ProposalDispatcher;
+import org.isandlatech.plugins.rest.editor.contentassist.SpellCheckHover;
 import org.isandlatech.plugins.rest.editor.formatters.GridTableFormattingStrategy;
 import org.isandlatech.plugins.rest.editor.formatters.SectionFormattingStrategy;
 import org.isandlatech.plugins.rest.editor.providers.RuleProvider;
@@ -68,6 +72,9 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 
 	/** Preference store */
 	private IPreferenceStore pPreferenceStore = null;
+
+	/** Spell check text hover */
+	private SpellCheckHover pSpellCheckHover = null;
 
 	/**
 	 * Prepares the configuration. Get a preference store reference.
@@ -273,6 +280,29 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 	public int getTabWidth(final ISourceViewer aSourceViewer) {
 		return pPreferenceStore
 				.getInt(IEditorPreferenceConstants.EDITOR_TABS_LENGTH);
+	}
+
+	@Override
+	public ITextHover getTextHover(final ISourceViewer aSourceViewer,
+			final String aContentType) {
+
+		if (pSpellCheckHover == null) {
+			SpellingService selectedService = new SpellingService(
+					pPreferenceStore);
+
+			ISpellingEngine engine;
+			try {
+				engine = selectedService.getActiveSpellingEngineDescriptor(
+						pPreferenceStore).createEngine();
+
+				pSpellCheckHover = new SpellCheckHover(engine);
+
+			} catch (CoreException e) {
+				e.printStackTrace();
+			}
+		}
+
+		return pSpellCheckHover;
 	}
 
 	/**
