@@ -122,7 +122,7 @@ public class SpellCheckHover implements ITextHover {
 			endWord = hoverLine.length() - 1;
 		}
 
-		if (endWord <= 0) {
+		if (endWord <= 0 || endWord < beginWord) {
 			// Empty word ?
 			return new Region(aOffset, 0);
 		}
@@ -162,13 +162,7 @@ public class SpellCheckHover implements ITextHover {
 			return new Region(aOffset, 0);
 		}
 
-		word = word.substring(beginRealWord, endRealWord);
-		System.out.println("Hovered word : " + word);
-
-		// TODO: test if the word is misspelled
-
 		return new Region(lineOffset + beginWord + beginRealWord, endRealWord
 				- beginRealWord);
 	}
-
 }

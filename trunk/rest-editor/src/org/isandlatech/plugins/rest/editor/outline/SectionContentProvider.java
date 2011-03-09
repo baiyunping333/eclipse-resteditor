@@ -11,6 +11,7 @@ import java.util.Stack;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IDocumentPartitioner;
 import org.eclipse.jface.viewers.ITreePathContentProvider;
 import org.eclipse.jface.viewers.TreePath;
 import org.eclipse.jface.viewers.Viewer;
@@ -142,8 +143,12 @@ public class SectionContentProvider implements ITreePathContentProvider {
 
 		IDocument document = pParentOutline.getDocumentProvider().getDocument(
 				aNewInput);
-
 		if (document == null) {
+			return;
+		}
+
+		IDocumentPartitioner partitioner = document.getDocumentPartitioner();
+		if (partitioner == null) {
 			return;
 		}
 
@@ -155,8 +160,7 @@ public class SectionContentProvider implements ITreePathContentProvider {
 		try {
 			for (int line = 0; line < document.getNumberOfLines(); line++) {
 				int lineOffset = document.getLineOffset(line);
-				String contentType = document.getDocumentPartitioner()
-						.getContentType(lineOffset);
+				String contentType = partitioner.getContentType(lineOffset);
 
 				// Found a section line : get all contiguous section lines
 				int sectionBeginLineNumber = line;
