@@ -47,18 +47,6 @@ public interface IConfigConstants {
 	/** Sphinx configuration file name */
 	String CONFIG_FILE_NAME = "conf.py";
 
-	/** Common conf.py part */
-	String CONFIG_PREFIX = "# -*- coding: utf-8 -*-\n"
-			+ "import sys, os\n\n"
-			+ "# The suffix of source filenames.\n"
-			+ "source_suffix = '.rst'\n"
-			+ "# List of patterns, relative to source directory, that match files and\n"
-			+ "# directories to ignore when looking for source files.\n"
-			+ "exclude_patterns = []\n"
-			+ "# The name of the Pygments (syntax highlighting) style to use.\n"
-			+ "pygments_style = 'sphinx'\n\n"
-			+ "# Beginning of generated configuration\n";
-
 	/** Master document default name */
 	String DEFAULT_MASTER_DOCUMENT_NAME = "index";
 

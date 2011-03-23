@@ -99,7 +99,7 @@ public class NewSphinxProject extends BasicNewProjectResourceWizard {
 				.append("\n").append(decorationArray);
 
 		// Summary directive
-		builder.append("\n\n.. :toctree::\n   :maxdepth: 2\n   \n   \n\n");
+		builder.append("\n\n.. toctree::\n   :maxdepth: 2\n   \n   \n\n");
 
 		// Indices and tables
 		builder.append("Indices and tables\n" + "==================\n\n"
