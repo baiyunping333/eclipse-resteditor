@@ -157,4 +157,7 @@ public interface IConfigConstants {
 
 	/** Template path */
 	String TEMPLATE_PATH = "templates_path";
+
+	/** Template project name without space variable */
+	String RESOURCE_TEMPLATE_PROJECTNAME_VAR = "${PROJECT_NAME_NOSPACE}";
 }

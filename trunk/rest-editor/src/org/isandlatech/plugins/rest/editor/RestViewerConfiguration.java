@@ -191,22 +191,26 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 		return pDocScanner;
 	}
 
-	// FIXME doesn't work as expected
 	@Override
 	public String[] getIndentPrefixes(final ISourceViewer aSourceViewer,
 			final String aContentType) {
-		// TODO use preferences
-		return new String[] { "   ", "\t", "", };
+		return new String[] { "   ", "\t", "" };
 	}
 
-	// FIXME doesn't work as expected
 	@Override
 	protected String[] getIndentPrefixesForTab(final int aTabWidth) {
-		// TODO use preferences
-		char[] array = new char[3];
-		Arrays.fill(array, ' ');
 
-		return new String[] { new String(array) };
+		boolean useSpaces = pPreferenceStore
+				.getBoolean(IEditorPreferenceConstants.EDITOR_TABS_TO_SPACES);
+
+		if (useSpaces) {
+			char[] array = new char[aTabWidth];
+			Arrays.fill(array, ' ');
+
+			return new String[] { new String(array) };
+		}
+
+		return new String[] { "\t" };
 	}
 
 	@Override

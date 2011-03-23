@@ -190,11 +190,12 @@ public class NewSphinxProject extends BasicNewProjectResourceWizard {
 	 * 
 	 * @param aTemplateFile
 	 *            Path of the template file (bundle relative)
+	 * @param aConfigGenerator
 	 * @throws IOException
 	 *             The template file can't be opened
 	 */
-	protected String prepareTemplate(final String aTemplateFile)
-			throws IOException {
+	protected String prepareTemplate(final String aTemplateFile,
+			final ConfigGenerator aConfigGenerator) throws IOException {
 
 		// Open and read the template file
 		String templateContent = RestPlugin.getDefault().getBundleFileContent(
@@ -203,21 +204,33 @@ public class NewSphinxProject extends BasicNewProjectResourceWizard {
 		// Transform it into a String builder
 		StringBuilder builder = new StringBuilder(templateContent);
 
+		// Prepare the source folder name
+		String sourceFolder = ".";
+		if (pPropertiesPage.isSourceBuildSeparated()) {
+			sourceFolder = IConfigConstants.SOURCE_FOLDER_NAME;
+		}
+
 		// Replace the source folder variable
-		int varStart = builder
-				.indexOf(IConfigConstants.RESOURCE_TEMPLATE_SOURCE_VAR);
-
-		// This block should never be skipped
-		if (varStart != -1) {
-			String sourceFolder = ".";
-
-			if (pPropertiesPage.isSourceBuildSeparated()) {
-				sourceFolder = IConfigConstants.SOURCE_FOLDER_NAME;
-			}
+		int varStart = 0;
+		while ((varStart = builder.indexOf(
+				IConfigConstants.RESOURCE_TEMPLATE_SOURCE_VAR, varStart)) != -1) {
 
 			builder.replace(varStart, varStart
 					+ IConfigConstants.RESOURCE_TEMPLATE_SOURCE_VAR.length(),
 					sourceFolder);
+		}
+
+		// Replace the project name variable
+		varStart = 0;
+		while ((varStart = builder.indexOf(
+				IConfigConstants.RESOURCE_TEMPLATE_PROJECTNAME_VAR, varStart)) != -1) {
+
+			builder.replace(
+					varStart,
+					varStart
+							+ IConfigConstants.RESOURCE_TEMPLATE_PROJECTNAME_VAR
+									.length(),
+					aConfigGenerator.getProjectNameNoSpace());
 		}
 
 		// Return the result
@@ -286,11 +299,15 @@ public class NewSphinxProject extends BasicNewProjectResourceWizard {
 		writeFile(indexFile, generateMasterDocumentContent(project.getName()));
 
 		// Write the make files (always at the root of the project)
-		writeFile("Makefile",
-				prepareTemplate(IConfigConstants.RESOURCE_MAKEFILE_TEMPLATE));
+		writeFile(
+				"Makefile",
+				prepareTemplate(IConfigConstants.RESOURCE_MAKEFILE_TEMPLATE,
+						aConfigGenerator));
 
-		writeFile("make.bat",
-				prepareTemplate(IConfigConstants.RESOURCE_MAKEBAT_TEMPLATE));
+		writeFile(
+				"make.bat",
+				prepareTemplate(IConfigConstants.RESOURCE_MAKEBAT_TEMPLATE,
+						aConfigGenerator));
 	}
 
 	/**

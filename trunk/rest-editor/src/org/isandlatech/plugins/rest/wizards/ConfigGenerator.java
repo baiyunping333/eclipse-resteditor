@@ -115,6 +115,24 @@ public final class ConfigGenerator {
 	}
 
 	/**
+	 * Retrieves the project name, as entered in the wizard
+	 * 
+	 * @return The project name
+	 */
+	public String getProjectName() {
+		return pProjectName;
+	}
+
+	/**
+	 * Retrieves the project name, without spaces
+	 * 
+	 * @return the project name, without spaces
+	 */
+	public String getProjectNameNoSpace() {
+		return pNoSpaceProjectName;
+	}
+
+	/**
 	 * Retrieves the value associated to the given key
 	 * 
 	 * @param aProperty
