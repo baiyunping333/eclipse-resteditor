@@ -32,13 +32,6 @@ public class RestEditor extends TextEditor {
 	 */
 	public RestEditor() {
 		super();
-
-		// Set the document provider
-		setDocumentProvider(new RestDocumentProvider());
-
-		// Set the viewer configuration
-		pConfiguration = new RestViewerConfiguration();
-		setSourceViewerConfiguration(pConfiguration);
 	}
 
 	@Override
@@ -94,6 +87,15 @@ public class RestEditor extends TextEditor {
 		}
 
 		return super.getAdapter(adapter);
+	}
+
+	@Override
+	protected void initializeEditor() {
+		super.initializeEditor();
+
+		// Set the viewer configuration
+		pConfiguration = new RestViewerConfiguration();
+		setSourceViewerConfiguration(pConfiguration);
 	}
 
 	@Override

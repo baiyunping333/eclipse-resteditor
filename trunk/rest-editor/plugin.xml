@@ -42,5 +42,14 @@
             project="true">
       </wizard>
    </extension>
+   <extension
+         id="org.isandlatech.plugins.rest.docsetup"
+         name="ReST Document Setup Participant"
+         point="org.eclipse.core.filebuffers.documentSetup">
+      <participant
+            class="org.isandlatech.plugins.rest.editor.RestDocumentSetupParticipant"
+            extensions="rst">
+      </participant>
+   </extension>
 
 </plugin>
