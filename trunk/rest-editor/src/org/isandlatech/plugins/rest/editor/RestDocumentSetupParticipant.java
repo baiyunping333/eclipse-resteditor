@@ -10,6 +10,7 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension3;
 import org.eclipse.jface.text.IDocumentPartitioner;
 import org.eclipse.jface.text.rules.FastPartitioner;
+import org.isandlatech.plugins.rest.RestPlugin;
 import org.isandlatech.plugins.rest.editor.scanners.RestPartitionScanner;
 
 /**
@@ -30,8 +31,8 @@ public class RestDocumentSetupParticipant implements IDocumentSetupParticipant {
 
 		if (aDocument instanceof IDocumentExtension3) {
 
-			IDocumentPartitioner partitioner = new FastPartitioner(
-					new RestPartitionScanner(),
+			IDocumentPartitioner partitioner = new FastPartitioner(RestPlugin
+					.getDefault().getPartitionScanner(),
 					RestPartitionScanner.PARTITION_TYPES);
 
 			IDocumentExtension3 docExt3 = (IDocumentExtension3) aDocument;
@@ -41,5 +42,4 @@ public class RestDocumentSetupParticipant implements IDocumentSetupParticipant {
 			partitioner.connect(aDocument);
 		}
 	}
-
 }

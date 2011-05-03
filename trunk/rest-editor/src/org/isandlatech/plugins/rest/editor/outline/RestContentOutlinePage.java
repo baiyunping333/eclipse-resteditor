@@ -99,8 +99,8 @@ public class RestContentOutlinePage extends ContentOutlinePage {
 	public void update() {
 
 		TreeViewer tree = getTreeViewer();
-		if (tree != null) {
 
+		if (tree != null) {
 			Control control = tree.getControl();
 			if (control != null) {
 				control.setRedraw(false);

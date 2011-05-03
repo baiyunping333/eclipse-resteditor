@@ -11,6 +11,7 @@ import java.util.Stack;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IDocumentExtension3;
 import org.eclipse.jface.text.IDocumentPartitioner;
 import org.eclipse.jface.viewers.ITreePathContentProvider;
 import org.eclipse.jface.viewers.TreePath;
@@ -20,8 +21,9 @@ import org.isandlatech.plugins.rest.editor.scanners.RestPartitionScanner;
 import org.isandlatech.plugins.rest.parser.RestLanguage;
 
 /**
- * @author Thomas Calmant
+ * Fills the outline with section titles
  * 
+ * @author Thomas Calmant
  */
 public class SectionContentProvider implements ITreePathContentProvider {
 
@@ -108,8 +110,16 @@ public class SectionContentProvider implements ITreePathContentProvider {
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.eclipse.jface.viewers.ITreePathContentProvider#getParents(java.lang
+	 * .Object)
+	 */
 	@Override
 	public TreePath[] getParents(final Object aElement) {
+
 		if (aElement instanceof TreeData) {
 
 			Stack<TreeData> elementGenealogy = new Stack<TreeData>();
@@ -127,6 +137,13 @@ public class SectionContentProvider implements ITreePathContentProvider {
 		return null;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.eclipse.jface.viewers.ITreePathContentProvider#hasChildren(org.eclipse
+	 * .jface.viewers.TreePath)
+	 */
 	@Override
 	public boolean hasChildren(final TreePath aPath) {
 
@@ -137,26 +154,47 @@ public class SectionContentProvider implements ITreePathContentProvider {
 		return false;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.eclipse.jface.viewers.IContentProvider#inputChanged(org.eclipse.jface
+	 * .viewers.Viewer, java.lang.Object, java.lang.Object)
+	 */
 	@Override
 	public void inputChanged(final Viewer aViewer, final Object aOldInput,
 			final Object aNewInput) {
 
+		// Get the doc
 		IDocument document = pParentOutline.getDocumentProvider().getDocument(
 				aNewInput);
 		if (document == null) {
+			// We come here when exiting Eclipse
 			return;
 		}
 
-		IDocumentPartitioner partitioner = document.getDocumentPartitioner();
+		// Get the partitioner
+		IDocumentPartitioner partitioner;
+		if (document instanceof IDocumentExtension3) {
+			IDocumentExtension3 doc3 = (IDocumentExtension3) document;
+			partitioner = doc3
+					.getDocumentPartitioner(RestPartitionScanner.PARTITIONNING);
+		} else {
+			partitioner = document.getDocumentPartitioner();
+		}
+
 		if (partitioner == null) {
+			System.err.println("No partitioner to fill outline");
 			return;
 		}
 
+		// Prepare variables
 		List<String> sectionBlockContent = new ArrayList<String>(3);
 		TreeData currentElement = pDocumentRoot;
 		pDocumentRoot.clearChildren();
 		pDecoratorsLevels.clear();
 
+		// Loop while there are some sections
 		try {
 			for (int line = 0; line < document.getNumberOfLines(); line++) {
 				int lineOffset = document.getLineOffset(line);
@@ -179,81 +217,13 @@ public class SectionContentProvider implements ITreePathContentProvider {
 					sectionBlockContent.add(lineContent);
 
 					lineOffset = document.getLineOffset(line++);
-					contentType = document.getDocumentPartitioner()
-							.getContentType(lineOffset);
+					contentType = partitioner.getContentType(lineOffset);
 				}
 
 				// We found something
 				if (sectionBlockContent.size() != 0) {
-					char decorationChar = 0;
-					boolean underlined = false;
-					int sectionLineNumber = sectionBeginLineNumber;
-					String sectionTitle = null;
-
-					for (String sectionBlockLine : sectionBlockContent) {
-
-						if (sectionTitle == null) {
-							sectionLineNumber++;
-
-							if (!DecoratedLinesRule
-									.isDecorativeLine(sectionBlockLine)) {
-								sectionTitle = sectionBlockLine;
-							}
-
-						} else if (sectionTitle != null
-								&& DecoratedLinesRule
-										.isDecorativeLine(sectionBlockLine)) {
-							// Under line found (section is OK)
-							decorationChar = sectionBlockLine.charAt(0);
-							underlined = true;
-							break;
-						}
-					}
-
-					// We found something interesting
-					if (underlined) {
-						sectionTitle = sectionTitle.trim();
-						int decorationLevel = getDecorationLevel(decorationChar);
-
-						// Valid decoration level found
-						if (decorationLevel != -1) {
-							TreeData root = null;
-
-							if (decorationLevel > currentElement.getLevel()) {
-								// Child
-								root = currentElement;
-
-							} else if (decorationChar == currentElement
-									.getLevel()) {
-								// Brother
-								root = currentElement.getParent();
-
-							} else {
-								// Uncle
-
-								while (decorationLevel <= currentElement
-										.getLevel()) {
-									currentElement = currentElement.getParent();
-									if (currentElement == null) {
-										break;
-									}
-								}
-
-								root = currentElement;
-							}
-
-							if (root == null) {
-								root = pDocumentRoot;
-							}
-
-							// Why "-1" ? I don't know :/
-							currentElement = root
-									.addChild(new TreeData(
-											sectionTitle,
-											sectionLineNumber,
-											document.getLineOffset(sectionLineNumber - 1)));
-						}
-					}
+					currentElement = storeSection(document, currentElement,
+							sectionBlockContent, sectionBeginLineNumber);
 				}
 			}
 
@@ -262,5 +232,93 @@ public class SectionContentProvider implements ITreePathContentProvider {
 		} catch (BadLocationException ex) {
 			ex.printStackTrace();
 		}
+	}
+
+	/**
+	 * Analyzes the section block and stores its title in the outline
+	 * 
+	 * @param aDocument
+	 *            Document currently read
+	 * @param aCurrentElement
+	 *            Current element in the outline hierarchy
+	 * @param aSectionBlockContent
+	 *            Content of the section to add to the outline
+	 * @param aSectionLineNumber
+	 *            Line where the section begins
+	 * @return The "new" current element, added to the outline
+	 * 
+	 * @throws BadLocationException
+	 *             An error occurred while retrieving the section title location
+	 */
+	private TreeData storeSection(final IDocument aDocument,
+			final TreeData aCurrentElement,
+			final List<String> aSectionBlockContent, int aSectionLineNumber)
+			throws BadLocationException {
+
+		TreeData newElement = aCurrentElement;
+		char decorationChar = 0;
+		boolean underlined = false;
+		String sectionTitle = null;
+
+		for (String sectionBlockLine : aSectionBlockContent) {
+
+			if (sectionTitle == null) {
+				aSectionLineNumber++;
+
+				if (!DecoratedLinesRule.isDecorativeLine(sectionBlockLine)) {
+					sectionTitle = sectionBlockLine;
+				}
+
+			} else if (sectionTitle != null
+					&& DecoratedLinesRule.isDecorativeLine(sectionBlockLine)) {
+				// Under line found (section is OK)
+				decorationChar = sectionBlockLine.charAt(0);
+				underlined = true;
+				break;
+			}
+		}
+
+		// We found something interesting
+		if (underlined) {
+			sectionTitle = sectionTitle.trim();
+			int decorationLevel = getDecorationLevel(decorationChar);
+
+			// Valid decoration level found
+			if (decorationLevel != -1) {
+				TreeData root = null;
+
+				if (decorationLevel > aCurrentElement.getLevel()) {
+					// Child
+					root = aCurrentElement;
+
+				} else if (decorationChar == aCurrentElement.getLevel()) {
+					// Brother
+					root = aCurrentElement.getParent();
+
+				} else {
+
+					// Uncle
+					while (decorationLevel <= newElement.getLevel()) {
+						newElement = newElement.getParent();
+						if (newElement == null) {
+							break;
+						}
+					}
+
+					root = newElement;
+				}
+
+				if (root == null) {
+					root = pDocumentRoot;
+				}
+
+				// Why "-1" ? I don't know :/
+				newElement = root.addChild(new TreeData(sectionTitle,
+						aSectionLineNumber, aDocument
+								.getLineOffset(aSectionLineNumber - 1)));
+			}
+		}
+
+		return newElement;
 	}
 }

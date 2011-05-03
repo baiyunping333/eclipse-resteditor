@@ -9,6 +9,7 @@ import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.isandlatech.plugins.rest.editor.scanners.RestPartitionScanner;
 import org.osgi.framework.BundleContext;
 
 /**
@@ -45,6 +46,9 @@ public class RestPlugin extends AbstractUIPlugin {
 	public static ImageDescriptor getImageDescriptor(final String path) {
 		return imageDescriptorFromPlugin(PLUGIN_ID, path);
 	}
+
+	/** The partition scanner */
+	private RestPartitionScanner pPartitionScanner;
 
 	/**
 	 * The constructor
@@ -100,6 +104,20 @@ public class RestPlugin extends AbstractUIPlugin {
 				templatePath, false);
 
 		return new BufferedReader(new InputStreamReader(templateStream));
+	}
+
+	/**
+	 * Retrieves the plugin-instance unique partition scanner
+	 * 
+	 * @return The partition scanner
+	 */
+	public RestPartitionScanner getPartitionScanner() {
+
+		if (pPartitionScanner == null) {
+			pPartitionScanner = new RestPartitionScanner();
+		}
+
+		return pPartitionScanner;
 	}
 
 	/*

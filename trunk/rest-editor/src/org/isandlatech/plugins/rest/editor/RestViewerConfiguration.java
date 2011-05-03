@@ -186,6 +186,7 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 	 * @return The instance token pDocScanner
 	 */
 	protected ITokenScanner getDocumentScanner() {
+
 		if (pDocScanner == null) {
 			initProviders();
 			pDocScanner = new RestScanner(pRuleProvider);
@@ -316,6 +317,7 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 	 * Initializes the token and rule providers if necessary
 	 */
 	private void initProviders() {
+
 		if (pTokenProvider == null) {
 			pTokenProvider = new TokenProvider();
 		}
