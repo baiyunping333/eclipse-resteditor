@@ -11,6 +11,8 @@ import org.eclipse.jface.text.rules.Token;
 import org.isandlatech.plugins.rest.parser.RestLanguage;
 
 /**
+ * Searches for surrounded strings (tags, ...)
+ * 
  * @author Thomas Calmant
  */
 public class MarkupRule extends AbstractRule {

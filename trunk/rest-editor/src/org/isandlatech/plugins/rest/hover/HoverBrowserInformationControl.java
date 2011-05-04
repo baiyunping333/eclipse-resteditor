@@ -23,8 +23,9 @@ import org.eclipse.swt.widgets.Shell;
 import org.isandlatech.plugins.rest.RestPlugin;
 
 /**
- * @author Thomas Calmant
+ * Creates a browser widget to display a tooltip
  * 
+ * @author Thomas Calmant
  */
 public class HoverBrowserInformationControl extends AbstractInformationControl
 		implements IInformationControlExtension2, LocationListener {
@@ -33,7 +34,7 @@ public class HoverBrowserInformationControl extends AbstractInformationControl
 	public static final String STYLE_SHEET_PATH = "/HoverStyle.css";
 
 	/** Browser internal links prefix */
-	public static final String INTERNAL_PREFIX = "internal://";
+	public static final String INTERNAL_PREFIX = "rest-internal://";
 
 	/**
 	 * Returns a CSS hexadecimal version of the given color

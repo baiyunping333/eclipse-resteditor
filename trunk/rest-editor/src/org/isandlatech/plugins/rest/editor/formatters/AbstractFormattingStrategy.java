@@ -11,8 +11,9 @@ import java.util.StringTokenizer;
 import org.eclipse.jface.text.formatter.IFormattingStrategy;
 
 /**
- * @author Thomas Calmant
+ * Some common utility / overriden methods to provide a formatting strategy
  * 
+ * @author Thomas Calmant
  */
 public abstract class AbstractFormattingStrategy implements IFormattingStrategy {
 

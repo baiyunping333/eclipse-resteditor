@@ -14,9 +14,6 @@ import java.util.List;
  */
 public class TreeData {
 
-	/** Null label (avoids to have a null text member) */
-	public static final String NULL_LABEL = "<null>";
-
 	/**
 	 * Creates an array of TreeData objects from a list of labels
 	 * 
@@ -110,11 +107,7 @@ public class TreeData {
 			final int aLine, final int aLineOffset) {
 		pParent = aParent;
 		pChildren = new ArrayList<TreeData>();
-
-		pText = aText;
-		if (pText == null) {
-			pText = NULL_LABEL;
-		}
+		pText = String.valueOf(aText);
 
 		if (aParent != null) {
 			aParent.addChild(this);
@@ -160,6 +153,7 @@ public class TreeData {
 
 	@Override
 	public boolean equals(final Object aObj) {
+
 		if (!(aObj instanceof TreeData)) {
 			return false;
 		}
@@ -276,11 +270,7 @@ public class TreeData {
 
 	/** Sets the element label */
 	public void setText(final String text) {
-		pText = text;
-
-		if (pText == null) {
-			pText = NULL_LABEL;
-		}
+		pText = String.valueOf(text);
 	}
 
 	@Override

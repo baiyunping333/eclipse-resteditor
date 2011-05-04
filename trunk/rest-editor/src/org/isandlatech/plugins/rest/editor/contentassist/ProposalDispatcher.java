@@ -14,8 +14,10 @@ import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
 
 /**
- * @author Thomas Calmant
+ * Dispatches the content assist processor to be used switch the current
+ * partition in the document
  * 
+ * @author Thomas Calmant
  */
 public class ProposalDispatcher extends AbstractProposalProcessor {
 

@@ -8,6 +8,7 @@ package org.isandlatech.plugins.rest.wizards;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Text;
+import org.isandlatech.plugins.rest.i18n.Messages;
 
 /**
  * Sphinx project properties
@@ -45,8 +46,9 @@ public class ProjectPropertiesPage extends AbstractWizardPage {
 	 */
 	protected ProjectPropertiesPage(final String aPageName) {
 		super(aPageName);
-		setTitle("Sphinx project properties");
-		setDescription("Mandatory project properties");
+		setTitle(Messages.getString("wizard.newproject.pages.project.title"));
+		setDescription(Messages
+				.getString("wizard.newproject.pages.project.description"));
 	}
 
 	@Override
@@ -56,22 +58,31 @@ public class ProjectPropertiesPage extends AbstractWizardPage {
 
 	@Override
 	protected void createFields() {
-		pAuthors = addTextField("Authors :");
-		pVersion = addTextField("Version (X.Y) :");
-		pRelease = addTextField("Release (X.Y.z ...) :");
+		pAuthors = addTextField(Messages
+				.getString("wizard.newproject.pages.project.authors"));
+		pVersion = addTextField(Messages
+				.getString("wizard.newproject.pages.project.version"));
+		pRelease = addTextField(Messages
+				.getString("wizard.newproject.pages.project.release"));
 
 		// TODO use preferences to select the default one
-		pLanguage = addComboBox("Language", IConfigConstants.LANGUAGES);
+		pLanguage = addComboBox(
+				Messages.getString("wizard.newproject.pages.project.language"),
+				IConfigConstants.LANGUAGES);
 		pLanguage.select(1);
 
 		// TODO use preferences to select the default one
-		pTheme = addComboBox("HTML Theme :", IConfigConstants.HTML_THEMES);
+		pTheme = addComboBox(
+				Messages.getString("wizard.newproject.pages.project.theme"),
+				IConfigConstants.HTML_THEMES);
 		pTheme.select(1);
 
-		pSeparateSourceBuild = addCheckBox("Separate source and build folders");
+		pSeparateSourceBuild = addCheckBox(Messages
+				.getString("wizard.newproject.pages.project.separatedsources"));
 		pSeparateSourceBuild.setSelection(true);
 
-		pExtensionTodo = addCheckBox("Activate the todo:: directive extension");
+		pExtensionTodo = addCheckBox(Messages
+				.getString("wizard.newproject.pages.project.ext.todo"));
 		pExtensionTodo.setSelection(true);
 	}
 

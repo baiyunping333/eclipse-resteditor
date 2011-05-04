@@ -93,10 +93,13 @@ public class SpellCheckHover implements ITextHover, ITextHoverExtension,
 						+ " :</h1>\n";
 
 				for (ICompletionProposal proposal : problem.getProposals()) {
+
+					String displayedString = proposal.getDisplayString();
+
 					correctionProposals += "<a href=\""
 							+ HoverBrowserInformationControl.INTERNAL_PREFIX
-							+ proposal.getDisplayString() + "\">"
-							+ proposal.getDisplayString() + "</a>" + "<br />\n";
+							+ displayedString + "\">" + displayedString
+							+ "</a>" + "<br />\n";
 				}
 			}
 

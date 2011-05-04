@@ -10,8 +10,9 @@ import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.Token;
 
 /**
- * @author Thomas Calmant
+ * Searches for the given string, with or without trimming.
  * 
+ * @author Thomas Calmant
  */
 public class ExactStringRule extends AbstractRule {
 

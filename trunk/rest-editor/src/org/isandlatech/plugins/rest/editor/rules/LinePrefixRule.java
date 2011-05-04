@@ -13,8 +13,9 @@ import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.Token;
 
 /**
- * @author Thomas Calmant
+ * Tests if the line begins with the given prefix
  * 
+ * @author Thomas Calmant
  */
 public class LinePrefixRule extends AbstractRule {
 

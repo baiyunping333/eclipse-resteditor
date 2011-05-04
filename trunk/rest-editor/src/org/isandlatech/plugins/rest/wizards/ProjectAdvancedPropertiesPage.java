@@ -7,6 +7,7 @@ package org.isandlatech.plugins.rest.wizards;
 
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Text;
+import org.isandlatech.plugins.rest.i18n.Messages;
 
 /**
  * Sphinx project advanced (optionnal) properties
@@ -40,29 +41,37 @@ public class ProjectAdvancedPropertiesPage extends AbstractWizardPage {
 	 *            The page name
 	 */
 	protected ProjectAdvancedPropertiesPage(final String aPageName) {
+
 		super(aPageName);
-		setTitle("Advanced Sphinx project properties");
-		setDescription("Set the advanced project properties");
+		setTitle(Messages.getString("wizard.newproject.pages.advanced.title"));
+		setDescription(Messages
+				.getString("wizard.newproject.pages.advanced.description"));
 	}
 
 	@Override
 	protected void createFields() {
-		pStaticFoldersPrefix = addTextField("Template and Static folders prefix :");
+		pStaticFoldersPrefix = addTextField(Messages
+				.getString("wizard.newproject.pages.advanced.staticfolders"));
 		pStaticFoldersPrefix.setText("_");
 
-		pMasterDocumentName = addTextField("Master document name (without suffix) :");
+		pMasterDocumentName = addTextField(Messages
+				.getString("wizard.newproject.pages.advanced.master"));
 		pMasterDocumentName.setText("index");
 
-		pSourceEncoding = addTextField("Source encoding :");
+		pSourceEncoding = addTextField(Messages
+				.getString("wizard.newproject.pages.advanced.encoding"));
 		pSourceEncoding.setText("utf-8-sig");
 
-		pLatexPaperSize = addTextField("LaTex page format :");
+		pLatexPaperSize = addTextField(Messages
+				.getString("wizard.newproject.pages.advanced.papersize"));
 		pLatexPaperSize.setText("a4");
 
-		pLatexPageFontSize = addTextField("LaTex font size :");
+		pLatexPageFontSize = addTextField(Messages
+				.getString("wizard.newproject.pages.advanced.fontsize"));
 		pLatexPageFontSize.setText("10pt");
 
-		pLatexParts = addCheckBox("Use parts instead of chapters in LaTex");
+		pLatexParts = addCheckBox(Messages
+				.getString("wizard.newproject.pages.advanced.latexparts"));
 		pLatexParts.setSelection(false);
 	}
 

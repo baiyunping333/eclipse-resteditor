@@ -9,6 +9,12 @@ import org.eclipse.jface.text.rules.IRule;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.Token;
 
+/**
+ * A rule composed of two successive rules, without separation. Validated only
+ * if both rules are valid.
+ * 
+ * @author Thomas Calmant
+ */
 public class ContiguousRules extends AbstractRule {
 
 	/** First rule to test */

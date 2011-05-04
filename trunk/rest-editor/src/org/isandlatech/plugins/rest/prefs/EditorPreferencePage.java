@@ -12,6 +12,7 @@ import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.texteditor.spelling.SpellingEngineDescriptor;
 import org.eclipse.ui.texteditor.spelling.SpellingService;
 import org.isandlatech.plugins.rest.RestPlugin;
+import org.isandlatech.plugins.rest.i18n.Messages;
 
 /**
  * ReST Editor preferences page
@@ -62,28 +63,29 @@ public class EditorPreferencePage extends FieldEditorPreferencePage implements
 
 		/* Python */
 		pPythonPathField = new DirectoryFieldEditor(
-				IEditorPreferenceConstants.PYTHON_PATH, "&Python interpreter",
-				parent);
+				IEditorPreferenceConstants.PYTHON_PATH,
+				Messages.getString("preferences.python"), parent);
 		pPythonPathField.setEmptyStringAllowed(true);
 
 		pTabsLengthField = new IntegerFieldEditor(
-				IEditorPreferenceConstants.EDITOR_TABS_LENGTH, "Tab &length",
-				parent);
+				IEditorPreferenceConstants.EDITOR_TABS_LENGTH,
+				Messages.getString("preferences.tab.len"), parent);
 		pTabsLengthField.setValidRange(1, 16);
 
 		pTabsToSpaceField = new BooleanFieldEditor(
 				IEditorPreferenceConstants.EDITOR_TABS_TO_SPACES,
-				"Insert &spaces instead of tabs", parent);
+				Messages.getString("preferences.tab.tospace"), parent);
 
 		/* Spell engine */
 		pSpellingServiceEnabledField = new BooleanFieldEditor(
 				SpellingService.PREFERENCE_SPELLING_ENABLED,
-				"&Activate spell checking", parent);
+				Messages.getString("preferences.spell.activate"), parent);
 
 		String[][] descriptorsNames = listSpellingEngines();
 		pSpellingServiceIdField = new ComboFieldEditor(
 				SpellingService.PREFERENCE_SPELLING_ENGINE,
-				"&Spelling service :", descriptorsNames, parent);
+				Messages.getString("preferences.spell.service"),
+				descriptorsNames, parent);
 
 		addField(pPythonPathField);
 		addField(pTabsLengthField);

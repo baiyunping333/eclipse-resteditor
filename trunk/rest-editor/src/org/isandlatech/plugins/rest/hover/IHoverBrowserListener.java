@@ -6,8 +6,10 @@
 package org.isandlatech.plugins.rest.hover;
 
 /**
- * @author Thomas Calmant
+ * Interface to be implemented by hover handlers to receive internal links
+ * events from the browser tooltip
  * 
+ * @author Thomas Calmant
  */
 public interface IHoverBrowserListener {
 

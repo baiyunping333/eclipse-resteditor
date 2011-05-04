@@ -16,8 +16,9 @@ import org.eclipse.ui.views.contentoutline.ContentOutlinePage;
 import org.isandlatech.plugins.rest.editor.RestEditor;
 
 /**
- * @author Thomas Calmant
+ * Outline page for ReST documents
  * 
+ * @author Thomas Calmant
  */
 public class RestContentOutlinePage extends ContentOutlinePage {
 
@@ -47,6 +48,8 @@ public class RestContentOutlinePage extends ContentOutlinePage {
 	public void createControl(final Composite parent) {
 		// Creates the outline view control
 		super.createControl(parent);
+
+		// TODO insert hierarchy actions to the outline toolbar
 
 		TreeViewer tree = getTreeViewer();
 		tree.setContentProvider(new SectionContentProvider(this));

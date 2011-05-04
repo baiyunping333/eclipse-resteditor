@@ -10,10 +10,13 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.isandlatech.plugins.rest.editor.scanners.RestPartitionScanner;
+import org.isandlatech.plugins.rest.i18n.Messages;
 import org.osgi.framework.BundleContext;
 
 /**
  * The activator class controls the plug-in life cycle
+ * 
+ * @author Thomas Calmant
  */
 public class RestPlugin extends AbstractUIPlugin {
 
@@ -24,7 +27,7 @@ public class RestPlugin extends AbstractUIPlugin {
 	public static final String PLUGIN_ID = "ReSTEditor"; //$NON-NLS-1$
 
 	/** The plug-in name */
-	public static final String PLUGIN_NAME = "ReST Editor";
+	public static final String PLUGIN_NAME = Messages.getString("plugin.name");
 
 	/**
 	 * Returns the shared instance

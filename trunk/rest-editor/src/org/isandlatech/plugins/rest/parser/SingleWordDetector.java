@@ -9,6 +9,7 @@ import org.eclipse.jface.text.rules.IWordDetector;
 
 /**
  * Consider that a word is a token of letters, digits or hyphens
+ * 
  * @author Thomas Calmant
  */
 public class SingleWordDetector implements IWordDetector {
@@ -32,5 +33,4 @@ public class SingleWordDetector implements IWordDetector {
 	public boolean isWordStart(final char c) {
 		return Character.isLetterOrDigit(c) || c == '-';
 	}
-
 }

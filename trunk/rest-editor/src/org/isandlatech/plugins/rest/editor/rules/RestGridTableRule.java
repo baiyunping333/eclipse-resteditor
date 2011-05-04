@@ -11,8 +11,9 @@ import org.eclipse.jface.text.rules.Token;
 import org.isandlatech.plugins.rest.parser.RestLanguage;
 
 /**
- * @author Thomas Calmant
+ * Detects reStructuredText grid tables
  * 
+ * @author Thomas Calmant
  */
 public class RestGridTableRule extends AbstractRule implements RestLanguage {
 

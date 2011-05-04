@@ -18,6 +18,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.ui.wizards.newresource.BasicNewProjectResourceWizard;
 import org.isandlatech.plugins.rest.RestPlugin;
+import org.isandlatech.plugins.rest.i18n.Messages;
 
 /**
  * Sphinx project creation wizard
@@ -37,7 +38,7 @@ public class NewSphinxProject extends BasicNewProjectResourceWizard {
 	 */
 	public NewSphinxProject() {
 		super();
-		setWindowTitle("New Sphinx documentation project");
+		setWindowTitle(Messages.getString("wizard.newproject.title"));
 	}
 
 	/*
@@ -52,13 +53,15 @@ public class NewSphinxProject extends BasicNewProjectResourceWizard {
 		super.addPages();
 
 		IWizardPage startingPage = getStartingPage();
-		startingPage.setTitle("Sphinx project");
-		startingPage
-				.setDescription("Creates a Sphinx documentation project from scratch");
+		startingPage.setTitle(Messages
+				.getString("wizard.newproject.project.title"));
+		startingPage.setDescription(Messages
+				.getString("wizard.newproject.project.description"));
 
-		pPropertiesPage = new ProjectPropertiesPage("Project properties");
+		pPropertiesPage = new ProjectPropertiesPage(
+				Messages.getString("wizard.newproject.advanced.title"));
 		pAdvancedPropertiesPage = new ProjectAdvancedPropertiesPage(
-				"Advanced project properties");
+				Messages.getString("wizard.newproject.advanced.description"));
 
 		addPage(pPropertiesPage);
 		addPage(pAdvancedPropertiesPage);
@@ -77,6 +80,8 @@ public class NewSphinxProject extends BasicNewProjectResourceWizard {
 	/**
 	 * Generates the index.rst file content, based on the sphinx-quickstart
 	 * result
+	 * 
+	 * TODO maybe use a template file
 	 * 
 	 * @param aProjectName
 	 *            The project name

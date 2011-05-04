@@ -18,8 +18,9 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
 /**
- * @author Thomas Calmant
+ * Utility class to ease wizard pages declaration
  * 
+ * @author Thomas Calmant
  */
 public abstract class AbstractWizardPage extends WizardPage {
 
@@ -48,12 +49,28 @@ public abstract class AbstractWizardPage extends WizardPage {
 		};
 	}
 
+	/**
+	 * Adds a check box with the given label
+	 * 
+	 * @param aParent
+	 *            The check box container
+	 * @param aLabel
+	 *            The check box label
+	 * @return The created check box
+	 */
 	protected Button addCheckBox(final Composite aParent, final String aLabel) {
 		Button button = new Button(aParent, SWT.BORDER | SWT.CHECK);
 		button.setText(aLabel);
 		return button;
 	}
 
+	/**
+	 * Adds a check box with the given label to the page
+	 * 
+	 * @param aLabel
+	 *            The check box label
+	 * @return The created check box
+	 */
 	protected Button addCheckBox(final String aLabel) {
 		return addCheckBox(pPageRoot, aLabel);
 	}

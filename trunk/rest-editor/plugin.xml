@@ -5,7 +5,7 @@
    <extension
          point="org.eclipse.ui.editors">
       <editor
-            name="ReST Editor"
+            name="%editor.name"
             extensions="rst"
             icon="icons/isandlatech_16.gif"
             contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
@@ -18,7 +18,7 @@
       <page
             class="org.isandlatech.plugins.rest.prefs.EditorPreferencePage"
             id="org.isandlatech.plugins.rest.prefs.EditorPreferencePage"
-            name="ReST Editor">
+            name="%page.name">
       </page>
    </extension>
    <extension
@@ -31,20 +31,20 @@
          point="org.eclipse.ui.newWizards">
       <category
             id="org.isandlatech.plugins.rest.wizards"
-            name="ReST Editor">
+            name="%category.name">
       </category>
       <wizard
             category="org.isandlatech.plugins.rest.wizards"
             class="org.isandlatech.plugins.rest.wizards.NewSphinxProject"
             icon="icons/isandlatech_16.gif"
             id="org.isandlatech.plugins.rest.wizards.NewSphinxProject"
-            name="Sphinx project"
+            name="%wizard.name"
             project="true">
       </wizard>
    </extension>
    <extension
          id="org.isandlatech.plugins.rest.docsetup"
-         name="ReST Document Setup Participant"
+         name="%extension.name"
          point="org.eclipse.core.filebuffers.documentSetup">
       <participant
             class="org.isandlatech.plugins.rest.editor.RestDocumentSetupParticipant"

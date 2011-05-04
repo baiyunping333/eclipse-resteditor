@@ -9,8 +9,9 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 
 /**
- * @author Thomas Calmant
+ * Structure used for hover handler and hover control communications
  * 
+ * @author Thomas Calmant
  */
 public class HoverBrowserData {
 
@@ -26,6 +27,16 @@ public class HoverBrowserData {
 	/** Data sender */
 	private IHoverBrowserListener pListener;
 
+	/**
+	 * Sets up members
+	 * 
+	 * @param aSource
+	 *            Hover handler / creator
+	 * @param aDocument
+	 *            Hovered document
+	 * @param aHoverRegion
+	 *            Hovered document region
+	 */
 	public HoverBrowserData(final IHoverBrowserListener aSource,
 			final IDocument aDocument, final IRegion aHoverRegion) {
 

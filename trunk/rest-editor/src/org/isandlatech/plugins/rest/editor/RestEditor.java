@@ -14,10 +14,12 @@ import org.eclipse.ui.texteditor.ITextEditorActionConstants;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 import org.isandlatech.plugins.rest.editor.outline.RestContentOutlinePage;
+import org.isandlatech.plugins.rest.i18n.Messages;
 
 /**
- * @author Thomas Calmant
+ * reStructuredText editor main class
  * 
+ * @author Thomas Calmant
  */
 public class RestEditor extends TextEditor {
 
@@ -39,9 +41,9 @@ public class RestEditor extends TextEditor {
 		super.createActions();
 
 		// Messages resource bundle
-		ResourceBundle resBundle = ResourceBundle.getBundle("RestEditor");
+		ResourceBundle resBundle = Messages.getBundle();
 
-		// Set up the content assistant
+		// Set up the content assistant (resource bundle needed)
 		ContentAssistAction contentAssistAction = new ContentAssistAction(
 				resBundle, "contentAssist.", this);
 

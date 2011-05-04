@@ -10,8 +10,10 @@ import java.util.Arrays;
 import org.isandlatech.plugins.rest.editor.rules.DecoratedLinesRule;
 
 /**
- * @author Thomas Calmant
+ * Automatically sets the length of section markers (upper and under lines) to
+ * the title length
  * 
+ * @author Thomas Calmant
  */
 public class SectionFormattingStrategy extends AbstractFormattingStrategy {
 

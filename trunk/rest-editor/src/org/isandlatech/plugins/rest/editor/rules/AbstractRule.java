@@ -10,6 +10,11 @@ import org.eclipse.jface.text.rules.IPredicateRule;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.Token;
 
+/**
+ * Utility class to simplify new rules declaration
+ * 
+ * @author Thomas Calmant
+ */
 public abstract class AbstractRule implements IPredicateRule {
 
 	/**

@@ -8,8 +8,10 @@ package org.isandlatech.plugins.rest.editor.rules;
 import org.eclipse.jface.text.rules.ICharacterScanner;
 
 /**
- * @author Thomas Calmant
+ * Eclipse character scanner extension, allowing to return to its original
+ * position
  * 
+ * @author Thomas Calmant
  */
 public class MarkedCharacterScanner implements ICharacterScanner {
 

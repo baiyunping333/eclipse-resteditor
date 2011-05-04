@@ -11,8 +11,10 @@ import org.eclipse.jface.text.rules.Token;
 import org.isandlatech.plugins.rest.parser.RestLanguage;
 
 /**
- * @author Thomas Calmant
+ * Tests if the current scanner position is in a decorated area
+ * (reStructuredText sections)
  * 
+ * @author Thomas Calmant
  */
 public class DecoratedLinesRule extends AbstractRule {
 
@@ -25,6 +27,7 @@ public class DecoratedLinesRule extends AbstractRule {
 	 *         a digit
 	 */
 	public static boolean isDecorationCharacter(final int aChar) {
+
 		for (char allowedDecorator : RestLanguage.SECTION_DECORATIONS) {
 			if (allowedDecorator == aChar) {
 				return true;

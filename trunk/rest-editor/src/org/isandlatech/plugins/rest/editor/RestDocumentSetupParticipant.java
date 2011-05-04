@@ -14,8 +14,10 @@ import org.isandlatech.plugins.rest.RestPlugin;
 import org.isandlatech.plugins.rest.editor.scanners.RestPartitionScanner;
 
 /**
- * @author Thomas Calmant
+ * Sets up the document partitionner. Only works with IDocumentExtension3
+ * documents.
  * 
+ * @author Thomas Calmant
  */
 public class RestDocumentSetupParticipant implements IDocumentSetupParticipant {
 

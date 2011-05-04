@@ -18,6 +18,7 @@ import org.eclipse.jface.viewers.TreePath;
 import org.eclipse.jface.viewers.Viewer;
 import org.isandlatech.plugins.rest.editor.rules.DecoratedLinesRule;
 import org.isandlatech.plugins.rest.editor.scanners.RestPartitionScanner;
+import org.isandlatech.plugins.rest.i18n.Messages;
 import org.isandlatech.plugins.rest.parser.RestLanguage;
 
 /**
@@ -28,7 +29,8 @@ import org.isandlatech.plugins.rest.parser.RestLanguage;
 public class SectionContentProvider implements ITreePathContentProvider {
 
 	/** Root path label */
-	private final TreeData pDocumentRoot = new TreeData("Document");
+	private final TreeData pDocumentRoot = new TreeData(
+			Messages.getString("document.root"));
 
 	/** Decoration level list */
 	private final List<Character> pDecoratorsLevels = new ArrayList<Character>(

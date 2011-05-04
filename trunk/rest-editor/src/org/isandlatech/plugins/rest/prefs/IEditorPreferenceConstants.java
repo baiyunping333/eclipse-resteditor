@@ -2,6 +2,8 @@ package org.isandlatech.plugins.rest.prefs;
 
 /**
  * Constant definitions for plug-in preferences
+ * 
+ * @author Thomas Calmant
  */
 public interface IEditorPreferenceConstants {
 

@@ -49,8 +49,9 @@ import org.isandlatech.plugins.rest.hover.SpellCheckHover;
 import org.isandlatech.plugins.rest.prefs.IEditorPreferenceConstants;
 
 /**
- * @author Thomas Calmant
+ * RestEditor configuration handler
  * 
+ * @author Thomas Calmant
  */
 public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 

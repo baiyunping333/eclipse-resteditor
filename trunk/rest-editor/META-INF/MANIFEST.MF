@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: ReST Editor
+Bundle-Name: %Bundle-Name
 Bundle-SymbolicName: ReSTEditor; singleton:=true
 Bundle-Version: 1.0.4.qualifier
 Bundle-Activator: org.isandlatech.plugins.rest.RestPlugin
