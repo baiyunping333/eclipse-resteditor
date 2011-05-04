@@ -120,13 +120,13 @@ public interface IConfigConstants {
 	String PROJECT_VERSION = "version";
 
 	/** Conf.py template, relative to the plug-in JAR file root */
-	String RESOURCE_CONF_PY_TEMPLATE = "/conf.py.template";
+	String RESOURCE_CONF_PY_TEMPLATE = "/templates/conf.py.template";
 
 	/** Make.bat template, relative to the plug-in JAR file root */
-	String RESOURCE_MAKEBAT_TEMPLATE = "/make.bat.template";
+	String RESOURCE_MAKEBAT_TEMPLATE = "/templates/make.bat.template";
 
 	/** Makefile template, relative to the plug-in JAR file root */
-	String RESOURCE_MAKEFILE_TEMPLATE = "/Makefile.template";
+	String RESOURCE_MAKEFILE_TEMPLATE = "/templates/Makefile.template";
 
 	/** Templates source folder variable */
 	String RESOURCE_TEMPLATE_SOURCE_VAR = "${OUTPUT_SOURCE_FOLDER}";
