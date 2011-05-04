@@ -1,4 +1,4 @@
-package org.isandlatech.plugins.rest.editor.contentassist;
+package org.isandlatech.plugins.rest.hover;
 
 import java.util.ArrayList;
 import java.util.List;

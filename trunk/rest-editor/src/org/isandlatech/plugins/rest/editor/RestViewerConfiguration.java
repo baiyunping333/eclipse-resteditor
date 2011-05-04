@@ -35,7 +35,6 @@ import org.eclipse.ui.texteditor.spelling.SpellingService;
 import org.isandlatech.plugins.rest.RestPlugin;
 import org.isandlatech.plugins.rest.editor.contentassist.DeclarativeProposalProcessor;
 import org.isandlatech.plugins.rest.editor.contentassist.ProposalDispatcher;
-import org.isandlatech.plugins.rest.editor.contentassist.SpellCheckHover;
 import org.isandlatech.plugins.rest.editor.formatters.GridTableFormattingStrategy;
 import org.isandlatech.plugins.rest.editor.formatters.SectionFormattingStrategy;
 import org.isandlatech.plugins.rest.editor.providers.RuleProvider;
@@ -46,6 +45,7 @@ import org.isandlatech.plugins.rest.editor.scanners.RestScanner;
 import org.isandlatech.plugins.rest.editor.scanners.RestSectionBlockScanner;
 import org.isandlatech.plugins.rest.editor.scanners.RestSourceBlockScanner;
 import org.isandlatech.plugins.rest.editor.scanners.RestTableBlockScanner;
+import org.isandlatech.plugins.rest.hover.SpellCheckHover;
 import org.isandlatech.plugins.rest.prefs.IEditorPreferenceConstants;
 
 /**

@@ -3,7 +3,7 @@
  * Author: Thomas Calmant
  * Date:   4 mars 2011
  */
-package org.isandlatech.plugins.rest.editor.contentassist;
+package org.isandlatech.plugins.rest.hover;
 
 import java.util.List;
 
@@ -12,8 +12,10 @@ import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.core.runtime.content.IContentTypeManager;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IInformationControlCreator;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextHover;
+import org.eclipse.jface.text.ITextHoverExtension;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
@@ -26,7 +28,7 @@ import org.eclipse.ui.texteditor.spelling.SpellingProblem;
  * 
  * @author Thomas Calmant
  */
-public class SpellCheckHover implements ITextHover {
+public class SpellCheckHover implements ITextHover, ITextHoverExtension {
 
 	/** Spelling engine to use */
 	private ISpellingEngine pSpellingEngine;
@@ -53,6 +55,11 @@ public class SpellCheckHover implements ITextHover {
 	}
 
 	@Override
+	public IInformationControlCreator getHoverControlCreator() {
+		return HoverBrowserInformationControl.getCreator();
+	}
+
+	@Override
 	public String getHoverInfo(final ITextViewer aTextViewer,
 			final IRegion aHoverRegion) {
 
@@ -68,10 +75,13 @@ public class SpellCheckHover implements ITextHover {
 			List<SpellingProblem> foundProblems = collector.getProblems();
 
 			for (SpellingProblem problem : foundProblems) {
-				correctionProposals += problem.getMessage() + " :\n";
+				correctionProposals += "<h1>" + problem.getMessage()
+						+ " :</h1>\n";
 
 				for (ICompletionProposal proposal : problem.getProposals()) {
-					correctionProposals += proposal.getDisplayString() + "\n";
+					correctionProposals += "<a href=\""
+							+ proposal.getDisplayString() + "\">"
+							+ proposal.getDisplayString() + "</a>" + "<br />\n";
 				}
 			}
 
