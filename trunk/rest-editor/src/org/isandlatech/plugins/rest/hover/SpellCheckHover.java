@@ -16,6 +16,7 @@ import org.eclipse.jface.text.IInformationControlCreator;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextHover;
 import org.eclipse.jface.text.ITextHoverExtension;
+import org.eclipse.jface.text.ITextHoverExtension2;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
@@ -28,13 +29,14 @@ import org.eclipse.ui.texteditor.spelling.SpellingProblem;
  * 
  * @author Thomas Calmant
  */
-public class SpellCheckHover implements ITextHover, ITextHoverExtension {
-
-	/** Spelling engine to use */
-	private ISpellingEngine pSpellingEngine;
+public class SpellCheckHover implements ITextHover, ITextHoverExtension,
+		ITextHoverExtension2, IHoverBrowserListener {
 
 	/** Spelling context to be used (standard text) */
 	private final SpellingContext pSpellingContext;
+
+	/** Spelling engine to use */
+	private ISpellingEngine pSpellingEngine;
 
 	/**
 	 * Prepares the spell check hover
@@ -54,11 +56,23 @@ public class SpellCheckHover implements ITextHover, ITextHoverExtension {
 		pSpellingContext.setContentType(contentType);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.eclipse.jface.text.ITextHoverExtension#getHoverControlCreator()
+	 */
 	@Override
 	public IInformationControlCreator getHoverControlCreator() {
 		return HoverBrowserInformationControl.getCreator();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.eclipse.jface.text.ITextHover#getHoverInfo(org.eclipse.jface.text
+	 * .ITextViewer, org.eclipse.jface.text.IRegion)
+	 */
 	@Override
 	public String getHoverInfo(final ITextViewer aTextViewer,
 			final IRegion aHoverRegion) {
@@ -80,6 +94,7 @@ public class SpellCheckHover implements ITextHover, ITextHoverExtension {
 
 				for (ICompletionProposal proposal : problem.getProposals()) {
 					correctionProposals += "<a href=\""
+							+ HoverBrowserInformationControl.INTERNAL_PREFIX
 							+ proposal.getDisplayString() + "\">"
 							+ proposal.getDisplayString() + "</a>" + "<br />\n";
 				}
@@ -98,6 +113,37 @@ public class SpellCheckHover implements ITextHover, ITextHoverExtension {
 		return correctionProposals;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.eclipse.jface.text.ITextHoverExtension2#getHoverInfo2(org.eclipse
+	 * .jface.text.ITextViewer, org.eclipse.jface.text.IRegion)
+	 */
+	@Override
+	public Object getHoverInfo2(final ITextViewer aTextViewer,
+			final IRegion aHoverRegion) {
+
+		String info = getHoverInfo(aTextViewer, aHoverRegion);
+
+		if (info == null) {
+			return null;
+		}
+
+		HoverBrowserData data = new HoverBrowserData(this,
+				aTextViewer.getDocument(), aHoverRegion);
+		data.setInformation(info);
+
+		return data;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.eclipse.jface.text.ITextHover#getHoverRegion(org.eclipse.jface.text
+	 * .ITextViewer, int)
+	 */
 	@Override
 	public IRegion getHoverRegion(final ITextViewer aTextViewer,
 			final int aOffset) {
@@ -174,5 +220,31 @@ public class SpellCheckHover implements ITextHover, ITextHoverExtension {
 
 		return new Region(lineOffset + beginWord + beginRealWord, endRealWord
 				- beginRealWord);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.isandlatech.plugins.rest.hover.IHoverBrowserListener#
+	 * hoverInternalLinkClicked(java.lang.String,
+	 * org.isandlatech.plugins.rest.hover.HoverBrowserData)
+	 */
+	@Override
+	public boolean hoverInternalLinkClicked(final String aInternalLink,
+			final HoverBrowserData aAssociatedData) {
+
+		IDocument document = aAssociatedData.getDocument();
+		IRegion region = aAssociatedData.getHoverRegion();
+
+		try {
+			document.replace(region.getOffset(), region.getLength(),
+					aInternalLink);
+
+		} catch (BadLocationException e) {
+			e.printStackTrace();
+			return false;
+		}
+
+		return true;
 	}
 }

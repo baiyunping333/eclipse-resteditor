@@ -14,6 +14,8 @@ import org.eclipse.jface.text.IInformationControlCreator;
 import org.eclipse.jface.text.IInformationControlExtension2;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
+import org.eclipse.swt.browser.LocationEvent;
+import org.eclipse.swt.browser.LocationListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -25,10 +27,13 @@ import org.isandlatech.plugins.rest.RestPlugin;
  * 
  */
 public class HoverBrowserInformationControl extends AbstractInformationControl
-		implements IInformationControlExtension2 {
+		implements IInformationControlExtension2, LocationListener {
 
 	/** Browser content style */
 	public static final String STYLE_SHEET_PATH = "/HoverStyle.css";
+
+	/** Browser internal links prefix */
+	public static final String INTERNAL_PREFIX = "internal://";
 
 	/**
 	 * Returns a CSS hexadecimal version of the given color
@@ -75,6 +80,9 @@ public class HoverBrowserInformationControl extends AbstractInformationControl
 	/** The creator that instanciated this object */
 	private IInformationControlCreator pControlCreator;
 
+	/** Data associated to this tooltip */
+	private HoverBrowserData pData;
+
 	/**
 	 * Prepares the information control
 	 * 
@@ -96,6 +104,50 @@ public class HoverBrowserInformationControl extends AbstractInformationControl
 	 * (non-Javadoc)
 	 * 
 	 * @see
+	 * org.eclipse.swt.browser.LocationListener#changed(org.eclipse.swt.browser
+	 * .LocationEvent)
+	 */
+	@Override
+	public void changed(final LocationEvent aEvent) {
+		// Do nothing...
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.eclipse.swt.browser.LocationListener#changing(org.eclipse.swt.browser
+	 * .LocationEvent)
+	 */
+	@Override
+	public void changing(final LocationEvent aEvent) {
+
+		// Standard location
+		if (!aEvent.location.startsWith(INTERNAL_PREFIX)) {
+			aEvent.doit = true;
+			return;
+		}
+
+		// The browser won't find this location anyway...
+		aEvent.doit = false;
+
+		// Propagate the event
+		if (pData != null) {
+
+			String location = aEvent.location.substring(INTERNAL_PREFIX
+					.length());
+
+			if (pData.notifyListener(location)) {
+				// Close the tooltip
+				dispose();
+			}
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
 	 * org.eclipse.jface.text.AbstractInformationControl#createContent(org.eclipse
 	 * .swt.widgets.Composite)
 	 */
@@ -104,6 +156,7 @@ public class HoverBrowserInformationControl extends AbstractInformationControl
 
 		pBrowser = new Browser(aParent, SWT.NONE);
 		pBrowser.setJavascriptEnabled(false);
+		pBrowser.addLocationListener(this);
 	}
 
 	/**
@@ -130,7 +183,7 @@ public class HoverBrowserInformationControl extends AbstractInformationControl
 			e.printStackTrace();
 		}
 
-		// Colors styles
+		// Colors styles from display
 		htmlContent.append("html { color: ");
 		htmlContent.append(colorToHex(foreground));
 		htmlContent.append("; background-color: ");
@@ -187,11 +240,15 @@ public class HoverBrowserInformationControl extends AbstractInformationControl
 	@Override
 	public void setInformation(final String aInformation) {
 
+		// Prepare HTML content
 		StringBuilder htmlContent = createHtmlHead();
 		htmlContent.append(aInformation);
 		finishHtmlContent(htmlContent);
 
 		pBrowser.setText(htmlContent.toString());
+
+		// Data changed
+		pData = null;
 	}
 
 	/*
@@ -203,6 +260,13 @@ public class HoverBrowserInformationControl extends AbstractInformationControl
 	 */
 	@Override
 	public void setInput(final Object aInput) {
+
 		setInformation(String.valueOf(aInput));
+
+		if (aInput instanceof HoverBrowserData) {
+			pData = (HoverBrowserData) aInput;
+		} else {
+			pData = null;
+		}
 	}
 }
