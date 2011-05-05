@@ -16,11 +16,11 @@ import org.eclipse.jface.text.rules.Token;
  */
 public class ExactStringRule extends AbstractRule {
 
-	/** String to find */
-	private char[] pPatternCharArray;
-
 	/** Maximum column of the string (-1 to ignore) */
 	private int pMaxColumn;
+
+	/** String to find */
+	private char[] pPatternCharArray;
 
 	/** Ignore all white spaces before the string */
 	private boolean pTrimLeft;

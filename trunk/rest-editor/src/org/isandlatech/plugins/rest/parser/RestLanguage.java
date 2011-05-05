@@ -130,7 +130,7 @@ public interface RestLanguage {
 			"only", "tabularcolumns", "code-block", "highlight" };
 
 	/** Sphinx extensions' directives */
-	String[] SPHINX_EXTENSTIONS_DIRECTIVES = { "todo", "todolist" };
+	String[] SPHINX_EXTENSIONS_DIRECTIVES = { "todo", "todolist" };
 
 	/** ReST global substitution marker */
 	String SUBSTITUTION_MARKER = "|";

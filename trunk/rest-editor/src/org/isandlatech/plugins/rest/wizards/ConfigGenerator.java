@@ -29,11 +29,11 @@ public final class ConfigGenerator {
 	/** Extension packages list */
 	private final List<String> pExtensionPackages;
 
-	/** Project name */
-	private String pProjectName;
-
 	/** Project name (without spaces) */
 	private String pNoSpaceProjectName;
+
+	/** Project name */
+	private String pProjectName;
 
 	/**
 	 * Prepares the configuration map

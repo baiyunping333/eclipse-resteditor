@@ -39,6 +39,7 @@ public class DeclarativeProposalProcessor extends AbstractProposalProcessor {
 	protected ICompletionProposal[] buildProposals(
 			final Map<String, String> aSuggestions, final String aReplacedWord,
 			final int aOffset) {
+
 		if (aSuggestions == null || aSuggestions.size() == 0) {
 			return null;
 		}
@@ -92,7 +93,7 @@ public class DeclarativeProposalProcessor extends AbstractProposalProcessor {
 			}
 		}
 
-		for (String keyword : RestLanguage.SPHINX_EXTENSTIONS_DIRECTIVES) {
+		for (String keyword : RestLanguage.SPHINX_EXTENSIONS_DIRECTIVES) {
 			if (keyword.startsWith(aWord)) {
 				result.put(keyword, Messages.getDirectiveHelp(keyword));
 			}

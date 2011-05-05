@@ -25,6 +25,9 @@ public class LinePrefixRule extends AbstractRule {
 	/** Prefix needed before the prefixed block */
 	private String pBlockPrefix;
 
+	/** Rule fails if EOF is on the prefix line */
+	private boolean pFailOnEOF;
+
 	/** Maximum column of the block prefix. -1 for "don't care" */
 	private int pMaxBlockPrefixColumn;
 
@@ -33,9 +36,6 @@ public class LinePrefixRule extends AbstractRule {
 
 	/** Allowed line prefixes */
 	private char[][] pPrefixes;
-
-	/** Rule fails if EOF is on the prefix line */
-	private boolean pFailOnEOF;
 
 	/**
 	 * Configures the rule

@@ -36,8 +36,25 @@ import org.isandlatech.plugins.rest.i18n.Messages;
 public class RestTextHover implements ITextHover, ITextHoverExtension,
 		ITextHoverExtension2, IHoverBrowserListener {
 
-	/** Spelling action prefix in internal links */
-	public static final String SPELL_LINK_PREFIX = "spell/";
+	/**
+	 * Simple way to make an internal link
+	 * 
+	 * @param aActionPrefix
+	 *            The action prefix to use (see {@link IHoverConstants}
+	 * @param aValue
+	 *            Action parameter
+	 * @return The forged internal link
+	 */
+	public static String makeLink(final String aActionPrefix,
+			final String aValue) {
+
+		StringBuilder builder = new StringBuilder();
+		builder.append(IHoverConstants.INTERNAL_PREFIX);
+		builder.append(aActionPrefix);
+		builder.append(aValue);
+
+		return builder.toString();
+	}
 
 	/** Spelling context to be used (standard text) */
 	private final SpellingContext pSpellingContext;
@@ -149,9 +166,9 @@ public class RestTextHover implements ITextHover, ITextHoverExtension,
 					String displayedString = proposal.getDisplayString();
 
 					correctionProposals += "<a href=\""
-							+ HoverBrowserInformationControl.INTERNAL_PREFIX
-							+ SPELL_LINK_PREFIX + displayedString + "\">"
-							+ displayedString + "</a>" + "<br />\n";
+							+ makeLink(IHoverConstants.SPELL_LINK_PREFIX,
+									displayedString) + "\">" + displayedString
+							+ "</a>" + "<br />\n";
 				}
 			}
 
@@ -322,28 +339,84 @@ public class RestTextHover implements ITextHover, ITextHoverExtension,
 	public boolean hoverInternalLinkClicked(final String aInternalLink,
 			final HoverBrowserData aAssociatedData) {
 
-		IDocument document = aAssociatedData.getDocument();
-		IRegion region = aAssociatedData.getHoverRegion();
+		if (aInternalLink.startsWith(IHoverConstants.SPELL_LINK_PREFIX)) {
 
-		// Spell checker link
-		if (aInternalLink.startsWith(SPELL_LINK_PREFIX)) {
+			// Spell checker link
+			String replacementWord = aInternalLink
+					.substring(IHoverConstants.SPELL_LINK_PREFIX.length());
 
-			String replacementWord = aInternalLink.substring(SPELL_LINK_PREFIX
-					.length());
+			return spellAction(aAssociatedData, replacementWord);
 
-			try {
-				document.replace(region.getOffset(), region.getLength(),
-						replacementWord);
+		} else if (aInternalLink.startsWith(IHoverConstants.SAMPLE_LINK_PREFIX)) {
 
-			} catch (BadLocationException e) {
-				e.printStackTrace();
-				return false;
-			}
+			// Insert sample link
+			String directive = aInternalLink
+					.substring(IHoverConstants.SAMPLE_LINK_PREFIX.length());
 
-			return true;
+			String sample = Messages.getDirectiveSample(directive);
+			System.out.println(sample);
+			// TODO insert it
+			return sampleInsertionAction(aAssociatedData, directive);
 		}
 
 		// Link not treated
 		return false;
+	}
+
+	private boolean sampleInsertionAction(
+			final HoverBrowserData aAssociatedData, final String aDirective) {
+
+		IDocument document = aAssociatedData.getDocument();
+		IRegion region = aAssociatedData.getHoverRegion();
+
+		String sample = Messages.getDirectiveSample(aDirective);
+		if (sample == null) {
+			return false;
+		}
+
+		try {
+			// Replace the whole line
+			int line = document.getLineOfOffset(region.getOffset());
+			int lineStart = document.getLineOffset(line);
+
+			// +2 : don't forget the last '::'
+			int replacementLength = region.getLength() + region.getOffset()
+					- lineStart + 2;
+
+			document.replace(lineStart, replacementLength, sample);
+
+		} catch (BadLocationException e) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Does the spell correction, by replacing badly spelled word with the given
+	 * one
+	 * 
+	 * @param aAssociatedData
+	 *            Data associated to the hover browser event
+	 * @param aReplacementWord
+	 *            Well-spelled word to use
+	 * @return True on success, False on error
+	 */
+	private boolean spellAction(final HoverBrowserData aAssociatedData,
+			final String aReplacementWord) {
+
+		IDocument document = aAssociatedData.getDocument();
+		IRegion region = aAssociatedData.getHoverRegion();
+
+		try {
+			document.replace(region.getOffset(), region.getLength(),
+					aReplacementWord);
+
+		} catch (BadLocationException e) {
+			e.printStackTrace();
+			return false;
+		}
+
+		return true;
 	}
 }

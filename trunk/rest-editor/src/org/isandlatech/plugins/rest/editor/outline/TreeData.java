@@ -37,8 +37,8 @@ public class TreeData {
 		return resultArray;
 	}
 
-	/** Element label */
-	private String pText;
+	/** Element children */
+	private List<TreeData> pChildren;
 
 	/** Element level */
 	private int pLevel;
@@ -52,8 +52,8 @@ public class TreeData {
 	/** Element parent */
 	private TreeData pParent;
 
-	/** Element children */
-	private List<TreeData> pChildren;
+	/** Element label */
+	private String pText;
 
 	/**
 	 * Configures the tree element

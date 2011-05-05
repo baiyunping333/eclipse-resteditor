@@ -28,13 +28,13 @@ import org.isandlatech.plugins.rest.parser.RestLanguage;
  */
 public class SectionContentProvider implements ITreePathContentProvider {
 
-	/** Root path label */
-	private final TreeData pDocumentRoot = new TreeData(
-			Messages.getString("document.root"));
-
 	/** Decoration level list */
 	private final List<Character> pDecoratorsLevels = new ArrayList<Character>(
 			RestLanguage.SECTION_DECORATIONS.length);
+
+	/** Root path label */
+	private final TreeData pDocumentRoot = new TreeData(
+			Messages.getString("document.root"));
 
 	/** Parent outline page */
 	private final RestContentOutlinePage pParentOutline;

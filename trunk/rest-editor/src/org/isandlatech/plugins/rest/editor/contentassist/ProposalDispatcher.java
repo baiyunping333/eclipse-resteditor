@@ -9,9 +9,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IDocumentExtension3;
+import org.eclipse.jface.text.IDocumentPartitioner;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
+import org.isandlatech.plugins.rest.editor.scanners.RestPartitionScanner;
 
 /**
  * Dispatches the content assist processor to be used switch the current
@@ -41,8 +44,22 @@ public class ProposalDispatcher extends AbstractProposalProcessor {
 			final ITextViewer aViewer, final int aOffset) {
 
 		IDocument document = aViewer.getDocument();
-		String partititon = document.getDocumentPartitioner().getContentType(
-				aOffset - 1);
+		IDocumentPartitioner partitioner;
+
+		if (document instanceof IDocumentExtension3) {
+			IDocumentExtension3 doc3 = (IDocumentExtension3) document;
+			partitioner = doc3
+					.getDocumentPartitioner(RestPartitionScanner.PARTITIONNING);
+		} else {
+			partitioner = document.getDocumentPartitioner();
+		}
+
+		// No partitioner : no test
+		if (partitioner == null) {
+			return null;
+		}
+
+		String partititon = partitioner.getContentType(aOffset - 1);
 
 		IContentAssistProcessor processor = pPartitionsProcessors
 				.get(partititon);

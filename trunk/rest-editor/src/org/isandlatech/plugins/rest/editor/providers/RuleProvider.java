@@ -99,7 +99,7 @@ public class RuleProvider {
 				pDirectives.addWord(directive + "::", token);
 			}
 
-			for (String directive : RestLanguage.SPHINX_EXTENSTIONS_DIRECTIVES) {
+			for (String directive : RestLanguage.SPHINX_EXTENSIONS_DIRECTIVES) {
 				pDirectives.addWord(directive + "::", token);
 			}
 		}

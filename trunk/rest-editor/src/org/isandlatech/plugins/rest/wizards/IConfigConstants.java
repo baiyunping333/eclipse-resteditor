@@ -128,6 +128,9 @@ public interface IConfigConstants {
 	/** Makefile template, relative to the plug-in JAR file root */
 	String RESOURCE_MAKEFILE_TEMPLATE = "/templates/Makefile.template";
 
+	/** Template project name without space variable */
+	String RESOURCE_TEMPLATE_PROJECTNAME_VAR = "${PROJECT_NAME_NOSPACE}";
+
 	/** Templates source folder variable */
 	String RESOURCE_TEMPLATE_SOURCE_VAR = "${OUTPUT_SOURCE_FOLDER}";
 
@@ -145,7 +148,4 @@ public interface IConfigConstants {
 
 	/** Template path */
 	String TEMPLATE_PATH = "templates_path";
-
-	/** Template project name without space variable */
-	String RESOURCE_TEMPLATE_PROJECTNAME_VAR = "${PROJECT_NAME_NOSPACE}";
 }

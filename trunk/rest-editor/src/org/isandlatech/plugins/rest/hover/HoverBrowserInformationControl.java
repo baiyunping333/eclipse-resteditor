@@ -31,14 +31,11 @@ import org.isandlatech.plugins.rest.RestPlugin;
 public class HoverBrowserInformationControl extends AbstractInformationControl
 		implements IInformationControlExtension2, LocationListener {
 
-	/** Browser content style */
-	public static final String STYLE_SHEET_PATH = "/HoverStyle.css";
-
-	/** Browser internal links prefix */
-	public static final String INTERNAL_PREFIX = "rest-internal://";
-
 	/** Browser ID for external links */
 	public static final String BROWSER_ID = "rest-documentaton-browser";
+
+	/** Browser content style */
+	public static final String STYLE_SHEET_PATH = "/HoverStyle.css";
 
 	/**
 	 * Returns a CSS hexadecimal version of the given color
@@ -131,7 +128,7 @@ public class HoverBrowserInformationControl extends AbstractInformationControl
 		aEvent.doit = false;
 
 		// Standard location
-		if (!aEvent.location.startsWith(INTERNAL_PREFIX)) {
+		if (!aEvent.location.startsWith(IHoverConstants.INTERNAL_PREFIX)) {
 
 			if (aEvent.location.startsWith("about:")) {
 				// Internal rendering
@@ -149,7 +146,7 @@ public class HoverBrowserInformationControl extends AbstractInformationControl
 		// Propagate the event
 		if (pData != null) {
 
-			String location = aEvent.location.substring(INTERNAL_PREFIX
+			String location = aEvent.location.substring(IHoverConstants.INTERNAL_PREFIX
 					.length());
 
 			if (pData.notifyListener(location)) {

@@ -59,23 +59,23 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 	/** Content pAssistant */
 	private ContentAssistant pAssistant = null;
 
-	/** ReST document token scanner */
-	private RestScanner pDocScanner = null;
-
 	/** Document formatter */
 	private ContentFormatter pDocFormatter = null;
 
-	/** Token provider */
-	private TokenProvider pTokenProvider = null;
-
-	/** Scanner rule provider */
-	private RuleProvider pRuleProvider = null;
+	/** ReST document token scanner */
+	private RestScanner pDocScanner = null;
 
 	/** Preference store */
 	private IPreferenceStore pPreferenceStore = null;
 
+	/** Scanner rule provider */
+	private RuleProvider pRuleProvider = null;
+
 	/** Spell check text hover */
 	private RestTextHover pSpellCheckHover = null;
+
+	/** Token provider */
+	private TokenProvider pTokenProvider = null;
 
 	/**
 	 * Prepares the configuration. Get a preference store reference.

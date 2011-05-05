@@ -23,7 +23,7 @@ public class RestSimpleTableRule extends AbstractRule implements RestLanguage {
 	 * @author Thomas Calmant
 	 */
 	public enum ELineType {
-		EOF, EMPTY, MARKER, TEXT,
+		EMPTY, EOF, MARKER, TEXT,
 	}
 
 	/**

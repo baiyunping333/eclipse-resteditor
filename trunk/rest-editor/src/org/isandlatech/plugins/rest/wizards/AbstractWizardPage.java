@@ -24,11 +24,11 @@ import org.eclipse.swt.widgets.Text;
  */
 public abstract class AbstractWizardPage extends WizardPage {
 
-	/** Parent of all fields */
-	private Composite pPageRoot;
-
 	/** Modification listener */
 	private ModifyListener pModifyListener;
+
+	/** Parent of all fields */
+	private Composite pPageRoot;
 
 	/**
 	 * Sets up the wizard page

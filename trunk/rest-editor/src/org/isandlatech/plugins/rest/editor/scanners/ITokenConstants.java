@@ -15,11 +15,11 @@ import org.eclipse.jface.text.rules.Token;
  */
 public interface ITokenConstants {
 
-	/** Dummy token (for contiguous rules) */
-	IToken DUMMY_TOKEN = new Token("__abstract_dummy_token");
-
 	/** Default element */
 	String DEFAULT = "default";
+
+	/** Dummy token (for contiguous rules) */
+	IToken DUMMY_TOKEN = new Token("__abstract_dummy_token");
 
 	/** Field element */
 	String FIELD = "field";

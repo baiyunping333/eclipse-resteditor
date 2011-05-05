@@ -26,11 +26,11 @@ public class TokenProvider {
 	/** The tokens' colors provider */
 	private ColorProvider pColorProvider;
 
-	/** Existing tokens */
-	private Map<String, IToken> pTokensRegistry;
-
 	/** Default token */
 	public final IToken pDefaultToken;
+
+	/** Existing tokens */
+	private Map<String, IToken> pTokensRegistry;
 
 	/** Token provider initialization */
 	public TokenProvider() {

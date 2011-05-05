@@ -39,6 +39,7 @@ public abstract class AbstractProposalProcessor implements
 	protected ICompletionProposal[] buildProposals(
 			final Map<String, String> aSuggestions, final String aReplacedWord,
 			final int aOffset) {
+
 		if (aSuggestions == null || aSuggestions.size() == 0) {
 			return null;
 		}

@@ -26,12 +26,12 @@ public class GridTableFormattingStrategy extends AbstractFormattingStrategy {
 	 * @author Thomas Calmant
 	 */
 	public enum KindOfGridLine {
-		/** Grid line with '-' */
-		SIMPLE_SEPARATOR,
-		/** Grid line with '=' */
-		DOUBLE_SEPARATOR,
 		/** Line content */
 		CONTENT,
+		/** Grid line with '=' */
+		DOUBLE_SEPARATOR,
+		/** Grid line with '-' */
+		SIMPLE_SEPARATOR,
 	}
 
 	/**
