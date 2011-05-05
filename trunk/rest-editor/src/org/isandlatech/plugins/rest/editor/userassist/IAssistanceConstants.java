@@ -1,16 +1,16 @@
 /**
- * File:   IHoverConstants.java
+ * File:   IAssistanceConstants.java
  * Author: Thomas Calmant
  * Date:   5 mai 2011
  */
-package org.isandlatech.plugins.rest.hover;
+package org.isandlatech.plugins.rest.editor.userassist;
 
 /**
  * Common constants used by text hover process
  * 
  * @author Thomas Calmant
  */
-public interface IHoverConstants {
+public interface IAssistanceConstants {
 
 	/** Browser internal links prefix */
 	String INTERNAL_PREFIX = "rest-internal://";

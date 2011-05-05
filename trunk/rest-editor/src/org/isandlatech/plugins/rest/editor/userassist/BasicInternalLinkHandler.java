@@ -1,16 +1,13 @@
 /**
- * File:   HoverLinkHandler.java
+ * File:   BasicInternalLinkHandler.java
  * Author: Thomas Calmant
  * Date:   5 mai 2011
  */
-package org.isandlatech.plugins.rest.editor.contentassist;
+package org.isandlatech.plugins.rest.editor.userassist;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
-import org.isandlatech.plugins.rest.hover.HoverBrowserData;
-import org.isandlatech.plugins.rest.hover.IHoverBrowserListener;
-import org.isandlatech.plugins.rest.hover.IHoverConstants;
 import org.isandlatech.plugins.rest.i18n.Messages;
 
 /**
@@ -19,13 +16,13 @@ import org.isandlatech.plugins.rest.i18n.Messages;
  * 
  * @author Thomas Calmant
  */
-public class HoverLinkHandler implements IHoverBrowserListener {
+public class BasicInternalLinkHandler implements IInternalBrowserListener {
 
 	/**
 	 * Simple way to make an internal link
 	 * 
 	 * @param aActionPrefix
-	 *            The action prefix to use (see {@link IHoverConstants}
+	 *            The action prefix to use (see {@link IAssistanceConstants}
 	 * @param aValue
 	 *            Action parameter
 	 * @return The forged internal link
@@ -34,7 +31,7 @@ public class HoverLinkHandler implements IHoverBrowserListener {
 			final String aValue) {
 
 		StringBuilder builder = new StringBuilder();
-		builder.append(IHoverConstants.INTERNAL_PREFIX);
+		builder.append(IAssistanceConstants.INTERNAL_PREFIX);
 		builder.append(aActionPrefix);
 		builder.append(aValue);
 
@@ -50,21 +47,21 @@ public class HoverLinkHandler implements IHoverBrowserListener {
 	 */
 	@Override
 	public boolean hoverInternalLinkClicked(final String aInternalLink,
-			final HoverBrowserData aAssociatedData) {
+			final InternalBrowserData aAssociatedData) {
 
-		if (aInternalLink.startsWith(IHoverConstants.SPELL_LINK_PREFIX)) {
+		if (aInternalLink.startsWith(IAssistanceConstants.SPELL_LINK_PREFIX)) {
 
 			// Spell checker link
 			String replacementWord = aInternalLink
-					.substring(IHoverConstants.SPELL_LINK_PREFIX.length());
+					.substring(IAssistanceConstants.SPELL_LINK_PREFIX.length());
 
 			return spellAction(aAssociatedData, replacementWord);
 
-		} else if (aInternalLink.startsWith(IHoverConstants.SAMPLE_LINK_PREFIX)) {
+		} else if (aInternalLink.startsWith(IAssistanceConstants.SAMPLE_LINK_PREFIX)) {
 
 			// Insert sample link
 			String directive = aInternalLink
-					.substring(IHoverConstants.SAMPLE_LINK_PREFIX.length());
+					.substring(IAssistanceConstants.SAMPLE_LINK_PREFIX.length());
 
 			return sampleInsertionAction(aAssociatedData, directive);
 		}
@@ -83,7 +80,7 @@ public class HoverLinkHandler implements IHoverBrowserListener {
 	 * @return True on success, False on error
 	 */
 	protected boolean sampleInsertionAction(
-			final HoverBrowserData aAssociatedData, final String aDirective) {
+			final InternalBrowserData aAssociatedData, final String aDirective) {
 
 		IDocument document = aAssociatedData.getDocument();
 		IRegion region = aAssociatedData.getHoverRegion();
@@ -126,7 +123,7 @@ public class HoverLinkHandler implements IHoverBrowserListener {
 	 *            Well-spelled word to use
 	 * @return True on success, False on error
 	 */
-	protected boolean spellAction(final HoverBrowserData aAssociatedData,
+	protected boolean spellAction(final InternalBrowserData aAssociatedData,
 			final String aReplacementWord) {
 
 		IDocument document = aAssociatedData.getDocument();

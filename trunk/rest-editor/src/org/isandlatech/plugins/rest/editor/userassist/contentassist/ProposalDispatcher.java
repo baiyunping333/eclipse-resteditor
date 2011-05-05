@@ -3,7 +3,7 @@
  * Author: Thomas Calmant
  * Date:   2 févr. 2011
  */
-package org.isandlatech.plugins.rest.editor.contentassist;
+package org.isandlatech.plugins.rest.editor.userassist.contentassist;
 
 import java.util.HashMap;
 import java.util.Map;

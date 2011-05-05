@@ -3,7 +3,7 @@
  * Author: Thomas Calmant
  * Date:   5 mai 2011
  */
-package org.isandlatech.plugins.rest.editor.contentassist;
+package org.isandlatech.plugins.rest.editor.userassist.contentassist;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.BadLocationException;
@@ -16,9 +16,10 @@ import org.eclipse.jface.text.contentassist.ICompletionProposalExtension5;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
-import org.isandlatech.plugins.rest.hover.HoverBrowserData;
-import org.isandlatech.plugins.rest.hover.HoverBrowserInformationControl;
-import org.isandlatech.plugins.rest.hover.IHoverBrowserListener;
+import org.isandlatech.plugins.rest.editor.userassist.InternalBrowserData;
+import org.isandlatech.plugins.rest.editor.userassist.InternalBrowserInformationControl;
+import org.isandlatech.plugins.rest.editor.userassist.BasicInternalLinkHandler;
+import org.isandlatech.plugins.rest.editor.userassist.IInternalBrowserListener;
 
 /**
  * Completion proposal with an internal link handler registration
@@ -47,7 +48,7 @@ public class HoverCompletionProposal implements ICompletionProposal,
 	private String pReplacementString;
 
 	/** Hover link handler */
-	private IHoverBrowserListener pBrowserListener;
+	private IInternalBrowserListener pBrowserListener;
 
 	/**
 	 * Stores a completion proposal
@@ -83,7 +84,7 @@ public class HoverCompletionProposal implements ICompletionProposal,
 		pAdditionalInformation = aAdditionalProposalInfo;
 
 		// Browser link handler
-		pBrowserListener = new HoverLinkHandler();
+		pBrowserListener = new BasicInternalLinkHandler();
 	}
 
 	/*
@@ -131,7 +132,7 @@ public class HoverCompletionProposal implements ICompletionProposal,
 		 * As we are near to add a directive, its suffix ('::') is included in
 		 * the replacement length value.
 		 */
-		HoverBrowserData data = new HoverBrowserData(pBrowserListener,
+		InternalBrowserData data = new InternalBrowserData(pBrowserListener,
 				pDocument, region, true);
 
 		data.setInformation(getAdditionalProposalInfo());
@@ -180,7 +181,7 @@ public class HoverCompletionProposal implements ICompletionProposal,
 	 */
 	@Override
 	public IInformationControlCreator getInformationControlCreator() {
-		return HoverBrowserInformationControl.getCreator();
+		return InternalBrowserInformationControl.getCreator();
 	}
 
 	/*

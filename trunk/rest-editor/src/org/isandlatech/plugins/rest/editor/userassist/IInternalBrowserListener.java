@@ -1,9 +1,10 @@
 /**
- * File:   IHoverBrowserListener.java
+ * File:   IInternalBrowserListener.java
  * Author: Thomas Calmant
  * Date:   4 mai 2011
  */
-package org.isandlatech.plugins.rest.hover;
+package org.isandlatech.plugins.rest.editor.userassist;
+
 
 /**
  * Interface to be implemented by hover handlers to receive internal links
@@ -11,7 +12,7 @@ package org.isandlatech.plugins.rest.hover;
  * 
  * @author Thomas Calmant
  */
-public interface IHoverBrowserListener {
+public interface IInternalBrowserListener {
 
 	/**
 	 * Handles an internal link selection in the hover browser
@@ -23,5 +24,5 @@ public interface IHoverBrowserListener {
 	 * @return True if the browser must be closed, else False
 	 */
 	public boolean hoverInternalLinkClicked(final String aInternalLink,
-			HoverBrowserData aAssociatedData);
+			InternalBrowserData aAssociatedData);
 }

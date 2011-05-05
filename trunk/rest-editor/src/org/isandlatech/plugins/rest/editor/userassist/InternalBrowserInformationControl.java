@@ -1,9 +1,9 @@
 /**
- * File:   HoverBrowserInformationControl.java
+ * File:   InternalBrowserInformationControl.java
  * Author: Thomas Calmant
  * Date:   4 mai 2011
  */
-package org.isandlatech.plugins.rest.hover;
+package org.isandlatech.plugins.rest.editor.userassist;
 
 import java.io.IOException;
 
@@ -28,7 +28,7 @@ import org.isandlatech.plugins.rest.RestPlugin;
  * 
  * @author Thomas Calmant
  */
-public class HoverBrowserInformationControl extends AbstractInformationControl
+public class InternalBrowserInformationControl extends AbstractInformationControl
 		implements IInformationControlExtension2, LocationListener {
 
 	/** Browser ID for external links */
@@ -70,7 +70,7 @@ public class HoverBrowserInformationControl extends AbstractInformationControl
 			public IInformationControl createInformationControl(
 					final Shell aParent) {
 
-				return new HoverBrowserInformationControl(aParent, this);
+				return new InternalBrowserInformationControl(aParent, this);
 			}
 		};
 
@@ -83,7 +83,7 @@ public class HoverBrowserInformationControl extends AbstractInformationControl
 	private IInformationControlCreator pControlCreator;
 
 	/** Data associated to this tooltip */
-	private HoverBrowserData pData;
+	private InternalBrowserData pData;
 
 	/**
 	 * Prepares the information control
@@ -93,7 +93,7 @@ public class HoverBrowserInformationControl extends AbstractInformationControl
 	 * @param aInformationControlCreator
 	 *            The creator that instantiated this object
 	 */
-	public HoverBrowserInformationControl(final Shell aParentShell,
+	public InternalBrowserInformationControl(final Shell aParentShell,
 			final IInformationControlCreator aInformationControlCreator) {
 
 		super(aParentShell, EditorsUI.getTooltipAffordanceString());
@@ -128,7 +128,7 @@ public class HoverBrowserInformationControl extends AbstractInformationControl
 		aEvent.doit = false;
 
 		// Standard location
-		if (!aEvent.location.startsWith(IHoverConstants.INTERNAL_PREFIX)) {
+		if (!aEvent.location.startsWith(IAssistanceConstants.INTERNAL_PREFIX)) {
 
 			if (aEvent.location.startsWith("about:")) {
 				// Internal rendering
@@ -146,7 +146,7 @@ public class HoverBrowserInformationControl extends AbstractInformationControl
 		// Propagate the event
 		if (pData != null) {
 
-			String location = aEvent.location.substring(IHoverConstants.INTERNAL_PREFIX
+			String location = aEvent.location.substring(IAssistanceConstants.INTERNAL_PREFIX
 					.length());
 
 			if (pData.notifyListener(location)) {
@@ -275,8 +275,8 @@ public class HoverBrowserInformationControl extends AbstractInformationControl
 
 		setInformation(String.valueOf(aInput));
 
-		if (aInput instanceof HoverBrowserData) {
-			pData = (HoverBrowserData) aInput;
+		if (aInput instanceof InternalBrowserData) {
+			pData = (InternalBrowserData) aInput;
 		} else {
 			pData = null;
 		}

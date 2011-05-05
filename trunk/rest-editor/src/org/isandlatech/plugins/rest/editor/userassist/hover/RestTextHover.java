@@ -3,7 +3,7 @@
  * Author: Thomas Calmant
  * Date:   4 mars 2011
  */
-package org.isandlatech.plugins.rest.hover;
+package org.isandlatech.plugins.rest.editor.userassist.hover;
 
 import java.util.List;
 
@@ -25,8 +25,12 @@ import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.ui.texteditor.spelling.ISpellingEngine;
 import org.eclipse.ui.texteditor.spelling.SpellingContext;
 import org.eclipse.ui.texteditor.spelling.SpellingProblem;
-import org.isandlatech.plugins.rest.editor.contentassist.HoverLinkHandler;
 import org.isandlatech.plugins.rest.editor.scanners.RestPartitionScanner;
+import org.isandlatech.plugins.rest.editor.userassist.InternalBrowserData;
+import org.isandlatech.plugins.rest.editor.userassist.InternalBrowserInformationControl;
+import org.isandlatech.plugins.rest.editor.userassist.BasicInternalLinkHandler;
+import org.isandlatech.plugins.rest.editor.userassist.IInternalBrowserListener;
+import org.isandlatech.plugins.rest.editor.userassist.IAssistanceConstants;
 import org.isandlatech.plugins.rest.i18n.Messages;
 
 /**
@@ -44,7 +48,7 @@ public class RestTextHover implements ITextHover, ITextHoverExtension,
 	private ISpellingEngine pSpellingEngine;
 
 	/** Hover link handler */
-	private IHoverBrowserListener pBrowserListener;
+	private IInternalBrowserListener pBrowserListener;
 
 	/**
 	 * Prepares the spell check hover
@@ -65,7 +69,7 @@ public class RestTextHover implements ITextHover, ITextHoverExtension,
 		pSpellingContext.setContentType(contentType);
 
 		// Browser link handler
-		pBrowserListener = new HoverLinkHandler();
+		pBrowserListener = new BasicInternalLinkHandler();
 	}
 
 	/**
@@ -153,8 +157,8 @@ public class RestTextHover implements ITextHover, ITextHoverExtension,
 					String displayedString = proposal.getDisplayString();
 
 					correctionProposals += "<a href=\""
-							+ HoverLinkHandler.makeLink(
-									IHoverConstants.SPELL_LINK_PREFIX,
+							+ BasicInternalLinkHandler.makeLink(
+									IAssistanceConstants.SPELL_LINK_PREFIX,
 									displayedString) + "\">" + displayedString
 							+ "</a>" + "<br />\n";
 				}
@@ -180,7 +184,7 @@ public class RestTextHover implements ITextHover, ITextHoverExtension,
 	 */
 	@Override
 	public IInformationControlCreator getHoverControlCreator() {
-		return HoverBrowserInformationControl.getCreator();
+		return InternalBrowserInformationControl.getCreator();
 	}
 
 	/*
@@ -228,7 +232,7 @@ public class RestTextHover implements ITextHover, ITextHoverExtension,
 		 * As we searched for a valid word, getHoverRegion() omits the reST
 		 * directive suffix ('::')
 		 */
-		HoverBrowserData data = new HoverBrowserData(pBrowserListener,
+		InternalBrowserData data = new InternalBrowserData(pBrowserListener,
 				aTextViewer.getDocument(), aHoverRegion, false);
 		data.setInformation(info);
 

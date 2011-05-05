@@ -33,8 +33,6 @@ import org.eclipse.ui.editors.text.TextSourceViewerConfiguration;
 import org.eclipse.ui.texteditor.spelling.ISpellingEngine;
 import org.eclipse.ui.texteditor.spelling.SpellingService;
 import org.isandlatech.plugins.rest.RestPlugin;
-import org.isandlatech.plugins.rest.editor.contentassist.DeclarativeProposalProcessor;
-import org.isandlatech.plugins.rest.editor.contentassist.ProposalDispatcher;
 import org.isandlatech.plugins.rest.editor.formatters.GridTableFormattingStrategy;
 import org.isandlatech.plugins.rest.editor.formatters.SectionFormattingStrategy;
 import org.isandlatech.plugins.rest.editor.providers.RuleProvider;
@@ -45,8 +43,10 @@ import org.isandlatech.plugins.rest.editor.scanners.RestScanner;
 import org.isandlatech.plugins.rest.editor.scanners.RestSectionBlockScanner;
 import org.isandlatech.plugins.rest.editor.scanners.RestSourceBlockScanner;
 import org.isandlatech.plugins.rest.editor.scanners.RestTableBlockScanner;
-import org.isandlatech.plugins.rest.hover.HoverBrowserInformationControl;
-import org.isandlatech.plugins.rest.hover.RestTextHover;
+import org.isandlatech.plugins.rest.editor.userassist.InternalBrowserInformationControl;
+import org.isandlatech.plugins.rest.editor.userassist.contentassist.DeclarativeProposalProcessor;
+import org.isandlatech.plugins.rest.editor.userassist.contentassist.ProposalDispatcher;
+import org.isandlatech.plugins.rest.editor.userassist.hover.RestTextHover;
 import org.isandlatech.plugins.rest.prefs.IEditorPreferenceConstants;
 
 /**
@@ -126,7 +126,7 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 
 			// Mandatory for contextual description
 			pAssistant
-					.setInformationControlCreator(HoverBrowserInformationControl
+					.setInformationControlCreator(InternalBrowserInformationControl
 							.getCreator());
 
 			// Document partitioning informations

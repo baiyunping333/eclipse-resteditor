@@ -6,8 +6,8 @@ import java.io.StringReader;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
-import org.isandlatech.plugins.rest.editor.contentassist.HoverLinkHandler;
-import org.isandlatech.plugins.rest.hover.IHoverConstants;
+import org.isandlatech.plugins.rest.editor.userassist.BasicInternalLinkHandler;
+import org.isandlatech.plugins.rest.editor.userassist.IAssistanceConstants;
 
 /**
  * Internationalization handler. Loads strings from a resource bundle
@@ -71,6 +71,17 @@ public class Messages {
 	}
 
 	/**
+	 * Tests whether the resource bundle contains the given key or not
+	 * 
+	 * @param aKey
+	 *            The key to be tested
+	 * @return True if the key is present, else false
+	 */
+	public static boolean containsKey(final String aKey) {
+		return RESOURCE_BUNDLE.containsKey(aKey);
+	}
+
+	/**
 	 * Retrieves the resource bundle
 	 * 
 	 * @return The resource bundle
@@ -92,17 +103,16 @@ public class Messages {
 		help.append(getString("directive." + aDirective + ".help"));
 
 		// Insert the sample link, if any
-		if (RESOURCE_BUNDLE.keySet().contains(
-				"directive." + aDirective + ".sample")) {
+		if (RESOURCE_BUNDLE.containsKey("directive." + aDirective + ".sample")) {
 
 			help.append("<p><a href=\"");
 
 			// Example: rest-internal://insert-sample/directive.note.sample
-			help.append(HoverLinkHandler.makeLink(
-					IHoverConstants.SAMPLE_LINK_PREFIX, aDirective));
+			help.append(BasicInternalLinkHandler.makeLink(
+					IAssistanceConstants.SAMPLE_LINK_PREFIX, aDirective));
 
 			help.append("\">");
-			help.append(getString(IHoverConstants.INSERT_SAMPLE_MESSAGE));
+			help.append(getString(IAssistanceConstants.INSERT_SAMPLE_MESSAGE));
 			help.append("</a></p>");
 		}
 

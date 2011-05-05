@@ -1,9 +1,9 @@
 /**
- * File:   HoverBrowserData.java
+ * File:   InternalBrowserData.java
  * Author: Thomas Calmant
  * Date:   4 mai 2011
  */
-package org.isandlatech.plugins.rest.hover;
+package org.isandlatech.plugins.rest.editor.userassist;
 
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
@@ -13,7 +13,7 @@ import org.eclipse.jface.text.IRegion;
  * 
  * @author Thomas Calmant
  */
-public class HoverBrowserData {
+public class InternalBrowserData {
 
 	/** Document associated to the hovering */
 	private IDocument pDocument;
@@ -25,7 +25,7 @@ public class HoverBrowserData {
 	private String pInformation;
 
 	/** Data sender */
-	private IHoverBrowserListener pListener;
+	private IInternalBrowserListener pListener;
 
 	/** Does the region includes the directive suffix ('::') */
 	private boolean pRegionWithSuffix;
@@ -43,7 +43,7 @@ public class HoverBrowserData {
 	 *            Indicates if the aHoverRegion length includes the reST
 	 *            directive suffix ('::')
 	 */
-	public HoverBrowserData(final IHoverBrowserListener aSource,
+	public InternalBrowserData(final IInternalBrowserListener aSource,
 			final IDocument aDocument, final IRegion aHoverRegion,
 			final boolean aRegionWithSuffix) {
 
@@ -77,7 +77,7 @@ public class HoverBrowserData {
 	/**
 	 * @return the link listener
 	 */
-	public IHoverBrowserListener getListener() {
+	public IInternalBrowserListener getListener() {
 		return pListener;
 	}
 
