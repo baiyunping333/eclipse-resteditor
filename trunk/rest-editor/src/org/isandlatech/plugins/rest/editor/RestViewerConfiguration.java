@@ -45,6 +45,7 @@ import org.isandlatech.plugins.rest.editor.scanners.RestScanner;
 import org.isandlatech.plugins.rest.editor.scanners.RestSectionBlockScanner;
 import org.isandlatech.plugins.rest.editor.scanners.RestSourceBlockScanner;
 import org.isandlatech.plugins.rest.editor.scanners.RestTableBlockScanner;
+import org.isandlatech.plugins.rest.hover.HoverBrowserInformationControl;
 import org.isandlatech.plugins.rest.hover.SpellCheckHover;
 import org.isandlatech.plugins.rest.prefs.IEditorPreferenceConstants;
 
@@ -125,7 +126,8 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 
 			// Mandatory for contextual description
 			pAssistant
-					.setInformationControlCreator(getInformationControlCreator(aSourceViewer));
+					.setInformationControlCreator(HoverBrowserInformationControl
+							.getCreator());
 
 			// Document partitioning informations
 			pAssistant
