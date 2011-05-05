@@ -7,7 +7,6 @@ package org.isandlatech.plugins.rest.hover;
 
 import java.io.IOException;
 
-import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.text.AbstractInformationControl;
 import org.eclipse.jface.text.IInformationControl;
 import org.eclipse.jface.text.IInformationControlCreator;
@@ -20,6 +19,8 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.editors.text.EditorsUI;
+import org.isandlatech.plugins.rest.BrowserController;
 import org.isandlatech.plugins.rest.RestPlugin;
 
 /**
@@ -35,6 +36,9 @@ public class HoverBrowserInformationControl extends AbstractInformationControl
 
 	/** Browser internal links prefix */
 	public static final String INTERNAL_PREFIX = "rest-internal://";
+
+	/** Browser ID for external links */
+	public static final String BROWSER_ID = "rest-documentaton-browser";
 
 	/**
 	 * Returns a CSS hexadecimal version of the given color
@@ -78,7 +82,7 @@ public class HoverBrowserInformationControl extends AbstractInformationControl
 	/** The web browser widget */
 	private Browser pBrowser;
 
-	/** The creator that instanciated this object */
+	/** The creator that instantiated this object */
 	private IInformationControlCreator pControlCreator;
 
 	/** Data associated to this tooltip */
@@ -90,12 +94,12 @@ public class HoverBrowserInformationControl extends AbstractInformationControl
 	 * @param aParentShell
 	 *            Parent shell
 	 * @param aInformationControlCreator
-	 *            The creator that instanciated this object
+	 *            The creator that instantiated this object
 	 */
 	public HoverBrowserInformationControl(final Shell aParentShell,
 			final IInformationControlCreator aInformationControlCreator) {
 
-		super(aParentShell, new ToolBarManager(SWT.FLAT));
+		super(aParentShell, EditorsUI.getTooltipAffordanceString());
 		pControlCreator = aInformationControlCreator;
 
 		create();
@@ -123,14 +127,24 @@ public class HoverBrowserInformationControl extends AbstractInformationControl
 	@Override
 	public void changing(final LocationEvent aEvent) {
 
+		// The hover browser just shows internal HTML
+		aEvent.doit = false;
+
 		// Standard location
 		if (!aEvent.location.startsWith(INTERNAL_PREFIX)) {
-			aEvent.doit = true;
+
+			if (aEvent.location.startsWith("about:")) {
+				// Internal rendering
+				aEvent.doit = true;
+				return;
+			}
+
+			BrowserController.getController().openUrl(BROWSER_ID,
+					aEvent.location);
+
+			dispose();
 			return;
 		}
-
-		// The browser won't find this location anyway...
-		aEvent.doit = false;
 
 		// Propagate the event
 		if (pData != null) {

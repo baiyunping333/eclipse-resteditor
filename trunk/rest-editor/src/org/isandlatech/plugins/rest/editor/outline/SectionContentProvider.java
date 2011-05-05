@@ -206,7 +206,7 @@ public class SectionContentProvider implements ITreePathContentProvider {
 				int sectionBeginLineNumber = line;
 
 				sectionBlockContent.clear();
-				while (contentType.equals(RestPartitionScanner.SECTION_BLOCK)
+				while (RestPartitionScanner.SECTION_BLOCK.equals(contentType)
 						&& line < document.getNumberOfLines()) {
 
 					String lineContent = getLine(document, line);

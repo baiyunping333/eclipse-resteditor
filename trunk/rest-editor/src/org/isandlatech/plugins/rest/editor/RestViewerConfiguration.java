@@ -46,7 +46,7 @@ import org.isandlatech.plugins.rest.editor.scanners.RestSectionBlockScanner;
 import org.isandlatech.plugins.rest.editor.scanners.RestSourceBlockScanner;
 import org.isandlatech.plugins.rest.editor.scanners.RestTableBlockScanner;
 import org.isandlatech.plugins.rest.hover.HoverBrowserInformationControl;
-import org.isandlatech.plugins.rest.hover.SpellCheckHover;
+import org.isandlatech.plugins.rest.hover.RestTextHover;
 import org.isandlatech.plugins.rest.prefs.IEditorPreferenceConstants;
 
 /**
@@ -75,7 +75,7 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 	private IPreferenceStore pPreferenceStore = null;
 
 	/** Spell check text hover */
-	private SpellCheckHover pSpellCheckHover = null;
+	private RestTextHover pSpellCheckHover = null;
 
 	/**
 	 * Prepares the configuration. Get a preference store reference.
@@ -306,7 +306,7 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 				engine = selectedService.getActiveSpellingEngineDescriptor(
 						pPreferenceStore).createEngine();
 
-				pSpellCheckHover = new SpellCheckHover(engine);
+				pSpellCheckHover = new RestTextHover(engine);
 
 			} catch (CoreException e) {
 				e.printStackTrace();
