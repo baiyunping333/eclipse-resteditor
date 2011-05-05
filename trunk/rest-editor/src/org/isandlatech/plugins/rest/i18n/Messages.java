@@ -6,8 +6,8 @@ import java.io.StringReader;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
+import org.isandlatech.plugins.rest.editor.contentassist.HoverLinkHandler;
 import org.isandlatech.plugins.rest.hover.IHoverConstants;
-import org.isandlatech.plugins.rest.hover.RestTextHover;
 
 /**
  * Internationalization handler. Loads strings from a resource bundle
@@ -98,7 +98,7 @@ public class Messages {
 			help.append("<p><a href=\"");
 
 			// Example: rest-internal://insert-sample/directive.note.sample
-			help.append(RestTextHover.makeLink(
+			help.append(HoverLinkHandler.makeLink(
 					IHoverConstants.SAMPLE_LINK_PREFIX, aDirective));
 
 			help.append("\">");

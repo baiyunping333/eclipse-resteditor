@@ -27,6 +27,9 @@ public class HoverBrowserData {
 	/** Data sender */
 	private IHoverBrowserListener pListener;
 
+	/** Does the region includes the directive suffix ('::') */
+	private boolean pRegionWithSuffix;
+
 	/**
 	 * Sets up members
 	 * 
@@ -36,13 +39,18 @@ public class HoverBrowserData {
 	 *            Hovered document
 	 * @param aHoverRegion
 	 *            Hovered document region
+	 * @param aRegionWithSuffix
+	 *            Indicates if the aHoverRegion length includes the reST
+	 *            directive suffix ('::')
 	 */
 	public HoverBrowserData(final IHoverBrowserListener aSource,
-			final IDocument aDocument, final IRegion aHoverRegion) {
+			final IDocument aDocument, final IRegion aHoverRegion,
+			final boolean aRegionWithSuffix) {
 
 		pListener = aSource;
 		pDocument = aDocument;
 		pHoverRegion = aHoverRegion;
+		pRegionWithSuffix = aRegionWithSuffix;
 	}
 
 	/**
@@ -71,6 +79,15 @@ public class HoverBrowserData {
 	 */
 	public IHoverBrowserListener getListener() {
 		return pListener;
+	}
+
+	/**
+	 * Indicates if the region length includes the reST directive suffix ('::')
+	 * 
+	 * @return true if the suffix is included
+	 */
+	public boolean isRegionWithSuffix() {
+		return pRegionWithSuffix;
 	}
 
 	/**

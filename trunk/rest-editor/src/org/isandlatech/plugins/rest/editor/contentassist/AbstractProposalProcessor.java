@@ -28,6 +28,8 @@ public abstract class AbstractProposalProcessor implements
 	/**
 	 * Builds an array of completion proposals.
 	 * 
+	 * @param aDocument
+	 * 
 	 * @param aSuggestions
 	 *            A suggestion -> description mapping
 	 * @param aReplacedWord
@@ -36,7 +38,7 @@ public abstract class AbstractProposalProcessor implements
 	 *            Offset of the beginning of the replaced word
 	 * @return An array of completion proposals, null on error
 	 */
-	protected ICompletionProposal[] buildProposals(
+	protected ICompletionProposal[] buildProposals(final IDocument aDocument,
 			final Map<String, String> aSuggestions, final String aReplacedWord,
 			final int aOffset) {
 
@@ -96,7 +98,7 @@ public abstract class AbstractProposalProcessor implements
 			}
 
 			Map<String, String> suggestions = buildSuggestions(currentWord);
-			return buildProposals(suggestions, currentWord, aOffset
+			return buildProposals(document, suggestions, currentWord, aOffset
 					- currentWord.length());
 
 		} catch (BadLocationException e) {

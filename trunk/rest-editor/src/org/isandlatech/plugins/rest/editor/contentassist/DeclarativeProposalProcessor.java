@@ -10,7 +10,7 @@ import java.util.Map.Entry;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import org.eclipse.jface.text.contentassist.CompletionProposal;
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.isandlatech.plugins.rest.i18n.Messages;
 import org.isandlatech.plugins.rest.parser.RestLanguage;
@@ -36,7 +36,7 @@ public class DeclarativeProposalProcessor extends AbstractProposalProcessor {
 	 * @return An array of completion proposals, null on error
 	 */
 	@Override
-	protected ICompletionProposal[] buildProposals(
+	protected ICompletionProposal[] buildProposals(final IDocument aDocument,
 			final Map<String, String> aSuggestions, final String aReplacedWord,
 			final int aOffset) {
 
@@ -60,9 +60,9 @@ public class DeclarativeProposalProcessor extends AbstractProposalProcessor {
 			String replacementWord = suggestion + ":: ";
 
 			// Completion proposal
-			proposals[i++] = new CompletionProposal(replacementWord, aOffset,
-					aReplacedWord.length(), replacementWord.length(), null,
-					suggestion, null, description);
+			proposals[i++] = new HoverCompletionProposal(aDocument,
+					replacementWord, aOffset, aReplacedWord.length(),
+					suggestion, description);
 		}
 
 		return proposals;
