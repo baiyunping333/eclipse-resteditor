@@ -7,13 +7,15 @@ package org.isandlatech.plugins.rest.editor.userassist;
 
 import java.io.IOException;
 
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.DebugPlugin;
+import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.text.AbstractInformationControl;
 import org.eclipse.jface.text.IInformationControl;
 import org.eclipse.jface.text.IInformationControlCreator;
 import org.eclipse.jface.text.IInformationControlExtension2;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.SWTError;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.browser.LocationEvent;
 import org.eclipse.swt.browser.LocationListener;
@@ -21,7 +23,6 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.editors.text.EditorsUI;
 import org.isandlatech.plugins.rest.BrowserController;
 import org.isandlatech.plugins.rest.RestPlugin;
 
@@ -99,7 +100,8 @@ public class InternalBrowserInformationControl extends
 	public InternalBrowserInformationControl(final Shell aParentShell,
 			final IInformationControlCreator aInformationControlCreator) {
 
-		super(aParentShell, EditorsUI.getTooltipAffordanceString());
+		// super(aParentShell, EditorsUI.getTooltipAffordanceString());
+		super(aParentShell, new ToolBarManager(SWT.FLAT));
 		pControlCreator = aInformationControlCreator;
 
 		create();
@@ -169,20 +171,15 @@ public class InternalBrowserInformationControl extends
 	@Override
 	protected void createContent(final Composite aParent) {
 
-		try {
-			pBrowser = new Browser(aParent, SWT.MOZILLA);
-		} catch (SWTError error) {
-			DebugPlugin.logMessage("No Mozilla browser available...", error);
+		// Fall back on default browser
+		pBrowser = new Browser(aParent, SWT.NONE);
 
-			// Fall back on default browser
-			pBrowser = new Browser(aParent, SWT.NONE);
-		}
-
-		DebugPlugin.logMessage("Browser : " + pBrowser.getBrowserType(), null);
-		pBrowser.setFocus();
+		DebugPlugin.log(new Status(IStatus.OK, RestPlugin.PLUGIN_ID,
+				"Browser : " + pBrowser.getBrowserType()));
 
 		pBrowser.setJavascriptEnabled(false);
 		pBrowser.addLocationListener(this);
+		pBrowser.setFocus();
 	}
 
 	/**
