@@ -18,6 +18,5 @@ public class EditorPreferenceInitializer extends AbstractPreferenceInitializer {
 		store.setDefault(IEditorPreferenceConstants.EDITOR_SAVE_FORMAT, true);
 		store.setDefault(IEditorPreferenceConstants.EDITOR_TABS_LENGTH, 3);
 		store.setDefault(IEditorPreferenceConstants.EDITOR_TABS_TO_SPACES, true);
-		store.setDefault(IEditorPreferenceConstants.PYTHON_PATH, "");
 	}
 }

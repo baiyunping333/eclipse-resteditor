@@ -15,7 +15,4 @@ public interface IEditorPreferenceConstants {
 
 	/** Automatically convert tabs to spaces */
 	String EDITOR_TABS_TO_SPACES = "editor.tabs.toSpaces";
-
-	/** Python interpreter path */
-	String PYTHON_PATH = "python.path";
 }

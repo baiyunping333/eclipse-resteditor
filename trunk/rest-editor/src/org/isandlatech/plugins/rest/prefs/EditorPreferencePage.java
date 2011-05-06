@@ -2,7 +2,6 @@ package org.isandlatech.plugins.rest.prefs;
 
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.ComboFieldEditor;
-import org.eclipse.jface.preference.DirectoryFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IntegerFieldEditor;
 import org.eclipse.swt.widgets.Composite;
@@ -24,9 +23,6 @@ public class EditorPreferencePage extends FieldEditorPreferencePage implements
 
 	/** Formatting on file save activation */
 	private BooleanFieldEditor pFormatOnSave;
-
-	/** Python path selection field */
-	private DirectoryFieldEditor pPythonPathField;
 
 	/** Spelling service activation */
 	private BooleanFieldEditor pSpellingServiceEnabledField;
@@ -61,12 +57,7 @@ public class EditorPreferencePage extends FieldEditorPreferencePage implements
 				IEditorPreferenceConstants.EDITOR_SAVE_FORMAT,
 				"&Format on save", parent);
 
-		/* Python */
-		pPythonPathField = new DirectoryFieldEditor(
-				IEditorPreferenceConstants.PYTHON_PATH,
-				Messages.getString("preferences.python"), parent);
-		pPythonPathField.setEmptyStringAllowed(true);
-
+		/* Tabulations */
 		pTabsLengthField = new IntegerFieldEditor(
 				IEditorPreferenceConstants.EDITOR_TABS_LENGTH,
 				Messages.getString("preferences.tab.len"), parent);
@@ -75,6 +66,8 @@ public class EditorPreferencePage extends FieldEditorPreferencePage implements
 		pTabsToSpaceField = new BooleanFieldEditor(
 				IEditorPreferenceConstants.EDITOR_TABS_TO_SPACES,
 				Messages.getString("preferences.tab.tospace"), parent);
+
+		/* TODO Colors */
 
 		/* Spell engine */
 		pSpellingServiceEnabledField = new BooleanFieldEditor(
@@ -87,7 +80,6 @@ public class EditorPreferencePage extends FieldEditorPreferencePage implements
 				Messages.getString("preferences.spell.service"),
 				descriptorsNames, parent);
 
-		addField(pPythonPathField);
 		addField(pTabsLengthField);
 		addField(pTabsToSpaceField);
 		addField(pFormatOnSave);
@@ -98,6 +90,7 @@ public class EditorPreferencePage extends FieldEditorPreferencePage implements
 
 	@Override
 	public void init(final IWorkbench workbench) {
+		// Do nothing
 	}
 
 	/**
@@ -108,6 +101,7 @@ public class EditorPreferencePage extends FieldEditorPreferencePage implements
 	 *         second dimension is its ID.
 	 */
 	private String[][] listSpellingEngines() {
+
 		SpellingEngineDescriptor[] descriptors = EditorsUI.getSpellingService()
 				.getSpellingEngineDescriptors();
 		String descriptorsNames[][] = new String[descriptors.length][2];
