@@ -26,11 +26,11 @@ import org.eclipse.ui.texteditor.spelling.ISpellingEngine;
 import org.eclipse.ui.texteditor.spelling.SpellingContext;
 import org.eclipse.ui.texteditor.spelling.SpellingProblem;
 import org.isandlatech.plugins.rest.editor.scanners.RestPartitionScanner;
+import org.isandlatech.plugins.rest.editor.userassist.BasicInternalLinkHandler;
+import org.isandlatech.plugins.rest.editor.userassist.IAssistanceConstants;
+import org.isandlatech.plugins.rest.editor.userassist.IInternalBrowserListener;
 import org.isandlatech.plugins.rest.editor.userassist.InternalBrowserData;
 import org.isandlatech.plugins.rest.editor.userassist.InternalBrowserInformationControl;
-import org.isandlatech.plugins.rest.editor.userassist.BasicInternalLinkHandler;
-import org.isandlatech.plugins.rest.editor.userassist.IInternalBrowserListener;
-import org.isandlatech.plugins.rest.editor.userassist.IAssistanceConstants;
 import org.isandlatech.plugins.rest.i18n.Messages;
 
 /**
@@ -45,10 +45,10 @@ public class RestTextHover implements ITextHover, ITextHoverExtension,
 	private final SpellingContext pSpellingContext;
 
 	/** Spelling engine to use */
-	private ISpellingEngine pSpellingEngine;
+	private final ISpellingEngine pSpellingEngine;
 
 	/** Hover link handler */
-	private IInternalBrowserListener pBrowserListener;
+	private final IInternalBrowserListener pBrowserListener;
 
 	/**
 	 * Prepares the spell check hover
@@ -316,7 +316,9 @@ public class RestTextHover implements ITextHover, ITextHoverExtension,
 			beginRealWord++;
 		}
 
-		if (beginRealWord == endRealWord) {
+		// The "greater than" case appears if the mouse is over a non-letter
+		// character
+		if (beginRealWord >= endRealWord) {
 			return new Region(aOffset, 0);
 		}
 

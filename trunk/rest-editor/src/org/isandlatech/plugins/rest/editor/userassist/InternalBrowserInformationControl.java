@@ -7,9 +7,6 @@ package org.isandlatech.plugins.rest.editor.userassist;
 
 import java.io.IOException;
 
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.text.AbstractInformationControl;
 import org.eclipse.jface.text.IInformationControl;
@@ -84,7 +81,7 @@ public class InternalBrowserInformationControl extends
 	private Browser pBrowser;
 
 	/** The creator that instantiated this object */
-	private IInformationControlCreator pControlCreator;
+	private final IInformationControlCreator pControlCreator;
 
 	/** Data associated to this tooltip */
 	private InternalBrowserData pData;
@@ -173,9 +170,6 @@ public class InternalBrowserInformationControl extends
 
 		// Fall back on default browser
 		pBrowser = new Browser(aParent, SWT.NONE);
-
-		DebugPlugin.log(new Status(IStatus.OK, RestPlugin.PLUGIN_ID,
-				"Browser : " + pBrowser.getBrowserType()));
 
 		pBrowser.setJavascriptEnabled(false);
 		pBrowser.addLocationListener(this);
