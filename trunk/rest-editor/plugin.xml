@@ -51,5 +51,23 @@
             extensions="rst">
       </participant>
    </extension>
+   <extension
+         point="org.eclipse.debug.core.launchConfigurationTypes">
+      <launchConfigurationType
+            delegate="org.isandlatech.plugins.rest.launch.MakefileLauncher"
+            id="org.isandlatech.plugins.rest.launch.makefile"
+            modes="run"
+            name="Sphinx (via make file)"
+            public="true">
+      </launchConfigurationType>
+   </extension>
+   <extension
+         point="org.eclipse.debug.ui.launchConfigurationTabGroups">
+      <launchConfigurationTabGroup
+            class="org.isandlatech.plugins.rest.launch.MakefileTabGroup"
+            id="org.isandlatech.plugins.rest.launch.makefile.tabgroup"
+            type="org.isandlatech.plugins.rest.launch.makefile">
+      </launchConfigurationTabGroup>
+   </extension>
 
 </plugin>

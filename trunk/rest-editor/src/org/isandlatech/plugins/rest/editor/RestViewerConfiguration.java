@@ -26,11 +26,15 @@ import org.eclipse.jface.text.formatter.ContentFormatter;
 import org.eclipse.jface.text.formatter.IContentFormatter;
 import org.eclipse.jface.text.presentation.IPresentationReconciler;
 import org.eclipse.jface.text.presentation.PresentationReconciler;
+import org.eclipse.jface.text.reconciler.IReconciler;
+import org.eclipse.jface.text.reconciler.IReconcilingStrategy;
+import org.eclipse.jface.text.reconciler.MonoReconciler;
 import org.eclipse.jface.text.rules.DefaultDamagerRepairer;
 import org.eclipse.jface.text.rules.ITokenScanner;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.ui.editors.text.TextSourceViewerConfiguration;
 import org.eclipse.ui.texteditor.spelling.ISpellingEngine;
+import org.eclipse.ui.texteditor.spelling.SpellingReconcileStrategy;
 import org.eclipse.ui.texteditor.spelling.SpellingService;
 import org.isandlatech.plugins.rest.RestPlugin;
 import org.isandlatech.plugins.rest.editor.formatters.GridTableFormattingStrategy;
@@ -274,18 +278,18 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 		return reconciler;
 	}
 
-	// @Override
-	// public IReconciler getReconciler(final ISourceViewer aSourceViewer) {
-	//
-	// // Uses the preferences to select the spell engine
-	// SpellingService selectedService = new SpellingService(pPreferenceStore);
-	//
-	// IReconcilingStrategy strategy = new SpellingReconcileStrategy(
-	// aSourceViewer, selectedService);
-	//
-	// MonoReconciler reconciler = new MonoReconciler(strategy, false);
-	// return reconciler;
-	// }
+	@Override
+	public IReconciler getReconciler(final ISourceViewer aSourceViewer) {
+
+		// Uses the preferences to select the spell engine
+		SpellingService selectedService = new SpellingService(pPreferenceStore);
+
+		IReconcilingStrategy strategy = new SpellingReconcileStrategy(
+				aSourceViewer, selectedService);
+
+		MonoReconciler reconciler = new MonoReconciler(strategy, false);
+		return reconciler;
+	}
 
 	@Override
 	public int getTabWidth(final ISourceViewer aSourceViewer) {

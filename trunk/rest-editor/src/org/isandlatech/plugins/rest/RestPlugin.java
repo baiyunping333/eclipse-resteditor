@@ -24,7 +24,7 @@ public class RestPlugin extends AbstractUIPlugin {
 	private static RestPlugin plugin;
 
 	/** The plug-in ID */
-	public static final String PLUGIN_ID = "ReSTEditor"; //$NON-NLS-1$
+	public static final String PLUGIN_ID = "ReSTEditor";
 
 	/** The plug-in name */
 	public static final String PLUGIN_NAME = Messages.getString("plugin.name");
