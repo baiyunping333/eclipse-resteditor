@@ -7,11 +7,13 @@ package org.isandlatech.plugins.rest.editor.userassist;
 
 import java.io.IOException;
 
+import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.jface.text.AbstractInformationControl;
 import org.eclipse.jface.text.IInformationControl;
 import org.eclipse.jface.text.IInformationControlCreator;
 import org.eclipse.jface.text.IInformationControlExtension2;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.SWTError;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.browser.LocationEvent;
 import org.eclipse.swt.browser.LocationListener;
@@ -28,8 +30,9 @@ import org.isandlatech.plugins.rest.RestPlugin;
  * 
  * @author Thomas Calmant
  */
-public class InternalBrowserInformationControl extends AbstractInformationControl
-		implements IInformationControlExtension2, LocationListener {
+public class InternalBrowserInformationControl extends
+		AbstractInformationControl implements IInformationControlExtension2,
+		LocationListener {
 
 	/** Browser ID for external links */
 	public static final String BROWSER_ID = "rest-documentaton-browser";
@@ -146,8 +149,8 @@ public class InternalBrowserInformationControl extends AbstractInformationContro
 		// Propagate the event
 		if (pData != null) {
 
-			String location = aEvent.location.substring(IAssistanceConstants.INTERNAL_PREFIX
-					.length());
+			String location = aEvent.location
+					.substring(IAssistanceConstants.INTERNAL_PREFIX.length());
 
 			if (pData.notifyListener(location)) {
 				// Close the tooltip
@@ -166,7 +169,18 @@ public class InternalBrowserInformationControl extends AbstractInformationContro
 	@Override
 	protected void createContent(final Composite aParent) {
 
-		pBrowser = new Browser(aParent, SWT.NONE);
+		try {
+			pBrowser = new Browser(aParent, SWT.MOZILLA);
+		} catch (SWTError error) {
+			DebugPlugin.logMessage("No Mozilla browser available...", error);
+
+			// Fall back on default browser
+			pBrowser = new Browser(aParent, SWT.NONE);
+		}
+
+		DebugPlugin.logMessage("Browser : " + pBrowser.getBrowserType(), null);
+		pBrowser.setFocus();
+
 		pBrowser.setJavascriptEnabled(false);
 		pBrowser.addLocationListener(this);
 	}
