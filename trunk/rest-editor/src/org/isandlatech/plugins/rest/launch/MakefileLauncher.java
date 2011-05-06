@@ -9,10 +9,7 @@ import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import org.eclipse.core.filesystem.URIUtil;
@@ -23,7 +20,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
-import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.core.IStreamListener;
 import org.eclipse.debug.core.model.ILaunchConfigurationDelegate;
 import org.eclipse.debug.core.model.IProcess;
@@ -56,31 +52,6 @@ public class MakefileLauncher implements ILaunchConfigurationDelegate {
 			value = aConfiguration.getAttribute(aConfigKey, aDefaultValue);
 		} catch (CoreException e) {
 			value = IMakefileConstants.UNDEFINED;
-		}
-
-		return value;
-	}
-
-	/**
-	 * Retrieves the expected configuration attribute. Returns an empty on
-	 * error.
-	 * 
-	 * @param aConfiguration
-	 *            Configuration to use
-	 * @param aConfigKey
-	 *            Attribute name
-	 * @return The attribute value or an empty map
-	 */
-	@SuppressWarnings("unchecked")
-	private Map<String, String> getConfigurationMap(
-			final ILaunchConfiguration aConfiguration, final String aConfigKey) {
-
-		Map<String, String> value;
-		try {
-			value = aConfiguration.getAttribute(aConfigKey,
-					new HashMap<String, String>());
-		} catch (CoreException e) {
-			value = new HashMap<String, String>();
 		}
 
 		return value;
@@ -231,34 +202,16 @@ public class MakefileLauncher implements ILaunchConfigurationDelegate {
 	 */
 	private String[] makeEnvironment(final ILaunchConfiguration aConfiguration) {
 
-		// Eclipse current environment
-		Map<String, String> envEclipse = System.getenv();
+		String[] env = null;
 
-		// Replacement environment
-		Map<String, String> envVars = getConfigurationMap(aConfiguration,
-				ILaunchManager.ATTR_ENVIRONMENT_VARIABLES);
+		try {
+			env = DebugPlugin.getDefault().getLaunchManager()
+					.getEnvironment(aConfiguration);
 
-		// Appended environment
-		Map<String, String> envAppendVars = getConfigurationMap(aConfiguration,
-				ILaunchManager.ATTR_APPEND_ENVIRONMENT_VARIABLES);
-
-		// Convert maps to a Runtime.exec() understandable format
-		String envArray[] = new String[envEclipse.size() + envVars.size()
-				+ envAppendVars.size()];
-		int i = 0;
-
-		for (Entry<String, String> entry : envEclipse.entrySet()) {
-			envArray[i++] = entry.getKey() + '=' + entry.getValue();
+		} catch (CoreException e) {
+			e.printStackTrace();
 		}
 
-		for (Entry<String, String> entry : envVars.entrySet()) {
-			envArray[i++] = entry.getKey() + '=' + entry.getValue();
-		}
-
-		for (Entry<String, String> entry : envAppendVars.entrySet()) {
-			envArray[i++] = entry.getKey() + '=' + entry.getValue();
-		}
-
-		return envArray;
+		return env;
 	}
 }
