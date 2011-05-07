@@ -32,6 +32,13 @@ public class TokenProvider {
 	private Map<String, IToken> pTokensRegistry;
 
 	/**
+	 * Initializes the token provider
+	 */
+	public TokenProvider() {
+		initializeProvider();
+	}
+
+	/**
 	 * Retrieves the color from the current Eclipse theme corresponding to the
 	 * given key
 	 * 
