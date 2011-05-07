@@ -13,7 +13,9 @@ import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.Token;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.themes.IThemeManager;
 import org.isandlatech.plugins.rest.editor.scanners.ITokenConstants;
 
 /**
@@ -23,19 +25,32 @@ import org.isandlatech.plugins.rest.editor.scanners.ITokenConstants;
  */
 public class TokenProvider {
 
-	/** The tokens' colors provider */
-	private ColorProvider pColorProvider;
-
 	/** Default token */
-	public final IToken pDefaultToken;
+	private IToken pDefaultToken;
 
 	/** Existing tokens */
 	private Map<String, IToken> pTokensRegistry;
 
-	/** Token provider initialization */
-	public TokenProvider() {
-		initializeProvider(null);
-		pDefaultToken = getToken(new RGB(0, 0, 0));
+	/**
+	 * Retrieves the color from the current Eclipse theme corresponding to the
+	 * given key
+	 * 
+	 * @param aKey
+	 *            Theme color key
+	 * @return The theme color, black (0,0,0) by default
+	 */
+	public Color getKeyThemeColor(final String aKey) {
+
+		IThemeManager themeManager = PlatformUI.getWorkbench()
+				.getThemeManager();
+		Color result = themeManager.getCurrentTheme().getColorRegistry()
+				.get(aKey);
+
+		if (result == null) {
+			result = new Color(Display.getCurrent(), 0, 0, 0);
+		}
+
+		return result;
 	}
 
 	/**
@@ -45,7 +60,7 @@ public class TokenProvider {
 	 *            Foreground color
 	 * @return The new token
 	 */
-	private Token getToken(final RGB aForeground) {
+	private Token getToken(final Color aForeground) {
 		return getToken(aForeground, null, SWT.NORMAL);
 	}
 
@@ -60,14 +75,10 @@ public class TokenProvider {
 	 *            SWT text style
 	 * @return The new token
 	 */
-	private Token getToken(final RGB aForeground, final RGB aBackground,
+	private Token getToken(final Color aForeground, final Color aBackground,
 			final int style) {
 
-		Color foregroundColor = pColorProvider.getColor(aForeground);
-		Color backgroundColor = pColorProvider.getColor(aBackground);
-
-		return new Token(new TextAttribute(foregroundColor, backgroundColor,
-				style));
+		return new Token(new TextAttribute(aForeground, aBackground, style));
 	}
 
 	/**
@@ -94,60 +105,70 @@ public class TokenProvider {
 	 * @param aColorProvider
 	 *            Color provider (can be null)
 	 */
-	public void initializeProvider(final ColorProvider aColorProvider) {
+	public void initializeProvider() {
 
 		IToken commonToken;
 
-		pColorProvider = aColorProvider;
-		if (pColorProvider == null) {
-			pColorProvider = new ColorProvider();
-		}
+		// Theme colors
+		Color default_color = getKeyThemeColor(IThemeConstants.DEFAULT);
+		Color inline_emphasis_color = getKeyThemeColor(IThemeConstants.INLINE_EMPHASIS);
+		Color inline_literal_color = getKeyThemeColor(IThemeConstants.INLINE_LITERAL);
+
+		Color link_color = getKeyThemeColor(IThemeConstants.LINK);
+		Color list_bullets_color = getKeyThemeColor(IThemeConstants.LIST_BULLET);
+		Color directive_color = getKeyThemeColor(IThemeConstants.DIRECTIVE);
+		Color literal_block_color = getKeyThemeColor(IThemeConstants.LITERAL);
+		Color section_block_color = getKeyThemeColor(IThemeConstants.SECTION);
+		Color souce_block_color = getKeyThemeColor(IThemeConstants.SOURCE);
+		Color table_block_color = getKeyThemeColor(IThemeConstants.TABLE);
+
+		// Default token
+		pDefaultToken = getToken(default_color);
 
 		pTokensRegistry = new HashMap<String, IToken>();
 
 		// In-line modifiers
 		pTokensRegistry.put(ITokenConstants.INLINE_LITERAL,
-				getToken(new RGB(63, 127, 95), null, SWT.ITALIC));
+				getToken(inline_literal_color, null, SWT.ITALIC));
 
 		pTokensRegistry.put(ITokenConstants.INLINE_EMPHASIS_TEXT,
-				getToken(new RGB(77, 77, 77), null, SWT.ITALIC));
+				getToken(inline_emphasis_color, null, SWT.ITALIC));
 
 		pTokensRegistry.put(ITokenConstants.INLINE_BOLD_TEXT,
-				getToken(new RGB(77, 77, 77), null, SWT.BOLD));
+				getToken(inline_emphasis_color, null, SWT.BOLD));
 
 		// Links, fields, roles
-		commonToken = getToken(new RGB(0, 0, 128), null, SWT.ITALIC);
+		commonToken = getToken(link_color, null, SWT.ITALIC);
 		pTokensRegistry.put(ITokenConstants.LINK, commonToken);
 		pTokensRegistry.put(ITokenConstants.FIELD, commonToken);
 		pTokensRegistry.put(ITokenConstants.ROLE, commonToken);
 
 		// Link references
-		commonToken = getToken(new RGB(0, 0, 128), null, SWT.BOLD);
+		commonToken = getToken(link_color, null, SWT.BOLD);
 		pTokensRegistry.put(ITokenConstants.LINK_REFERENCE, commonToken);
 		pTokensRegistry.put(ITokenConstants.LINK_FOOTNOTE, commonToken);
 		pTokensRegistry.put(ITokenConstants.SUBSTITUTION, commonToken);
 
 		// Lists
 		pTokensRegistry.put(ITokenConstants.LIST_BULLET,
-				getToken(new RGB(45, 170, 45), null, SWT.ITALIC | SWT.BOLD));
+				getToken(list_bullets_color, null, SWT.ITALIC | SWT.BOLD));
 
 		// Literals
-		pTokensRegistry.put(ITokenConstants.LITERAL_DEFAULT, getToken(new RGB(
-				73, 116, 230)));
+		pTokensRegistry.put(ITokenConstants.LITERAL_DEFAULT,
+				getToken(literal_block_color));
 
 		pTokensRegistry.put(ITokenConstants.LITERAL_DIRECTIVE,
-				getToken(new RGB(0, 0, 255), null, SWT.BOLD));
+				getToken(directive_color, null, SWT.BOLD));
 
 		// Section
 		pTokensRegistry.put(ITokenConstants.SECTION,
-				getToken(new RGB(255, 165, 0), null, SWT.BOLD));
+				getToken(section_block_color, null, SWT.BOLD));
 
 		// Code block
 		pTokensRegistry.put(ITokenConstants.SOURCE,
-				getToken(new RGB(63, 127, 95), null, SWT.NORMAL));
+				getToken(souce_block_color, null, SWT.NORMAL));
 
 		// Table (grid and simple)
-		pTokensRegistry.put(ITokenConstants.TABLE,
-				getToken(new RGB(165, 42, 42)));
+		pTokensRegistry.put(ITokenConstants.TABLE, getToken(table_block_color));
 	}
 }

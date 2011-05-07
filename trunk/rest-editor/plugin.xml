@@ -57,7 +57,7 @@
             delegate="org.isandlatech.plugins.rest.launch.MakefileLauncher"
             id="org.isandlatech.plugins.rest.launch.makefile"
             modes="run"
-            name="Sphinx (via make file)"
+            name="%runner.makefile"
             public="true">
       </launchConfigurationType>
    </extension>
@@ -68,6 +68,83 @@
             id="org.isandlatech.plugins.rest.launch.makefile.tabgroup"
             type="org.isandlatech.plugins.rest.launch.makefile">
       </launchConfigurationTabGroup>
+   </extension>
+   <extension
+         point="org.eclipse.ui.themes">
+      <themeElementCategory
+            id="org.isandlatech.plugins.rest.theme"
+            label="%editor.name">
+      </themeElementCategory>
+      <colorDefinition
+            categoryId="org.isandlatech.plugins.rest.theme"
+            id="org.isandlatech.plugins.rest.theme.default"
+            isEditable="true"
+            label="%colors.text"
+            value="0,0,0">
+      </colorDefinition>
+      <colorDefinition
+            categoryId="org.isandlatech.plugins.rest.theme"
+            id="org.isandlatech.plugins.rest.theme.inline.emphasis"
+            isEditable="true"
+            label="%colors.inline.emphasis"
+            value="77,77,77">
+      </colorDefinition>
+      <colorDefinition
+            categoryId="org.isandlatech.plugins.rest.theme"
+            id="org.isandlatech.plugins.rest.theme.inline.literal"
+            isEditable="true"
+            label="%colors.inline.literal"
+            value="63,127,95">
+      </colorDefinition>
+      <colorDefinition
+            categoryId="org.isandlatech.plugins.rest.theme"
+            id="org.isandlatech.plugins.rest.theme.link"
+            isEditable="true"
+            label="%colors.links"
+            value="0,0,128">
+      </colorDefinition>
+      <colorDefinition
+            categoryId="org.isandlatech.plugins.rest.theme"
+            id="org.isandlatech.plugins.rest.theme.bullet"
+            isEditable="true"
+            label="%colors.bullets"
+            value="45,170,45">
+      </colorDefinition>
+      <colorDefinition
+            categoryId="org.isandlatech.plugins.rest.theme"
+            id="org.isandlatech.plugins.rest.theme.directive"
+            isEditable="true"
+            label="%colors.directives"
+            value="0,0,255">
+      </colorDefinition>
+      <colorDefinition
+            categoryId="org.isandlatech.plugins.rest.theme"
+            id="org.isandlatech.plugins.rest.theme.section"
+            isEditable="true"
+            label="%colors.sections"
+            value="255,165,0">
+      </colorDefinition>
+      <colorDefinition
+            categoryId="org.isandlatech.plugins.rest.theme"
+            id="org.isandlatech.plugins.rest.theme.source"
+            isEditable="true"
+            label="%colors.sources"
+            value="63,127,95">
+      </colorDefinition>
+      <colorDefinition
+            categoryId="org.isandlatech.plugins.rest.theme"
+            id="org.isandlatech.plugins.rest.theme.table"
+            isEditable="true"
+            label="%colors.tables"
+            value="165,42,42">
+      </colorDefinition>
+      <colorDefinition
+            categoryId="org.isandlatech.plugins.rest.theme"
+            id="org.isandlatech.plugins.rest.theme.literal"
+            isEditable="true"
+            label="%colors.literals"
+            value="73,116,230">
+      </colorDefinition>
    </extension>
 
 </plugin>
