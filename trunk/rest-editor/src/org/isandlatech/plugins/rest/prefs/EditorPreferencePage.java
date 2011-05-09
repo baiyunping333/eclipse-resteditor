@@ -1,9 +1,15 @@
 package org.isandlatech.plugins.rest.prefs;
 
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.ComboFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IntegerFieldEditor;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
@@ -11,7 +17,9 @@ import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.texteditor.spelling.SpellingEngineDescriptor;
 import org.eclipse.ui.texteditor.spelling.SpellingService;
 import org.isandlatech.plugins.rest.RestPlugin;
+import org.isandlatech.plugins.rest.editor.providers.IThemeConstants;
 import org.isandlatech.plugins.rest.i18n.Messages;
+import org.osgi.service.prefs.BackingStoreException;
 
 /**
  * ReST Editor preferences page
@@ -67,8 +75,6 @@ public class EditorPreferencePage extends FieldEditorPreferencePage implements
 				IEditorPreferenceConstants.EDITOR_TABS_TO_SPACES,
 				Messages.getString("preferences.tab.tospace"), parent);
 
-		/* TODO Colors */
-
 		/* Spell engine */
 		pSpellingServiceEnabledField = new BooleanFieldEditor(
 				SpellingService.PREFERENCE_SPELLING_ENABLED,
@@ -80,12 +86,30 @@ public class EditorPreferencePage extends FieldEditorPreferencePage implements
 				Messages.getString("preferences.spell.service"),
 				descriptorsNames, parent);
 
+		/* Add those fields */
 		addField(pTabsLengthField);
 		addField(pTabsToSpaceField);
 		addField(pFormatOnSave);
 
 		addField(pSpellingServiceEnabledField);
 		addField(pSpellingServiceIdField);
+
+		/* Reset colors preferences button (not a field) */
+		Button btn = new Button(parent, SWT.PUSH);
+		btn.setText(Messages.getString("preferences.colors.reset"));
+
+		btn.addSelectionListener(new SelectionListener() {
+
+			@Override
+			public void widgetDefaultSelected(final SelectionEvent aEvent) {
+				// Do nothing
+			}
+
+			@Override
+			public void widgetSelected(final SelectionEvent aEvent) {
+				resetColors();
+			}
+		});
 	}
 
 	@Override
@@ -113,5 +137,25 @@ public class EditorPreferencePage extends FieldEditorPreferencePage implements
 			i++;
 		}
 		return descriptorsNames;
+	}
+
+	/**
+	 * Resets the color definitions in the preference store, stored by Eclipse
+	 * Color Theme
+	 */
+	public void resetColors() {
+
+		IEclipsePreferences preferences = new InstanceScope()
+				.getNode(RestPlugin.PLUGIN_ID);
+
+		for (String themeKey : IThemeConstants.THEME_KEYS) {
+			preferences.remove(themeKey);
+		}
+
+		try {
+			preferences.flush();
+		} catch (BackingStoreException e) {
+			e.printStackTrace();
+		}
 	}
 }

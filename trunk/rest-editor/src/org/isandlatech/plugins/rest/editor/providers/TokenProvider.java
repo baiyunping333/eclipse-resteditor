@@ -16,6 +16,7 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.themes.IThemeManager;
+import org.isandlatech.plugins.rest.RestPlugin;
 import org.isandlatech.plugins.rest.editor.scanners.ITokenConstants;
 
 /**
@@ -39,6 +40,37 @@ public class TokenProvider {
 	}
 
 	/**
+	 * Converts a string representation of a Color (from
+	 * {@link Color#toString()} to a color instance.
+	 * 
+	 * Color format : "RED,GREEN,BLUE", values in base 10.
+	 * 
+	 * @param aKey
+	 *            Preference key
+	 * @return The color described by preferences, null on error
+	 */
+	public Color getColorFromPreferences(final String aKey) {
+
+		String value = RestPlugin.getDefault().getPreferenceStore()
+				.getString(aKey);
+
+		if (value == null) {
+			return null;
+		}
+
+		String values[] = value.split(",");
+		if (values.length != 3) {
+			return null;
+		}
+
+		int red = Integer.parseInt(values[0], 10);
+		int green = Integer.parseInt(values[1], 10);
+		int blue = Integer.parseInt(values[2], 10);
+
+		return new Color(Display.getCurrent(), red, green, blue);
+	}
+
+	/**
 	 * Retrieves the color from the current Eclipse theme corresponding to the
 	 * given key
 	 * 
@@ -50,9 +82,19 @@ public class TokenProvider {
 
 		IThemeManager themeManager = PlatformUI.getWorkbench()
 				.getThemeManager();
-		Color result = themeManager.getCurrentTheme().getColorRegistry()
-				.get(aKey);
 
+		Color result;
+
+		// Eclipse Color theme
+		result = getColorFromPreferences(aKey);
+
+		// Basic Eclipse theme
+		if (result == null) {
+			result = themeManager.getCurrentTheme().getColorRegistry()
+					.get(aKey);
+		}
+
+		// Absolutely no color...
 		if (result == null) {
 			result = new Color(Display.getCurrent(), 0, 0, 0);
 		}
@@ -97,6 +139,8 @@ public class TokenProvider {
 	 *         non-null one
 	 */
 	public IToken getTokenForElement(final String aElement) {
+
+		initializeProvider();
 
 		IToken token = pTokensRegistry.get(aElement);
 		if (token != null) {

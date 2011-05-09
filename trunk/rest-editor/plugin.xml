@@ -146,5 +146,14 @@
             value="73,116,230">
       </colorDefinition>
    </extension>
+   <extension
+         point="com.github.eclipsecolortheme.mapper">
+      <mapper
+            class="com.github.eclipsecolortheme.mapper.GenericMapper"
+            name="%Bundle-Name"
+            pluginId="ReSTEditor"
+            xml="/ReSTEditor.xml">
+      </mapper>
+   </extension>
 
 </plugin>

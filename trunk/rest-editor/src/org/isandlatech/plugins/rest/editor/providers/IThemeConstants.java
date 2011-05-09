@@ -5,6 +5,7 @@
  */
 package org.isandlatech.plugins.rest.editor.providers;
 
+
 /**
  * Theme colors keys, as used in the extension declaration (plugin.xml)
  * 
@@ -41,4 +42,8 @@ public interface IThemeConstants {
 
 	/** Tables */
 	String TABLE = "org.isandlatech.plugins.rest.theme.table";
+
+	/** Color theme keys */
+	String[] THEME_KEYS = { DEFAULT, DIRECTIVE, INLINE_EMPHASIS,
+			INLINE_LITERAL, LINK, LIST_BULLET, LITERAL, SECTION, SOURCE, TABLE };
 }

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<eclipseColorThemeMapping plugin="ReSTEditor"
+	created="2011-05-09 17:36:00">
+	<mappings>
+		<mapping pluginKey="org.isandlatech.plugins.rest.theme.default"
+			themeKey="foreground" />
+		<mapping pluginKey="org.isandlatech.plugins.rest.theme.inline.emphasis"
+			themeKey="string" />
+		<mapping pluginKey="org.isandlatech.plugins.rest.theme.inline.literal"
+			themeKey="singleLineComment" />
+
+		<mapping pluginKey="org.isandlatech.plugins.rest.theme.link"
+			themeKey="javadocLink" />
+		<mapping pluginKey="org.isandlatech.plugins.rest.theme.bullet"
+			themeKey="operator" />
+
+		<mapping pluginKey="org.isandlatech.plugins.rest.theme.directive"
+			themeKey="keyword" />
+		<mapping pluginKey="org.isandlatech.plugins.rest.theme.literal"
+			themeKey="javadoc" />
+
+		<mapping pluginKey="org.isandlatech.plugins.rest.theme.section"
+			themeKey="class" />
+		<mapping pluginKey="org.isandlatech.plugins.rest.theme.source"
+			themeKey="multiLineComment" />
+		<mapping pluginKey="org.isandlatech.plugins.rest.theme.table"
+			themeKey="bracket" />
+	</mappings>
+</eclipseColorThemeMapping>
