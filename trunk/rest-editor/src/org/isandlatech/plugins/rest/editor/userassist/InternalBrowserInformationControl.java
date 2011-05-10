@@ -91,6 +91,9 @@ public class InternalBrowserInformationControl extends
 	/** The web browser widget */
 	private Browser pBrowser;
 
+	/** Indicates if setInformation() or setInput() has been called */
+	private boolean hasData;
+
 	/** The creator that instantiated this object */
 	private final IInformationControlCreator pControlCreator;
 
@@ -169,6 +172,7 @@ public class InternalBrowserInformationControl extends
 
 			String location;
 			try {
+				// TODO: get the doc/platform charset
 				location = URLDecoder.decode(rawLocation, "UTF-8");
 			} catch (UnsupportedEncodingException e) {
 				e.printStackTrace();
@@ -198,19 +202,14 @@ public class InternalBrowserInformationControl extends
 		// Disable links (for safety)
 		pBrowser.setJavascriptEnabled(false);
 
-		// Retrieve colors to be used for display
-		Display display = Display.getCurrent();
-		Color foreground = display.getSystemColor(SWT.COLOR_INFO_FOREGROUND);
-		Color background = display.getSystemColor(SWT.COLOR_INFO_BACKGROUND);
-
-		pBrowser.setForeground(foreground);
-		pBrowser.setBackground(background);
-
 		// Handle browser links (internal & external ones)
 		pBrowser.addLocationListener(this);
 
 		// Remove the contextual menu
 		pBrowser.setMenu(new Menu(getShell(), SWT.NONE));
+
+		// Currently no data available
+		hasData = false;
 	}
 
 	/**
@@ -298,7 +297,7 @@ public class InternalBrowserInformationControl extends
 	 */
 	@Override
 	public boolean hasContents() {
-		return !pBrowser.getText().isEmpty();
+		return hasData;
 	}
 
 	/*
@@ -317,6 +316,7 @@ public class InternalBrowserInformationControl extends
 		finishHtmlContent(htmlContent);
 
 		pBrowser.setText(htmlContent.toString());
+		hasData = true;
 
 		// Data changed
 		pData = null;
@@ -338,6 +338,21 @@ public class InternalBrowserInformationControl extends
 			pData = (InternalBrowserData) aInput;
 		} else {
 			pData = null;
+		}
+	}
+
+	/*
+	 * @see org.eclipse.jface.text.AbstractInformationControl#setSize(int, int)
+	 */
+	@Override
+	public void setSize(final int width, final int height) {
+
+		pBrowser.setRedraw(false);
+
+		try {
+			super.setSize(width, height);
+		} finally {
+			pBrowser.setRedraw(true);
 		}
 	}
 }
