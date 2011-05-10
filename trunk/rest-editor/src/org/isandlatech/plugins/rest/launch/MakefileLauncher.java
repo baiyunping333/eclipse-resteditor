@@ -178,19 +178,33 @@ public class MakefileLauncher implements ILaunchConfigurationDelegate {
 				IMakefileConstants.ATTR_MAKE_CMD,
 				IMakefileConstants.ATTR_DEFAULT_MAKE_CMD);
 
-		if (Util.isWindows()) {
-			// Specific Windows case...
-			makeCmd = "make.bat";
-		}
-
 		Set<String> makeRules = getConfigurationSet(aConfiguration,
 				IMakefileConstants.ATTR_MAKE_RULES);
 
 		// Make the command line
-		ArrayList<String> cmdLine = new ArrayList<String>(makeRules.size() + 1);
-		cmdLine.add(makeCmd);
-		cmdLine.addAll(makeRules);
+		ArrayList<String> cmdLine;
 
+		if (Util.isWindows()) {
+			// Handle Windows specific launch
+			cmdLine = new ArrayList<String>(makeRules.size() + 3);
+
+			// Executable : command line emulation
+			cmdLine.add("cmd");
+
+			// Execute a command
+			cmdLine.add("/c");
+
+			// The "makefile"
+			cmdLine.add("make.bat");
+
+		} else {
+			// Unix like systems
+			cmdLine = new ArrayList<String>(makeRules.size() + 1);
+			cmdLine.add(makeCmd);
+		}
+
+		// The parameters
+		cmdLine.addAll(makeRules);
 		return cmdLine.toArray(new String[0]);
 	}
 
