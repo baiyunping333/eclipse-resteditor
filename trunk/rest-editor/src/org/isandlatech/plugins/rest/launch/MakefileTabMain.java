@@ -11,8 +11,11 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.variables.IStringVariableManager;
+import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTab;
@@ -26,6 +29,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
@@ -63,6 +67,21 @@ public class MakefileTabMain extends AbstractLaunchConfigurationTab {
 		public void widgetSelected(final SelectionEvent aEvent) {
 			setDirty(true);
 			updateLaunchConfigurationDialog();
+
+			Object source = aEvent.getSource();
+
+			if (source == pWorkspaceLocationButton) {
+				// Workspace folder selection
+				handleWorkspaceWorkingDirectoryButtonSelected();
+
+			} else if (source == pFileSystemLocationButton) {
+				// File system selection
+				handleFileWorkingDirectoryButtonSelected();
+
+			} else if (source == pVariablesLocationButton) {
+				// Variables insertion
+				handleVariablesButtonSelected();
+			}
 		}
 	}
 
@@ -76,7 +95,16 @@ public class MakefileTabMain extends AbstractLaunchConfigurationTab {
 	private ModificationListener pModificationListener = new ModificationListener();
 
 	/** Project to compile */
-	private Text pTargetProject;
+	private Text pWorkingDirectory;
+
+	/** Workspace selection button */
+	private Button pWorkspaceLocationButton;
+
+	/** File selection button */
+	private Button pFileSystemLocationButton;
+
+	/** Variables selection button */
+	private Button pVariablesLocationButton;
 
 	/*
 	 * (non-Javadoc)
@@ -95,7 +123,7 @@ public class MakefileTabMain extends AbstractLaunchConfigurationTab {
 		setControl(composite);
 
 		// Fill the root control
-		createControlsProject(composite);
+		createLocationComponent(composite);
 		createControlsOutput(composite);
 	}
 
@@ -137,42 +165,6 @@ public class MakefileTabMain extends AbstractLaunchConfigurationTab {
 	}
 
 	/**
-	 * Creates the project selection button group
-	 * 
-	 * @param aParent
-	 *            Parent container
-	 */
-	private void createControlsProject(final Composite aParent) {
-
-		// Button group
-		Group group = new Group(aParent, SWT.SHADOW_ETCHED_IN);
-		group.setText(Messages.getString("runner.main.project.title"));
-		setGridLayout(group, 3);
-
-		// Project selection
-		createLabel(group,
-				Messages.getString("runner.main.project.select.label"));
-
-		pTargetProject = createText(group);
-		pTargetProject.addModifyListener(pModificationListener);
-
-		Button selectProject = createPushButton(group,
-				Messages.getString("runner.main.project.select.button"), null);
-
-		selectProject.addSelectionListener(new SelectionListener() {
-			@Override
-			public void widgetDefaultSelected(final SelectionEvent aEvent) {
-				// Never called (written in the doc)
-			}
-
-			@Override
-			public void widgetSelected(final SelectionEvent aEvent) {
-				selectProject();
-			}
-		});
-	}
-
-	/**
 	 * Creates a label with the given name (without style nor layout flag)
 	 * 
 	 * @param aParent
@@ -187,6 +179,62 @@ public class MakefileTabMain extends AbstractLaunchConfigurationTab {
 		label.setText(aText);
 
 		return label;
+	}
+
+	/**
+	 * Creates the controls needed to edit the location attribute of an external
+	 * tool.
+	 * 
+	 * Code from external tools plugin internals.
+	 * 
+	 * @param parent
+	 *            the composite to create the controls in
+	 */
+	protected void createLocationComponent(final Composite parent) {
+
+		// "Location" group
+		Group group = new Group(parent, SWT.NONE);
+		String locationLabel = Messages.getString("runner.main.dir.title");
+		group.setText(locationLabel);
+
+		GridLayout layout = new GridLayout();
+		layout.numColumns = 1;
+		GridData gridData = new GridData(GridData.FILL_HORIZONTAL);
+		group.setLayout(layout);
+		group.setLayoutData(gridData);
+
+		// Working directory text field
+		pWorkingDirectory = new Text(group, SWT.BORDER);
+		gridData = new GridData(GridData.FILL_HORIZONTAL);
+		gridData.widthHint = 100; // IDialogConstants.ENTRY_FIELD_WIDTH;
+		pWorkingDirectory.setLayoutData(gridData);
+		pWorkingDirectory.addModifyListener(pModificationListener);
+
+		// 3-buttons group
+		Composite buttonComposite = new Composite(group, SWT.NONE);
+		layout = new GridLayout();
+		layout.marginHeight = 0;
+		layout.marginWidth = 0;
+		layout.numColumns = 3;
+		gridData = new GridData(GridData.HORIZONTAL_ALIGN_END);
+		buttonComposite.setLayout(layout);
+		buttonComposite.setLayoutData(gridData);
+		buttonComposite.setFont(parent.getFont());
+
+		// Workspace folder selection
+		pWorkspaceLocationButton = createPushButton(buttonComposite,
+				Messages.getString("runner.main.dir.workspace"), null);
+		pWorkspaceLocationButton.addSelectionListener(pModificationListener);
+
+		// File system folder selection
+		pFileSystemLocationButton = createPushButton(buttonComposite,
+				Messages.getString("runner.main.dir.filesystem"), null);
+		pFileSystemLocationButton.addSelectionListener(pModificationListener);
+
+		// Variables injection
+		pVariablesLocationButton = createPushButton(buttonComposite,
+				Messages.getString("runner.main.dir.variables"), null);
+		pVariablesLocationButton.addSelectionListener(pModificationListener);
 	}
 
 	/**
@@ -215,6 +263,62 @@ public class MakefileTabMain extends AbstractLaunchConfigurationTab {
 		return Messages.getString("runner.main.title");
 	}
 
+	/**
+	 * Prompts the user to choose a working directory from the file system.
+	 */
+	protected void handleFileWorkingDirectoryButtonSelected() {
+
+		DirectoryDialog dialog = new DirectoryDialog(getShell(), SWT.SAVE);
+		dialog.setMessage(Messages.getString("runner.main.dir.dialog.label"));
+		dialog.setFilterPath(pWorkingDirectory.getText());
+
+		String text = dialog.open();
+		if (text != null) {
+			pWorkingDirectory.setText(text);
+		}
+	}
+
+	/**
+	 * A variable entry button has been pressed for the given text field. Prompt
+	 * the user for a variable and enter the result in the project field.
+	 */
+	private void handleVariablesButtonSelected() {
+
+		StringVariableSelectionDialog dialog = new StringVariableSelectionDialog(
+				getShell());
+		dialog.open();
+
+		String variable = dialog.getVariableExpression();
+		if (variable != null) {
+			pWorkingDirectory.insert(variable);
+		}
+	}
+
+	/**
+	 * Prompts the user for a working directory location within the workspace
+	 * and sets the working directory as a String containing the workspace_loc
+	 * variable or <code>null</code> if no location was obtained from the user.
+	 */
+	protected void handleWorkspaceWorkingDirectoryButtonSelected() {
+
+		ContainerSelectionDialog containerDialog;
+		containerDialog = new ContainerSelectionDialog(getShell(),
+				ResourcesPlugin.getWorkspace().getRoot(), false,
+				Messages.getString("runner.main.dir.dialog.label"));
+		containerDialog.open();
+
+		Object[] resource = containerDialog.getResult();
+		String text = null;
+		if (resource != null && resource.length > 0) {
+			text = newVariableExpression(
+					"workspace_loc", ((IPath) resource[0]).toString()); //$NON-NLS-1$
+		}
+
+		if (text != null) {
+			pWorkingDirectory.setText(text);
+		}
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -236,7 +340,7 @@ public class MakefileTabMain extends AbstractLaunchConfigurationTab {
 		setConfiguredText(aConfiguration,
 				IMakefileConstants.ATTR_WORKING_DIRECTORY,
 				IMakefileConstants.ATTR_DEFAULT_WORKING_DIRECTORY,
-				pTargetProject);
+				pWorkingDirectory);
 
 		// Make rules
 		try {
@@ -258,6 +362,18 @@ public class MakefileTabMain extends AbstractLaunchConfigurationTab {
 		}
 	}
 
+	/**
+	 * Returns a new variable expression with the given variable and the given
+	 * argument.
+	 * 
+	 * @see IStringVariableManager#generateVariableExpression(String, String)
+	 */
+	protected String newVariableExpression(final String varName,
+			final String arg) {
+		return VariablesPlugin.getDefault().getStringVariableManager()
+				.generateVariableExpression(varName, arg);
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -273,7 +389,7 @@ public class MakefileTabMain extends AbstractLaunchConfigurationTab {
 				pMakeCommand.getText().trim());
 
 		aConfiguration.setAttribute(IMakefileConstants.ATTR_WORKING_DIRECTORY,
-				pTargetProject.getText().trim());
+				pWorkingDirectory.getText().trim());
 
 		Set<String> selectedRules = new HashSet<String>();
 		for (Entry<String, Button> entry : pMakeRules.entrySet()) {
@@ -305,8 +421,8 @@ public class MakefileTabMain extends AbstractLaunchConfigurationTab {
 			}
 
 			String newPathString = newPath.makeRelative().toOSString();
-			if (!newPathString.equals(pTargetProject.getText())) {
-				pTargetProject.setText(newPathString);
+			if (!newPathString.equals(pWorkingDirectory.getText())) {
+				pWorkingDirectory.setText(newPathString);
 				setDirty(true);
 			}
 		}

@@ -6,17 +6,14 @@
 package org.isandlatech.plugins.rest.launch;
 
 import java.io.File;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.eclipse.core.filesystem.URIUtil;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.variables.IStringVariableManager;
+import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
@@ -26,11 +23,6 @@ import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.IStreamMonitor;
 import org.eclipse.jface.util.Util;
 
-/**
- * Sphinx build launcher
- * 
- * @author Thomas Calmant
- */
 public class MakefileLauncher implements ILaunchConfigurationDelegate {
 
 	/**
@@ -84,43 +76,46 @@ public class MakefileLauncher implements ILaunchConfigurationDelegate {
 	}
 
 	/**
-	 * Retrieves the absolute path corresponding to the compilation base
-	 * directory. Returns null on error.
+	 * Expands and returns the working directory attribute of the given launch
+	 * configuration. Returns <code>null</code> if a working directory is not
+	 * specified. If specified, the working is verified to point to an existing
+	 * directory in the local file system.
+	 * 
+	 * Copied from External tools plug-in internals.
 	 * 
 	 * @param aConfiguration
-	 *            Launch configuration
-	 * @return The absolute path of the working directory, null on error
+	 *            the launch configuration
+	 * @return an absolute path to a directory in the local file system, or
+	 *         <code>null</code> if unspecified
+	 * @throws CoreException
+	 *             if unable to retrieve the associated launch configuration
+	 *             attribute, if unable to resolve any variables, or if the
+	 *             resolved location does not point to an existing directory in
+	 *             the local file system
 	 */
-	private File getWorkingDirectory(final ILaunchConfiguration aConfiguration) {
+	public File getWorkingDirectory(final ILaunchConfiguration aConfiguration)
+			throws CoreException {
 
-		// Search for the project directory
-		String configWorkDir = getConfiguration(aConfiguration,
+		String location = getConfiguration(aConfiguration,
 				IMakefileConstants.ATTR_WORKING_DIRECTORY,
 				IMakefileConstants.ATTR_DEFAULT_WORKING_DIRECTORY);
 
-		File workingDirectory = null;
+		if (location != null) {
+			IStringVariableManager varMan = VariablesPlugin.getDefault()
+					.getStringVariableManager();
 
-		try {
-			URI projectURI = new URI(configWorkDir);
+			String expandedLocation = varMan
+					.performStringSubstitution(location);
 
-			if (!projectURI.isAbsolute()) {
-				// Dialog box selection or relative user entry : construct an
-				// absolute path
-
-				IPath completePath = ResourcesPlugin.getWorkspace().getRoot()
-						.getLocation().append(configWorkDir);
-
-				projectURI = URIUtil.toURI(completePath.makeAbsolute());
+			if (expandedLocation.length() > 0) {
+				File path = new File(expandedLocation);
+				if (path.isDirectory()) {
+					return path;
+				}
 			}
-
-			workingDirectory = new File(projectURI);
-
-		} catch (URISyntaxException e) {
-			e.printStackTrace();
-			workingDirectory = null;
 		}
 
-		return workingDirectory;
+		return null;
 	}
 
 	/*
