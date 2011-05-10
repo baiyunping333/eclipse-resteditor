@@ -24,6 +24,7 @@ import org.eclipse.debug.core.IStreamListener;
 import org.eclipse.debug.core.model.ILaunchConfigurationDelegate;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.IStreamMonitor;
+import org.eclipse.jface.util.Util;
 
 /**
  * Sphinx build launcher
@@ -181,6 +182,11 @@ public class MakefileLauncher implements ILaunchConfigurationDelegate {
 		String makeCmd = getConfiguration(aConfiguration,
 				IMakefileConstants.ATTR_MAKE_CMD,
 				IMakefileConstants.ATTR_DEFAULT_MAKE_CMD);
+
+		if (Util.isWindows()) {
+			// Specific Windows case...
+			makeCmd = "make.bat";
+		}
 
 		Set<String> makeRules = getConfigurationSet(aConfiguration,
 				IMakefileConstants.ATTR_MAKE_RULES);
