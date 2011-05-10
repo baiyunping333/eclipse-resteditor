@@ -7,7 +7,6 @@
 
    <description url="http://www.isandlatech.com">
       A reStructuredText editor for Eclipse with :
-
 * Syntax coloring
 * Minimalist content assistant
 * New Sphinx project wizard
@@ -15,7 +14,7 @@
 
    <copyright url="http://www.isandlatech.com">
       ReST Editor Plugin
-Copyright 2010 isandlaTech, T. Calmant
+Copyright 2010-2011 isandlaTech, T. Calmant
 This product includes software developed by isandlaTech
 (http://www.isandlatech.com)
    </copyright>
@@ -121,8 +120,11 @@ This Agreement is governed by the laws of the State of New York and the intellec
       <import plugin="org.eclipse.ui.editors"/>
       <import plugin="org.eclipse.ui.views"/>
       <import plugin="org.eclipse.ui.workbench.texteditor"/>
-      <import plugin="org.eclipse.ui.ide" version="3.6.1" match="greaterOrEqual"/>
       <import plugin="org.eclipse.core.resources" version="3.6.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.debug.core" version="3.6.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.debug.ui"/>
+      <import plugin="org.eclipse.core.filesystem" version="1.3.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.ui.ide" version="3.6.0" match="greaterOrEqual"/>
    </requires>
 
    <plugin
