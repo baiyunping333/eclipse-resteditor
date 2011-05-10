@@ -6,20 +6,25 @@
 package org.isandlatech.plugins.rest.editor.userassist;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 
-import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.text.AbstractInformationControl;
+import org.eclipse.jface.text.DefaultInformationControl;
 import org.eclipse.jface.text.IInformationControl;
 import org.eclipse.jface.text.IInformationControlCreator;
 import org.eclipse.jface.text.IInformationControlExtension2;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.SWTError;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.browser.LocationEvent;
 import org.eclipse.swt.browser.LocationListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.editors.text.EditorsUI;
 import org.isandlatech.plugins.rest.BrowserController;
 import org.isandlatech.plugins.rest.RestPlugin;
 
@@ -71,7 +76,13 @@ public class InternalBrowserInformationControl extends
 			public IInformationControl createInformationControl(
 					final Shell aParent) {
 
-				return new InternalBrowserInformationControl(aParent, this);
+				try {
+					return new InternalBrowserInformationControl(aParent, this);
+
+				} catch (SWTError error) {
+					// Browser support error ?
+					return new DefaultInformationControl(aParent, true);
+				}
 			}
 		};
 
@@ -97,8 +108,7 @@ public class InternalBrowserInformationControl extends
 	public InternalBrowserInformationControl(final Shell aParentShell,
 			final IInformationControlCreator aInformationControlCreator) {
 
-		// super(aParentShell, EditorsUI.getTooltipAffordanceString());
-		super(aParentShell, new ToolBarManager(SWT.FLAT));
+		super(aParentShell, EditorsUI.getTooltipAffordanceString());
 		pControlCreator = aInformationControlCreator;
 
 		create();
@@ -126,17 +136,23 @@ public class InternalBrowserInformationControl extends
 	@Override
 	public void changing(final LocationEvent aEvent) {
 
+		if (aEvent.location.equals("about:blank")) {
+			// called when setting text manually
+
+			aEvent.doit = true;
+			return;
+		}
+
 		// The hover browser just shows internal HTML
 		aEvent.doit = false;
 
+		if (aEvent.location.startsWith("about:")) {
+			// Internal pages are forbidden
+			return;
+		}
+
 		// Standard location
 		if (!aEvent.location.startsWith(IAssistanceConstants.INTERNAL_PREFIX)) {
-
-			if (aEvent.location.startsWith("about:")) {
-				// Internal rendering
-				aEvent.doit = true;
-				return;
-			}
 
 			BrowserController.getController().openUrl(BROWSER_ID,
 					aEvent.location);
@@ -148,11 +164,19 @@ public class InternalBrowserInformationControl extends
 		// Propagate the event
 		if (pData != null) {
 
-			String location = aEvent.location
+			String rawLocation = aEvent.location
 					.substring(IAssistanceConstants.INTERNAL_PREFIX.length());
 
+			String location;
+			try {
+				location = URLDecoder.decode(rawLocation, "UTF-8");
+			} catch (UnsupportedEncodingException e) {
+				e.printStackTrace();
+				location = rawLocation;
+			}
+
 			if (pData.notifyListener(location)) {
-				// Close the tooltip
+				// Close the tooltip on success
 				dispose();
 			}
 		}
@@ -171,9 +195,22 @@ public class InternalBrowserInformationControl extends
 		// Fall back on default browser
 		pBrowser = new Browser(aParent, SWT.NONE);
 
+		// Disable links (for safety)
 		pBrowser.setJavascriptEnabled(false);
+
+		// Retrieve colors to be used for display
+		Display display = Display.getCurrent();
+		Color foreground = display.getSystemColor(SWT.COLOR_INFO_FOREGROUND);
+		Color background = display.getSystemColor(SWT.COLOR_INFO_BACKGROUND);
+
+		pBrowser.setForeground(foreground);
+		pBrowser.setBackground(background);
+
+		// Handle browser links (internal & external ones)
 		pBrowser.addLocationListener(this);
-		pBrowser.setFocus();
+
+		// Remove the contextual menu
+		pBrowser.setMenu(new Menu(getShell(), SWT.NONE));
 	}
 
 	/**
@@ -235,6 +272,23 @@ public class InternalBrowserInformationControl extends
 	@Override
 	public IInformationControlCreator getInformationPresenterControlCreator() {
 		return pControlCreator;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.eclipse.jface.text.AbstractInformationControl#handleDispose()
+	 */
+	@Override
+	protected void handleDispose() {
+
+		// Release the browser
+		if (pBrowser != null) {
+			pBrowser.dispose();
+			pBrowser = null;
+		}
+
+		super.handleDispose();
 	}
 
 	/*
