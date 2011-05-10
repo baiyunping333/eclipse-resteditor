@@ -140,8 +140,6 @@ public class TokenProvider {
 	 */
 	public IToken getTokenForElement(final String aElement) {
 
-		initializeProvider();
-
 		IToken token = pTokensRegistry.get(aElement);
 		if (token != null) {
 			return token;
@@ -176,7 +174,11 @@ public class TokenProvider {
 		// Default token
 		pDefaultToken = getToken(default_color);
 
-		pTokensRegistry = new HashMap<String, IToken>();
+		if (pTokensRegistry == null) {
+			pTokensRegistry = new HashMap<String, IToken>();
+		} else {
+			pTokensRegistry.clear();
+		}
 
 		// In-line modifiers
 		pTokensRegistry.put(ITokenConstants.INLINE_LITERAL,
