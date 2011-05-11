@@ -34,7 +34,7 @@ public class SectionContentProvider implements ITreePathContentProvider {
 
 	/** Root path label */
 	private final TreeData pDocumentRoot = new TreeData(
-			Messages.getString("document.root"));
+			Messages.getString("outline.document.root"));
 
 	/** Parent outline page */
 	private final RestContentOutlinePage pParentOutline;
