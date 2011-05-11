@@ -13,12 +13,10 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
-import org.eclipse.jface.text.Region;
 import org.eclipse.jface.viewers.TreeSelection;
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
+import org.isandlatech.plugins.rest.RestPlugin;
 import org.isandlatech.plugins.rest.i18n.Messages;
 
 /**
@@ -115,89 +113,6 @@ public class HierarchyAction extends Action {
 	}
 
 	/**
-	 * Retrieves the region corresponding to the given section and all its
-	 * children
-	 * 
-	 * @param aSectionNode
-	 *            Section to select
-	 * @return The section region
-	 */
-	protected IRegion getCompleteSection(final TreeData aSectionNode) {
-
-		// Compute the section start
-		int offset = getCompleteSectionOffset(aSectionNode);
-
-		// Compute the length
-		int length = getCompleteSectionLength(aSectionNode);
-
-		return new Region(offset, length);
-	}
-
-	/**
-	 * Computes the length of the complete section content, including title
-	 * upper line.
-	 * 
-	 * @param aSectionNode
-	 *            The section to handle
-	 * @return The section length, 0 on error
-	 */
-	protected int getCompleteSectionLength(final TreeData aSectionNode) {
-
-		if (aSectionNode == null) {
-			return 0;
-		}
-
-		IDocument document = aSectionNode.getDocument();
-		TreeData nextNode = aSectionNode.getNext();
-
-		int offset = getCompleteSectionOffset(aSectionNode);
-		int length = 0;
-
-		if (nextNode == null) {
-			// Select everything until the end of document
-			length = document.getLength() - offset;
-
-		} else {
-			// Select everything until the beginning of the next section
-			length = getCompleteSectionOffset(nextNode) - offset;
-		}
-
-		return Math.max(length, 0);
-	}
-
-	/**
-	 * Returns the real offset of the given section : the first character offset
-	 * of the title or the decorative upper line
-	 * 
-	 * @param aSectionNode
-	 *            Section to handle
-	 * @return The given section real offset, upper line included, 0 on error
-	 */
-	protected int getCompleteSectionOffset(final TreeData aSectionNode) {
-
-		if (aSectionNode == null) {
-			return 0;
-		}
-
-		IDocument document = aSectionNode.getDocument();
-		int offset = aSectionNode.getLineOffset();
-
-		if (document != null && aSectionNode.isUpperlined()) {
-			// Line - 1, 1 based
-			int line = aSectionNode.getLine() - 2;
-
-			try {
-				offset = document.getLineOffset(line);
-
-			} catch (BadLocationException e) {
-				offset = aSectionNode.getLineOffset();
-			}
-		}
-
-		return Math.max(offset, 0);
-	}
-
-	/**
 	 * Returns an image associated to the direction, based on navigation icons.
 	 * Rotates icons for A_UP and B_DOWN directions.
 	 * 
@@ -218,11 +133,11 @@ public class HierarchyAction extends Action {
 					.getImageDescriptor(ISharedImages.IMG_TOOL_FORWARD);
 
 		case A_UP:
-			return rotateImage(sharedImages
+			return RestPlugin.rotateImage(sharedImages
 					.getImage(ISharedImages.IMG_TOOL_FORWARD));
 
 		case B_DOWN:
-			return rotateImage(sharedImages
+			return RestPlugin.rotateImage(sharedImages
 					.getImage(ISharedImages.IMG_TOOL_BACK));
 		}
 
@@ -279,7 +194,7 @@ public class HierarchyAction extends Action {
 
 		TreeData targetNode = null;
 		IDocument document = aSectionNode.getDocument();
-		IRegion sourceSection = getCompleteSection(aSectionNode);
+		IRegion sourceSection = OutlineUtil.getCompleteSection(aSectionNode);
 		int targetOffset = 0;
 
 		switch (aDirection) {
@@ -293,7 +208,7 @@ public class HierarchyAction extends Action {
 			targetNode = aSectionNode.getNext();
 
 			// Move *after* the complete section, not only its title
-			targetOffset = getCompleteSectionLength(targetNode);
+			targetOffset = OutlineUtil.getCompleteSectionLength(targetNode);
 
 			// Handle the first replacement : text moves up
 			targetOffset -= sourceSection.getLength();
@@ -314,7 +229,7 @@ public class HierarchyAction extends Action {
 		}
 
 		// Target offset rebase
-		targetOffset += getCompleteSectionOffset(targetNode);
+		targetOffset += OutlineUtil.getCompleteSectionOffset(targetNode);
 		moveRegion(document, sourceSection, targetOffset);
 
 		return true;
@@ -347,8 +262,9 @@ public class HierarchyAction extends Action {
 					aMovedRegion.getLength());
 
 			// Just to be sure we have a correct section separation
-			if (!sectionText.endsWith("\n")) {
-				sectionText += "\n\n";
+			String endOfSection = "\n\n";
+			if (!sectionText.endsWith(endOfSection)) {
+				sectionText += endOfSection;
 			}
 
 			// Remove current section text
@@ -377,7 +293,7 @@ public class HierarchyAction extends Action {
 	 * @param aIncrement
 	 *            The level modification indicator (+1, -1)
 	 */
-	private void replaceDecorators(final TreeData aSectionNode,
+	protected void replaceDecorators(final TreeData aSectionNode,
 			final int aIncrement) {
 
 		IDocument document = aSectionNode.getDocument();
@@ -432,43 +348,6 @@ public class HierarchyAction extends Action {
 		}
 	}
 
-	/**
-	 * Makes a new image which is a 45° counter-clockwise rotation of the given
-	 * one
-	 * 
-	 * @param aImage
-	 *            Base image
-	 * @return A rotated image
-	 */
-	private ImageDescriptor rotateImage(final Image aImage) {
-
-		ImageData srcData = aImage.getImageData();
-		if (srcData == null) {
-			return null;
-		}
-
-		ImageData destData = new ImageData(srcData.height, srcData.width,
-				srcData.depth, srcData.palette);
-
-		/* rotate by rearranging the pixels */
-		for (int i = 0; i < srcData.width; i++) {
-
-			for (int j = 0; j < srcData.height; j++) {
-
-				// Color
-				int pixel = srcData.getPixel(i, j);
-				destData.setPixel(j, srcData.width - 1 - i, pixel);
-
-				// Transparency
-				int alpha = srcData.getAlpha(i, j);
-				destData.setAlpha(j, srcData.width - 1 - i, alpha);
-
-			}
-		}
-
-		return ImageDescriptor.createFromImageData(destData);
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -478,8 +357,8 @@ public class HierarchyAction extends Action {
 	public void run() {
 
 		TreeSelection selectedNodes = (TreeSelection) pOutline.getSelection();
-		Iterator<?> iterator = selectedNodes.iterator();
 
+		Iterator<?> iterator = selectedNodes.iterator();
 		while (iterator.hasNext()) {
 			Object nodeData = iterator.next();
 
@@ -491,5 +370,7 @@ public class HierarchyAction extends Action {
 				pOutline.update();
 			}
 		}
+
+		OutlineUtil.postUpdateSelection(pOutline, selectedNodes);
 	}
 }

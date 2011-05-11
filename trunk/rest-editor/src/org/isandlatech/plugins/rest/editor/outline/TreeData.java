@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.viewers.TreePath;
 
 /**
  * @author Thomas Calmant
@@ -182,12 +183,42 @@ public class TreeData {
 			return other.pParent == null;
 		}
 
-		// else
-		if (!pParent.equals(other.pParent)) {
+		// other.pParent is null if clearChildren() was called before
+		if (other.pParent != null && !pParent.equals(other.pParent)) {
 			return false;
 		}
 
 		return true;
+	}
+
+	/**
+	 * Tries to find the given node element (based on the
+	 * {@link #equals(Object)} method)
+	 * 
+	 * @param aNode
+	 *            Node to look for
+	 * @return The found node, null if not present
+	 */
+	public TreeData find(final TreeData aNode) {
+
+		// Save some loops
+		if (aNode == null) {
+			return null;
+		}
+
+		if (this.equals(aNode)) {
+			return this;
+		}
+
+		for (TreeData child : pChildren) {
+
+			TreeData result = child.find(aNode);
+			if (result != null) {
+				return result;
+			}
+		}
+
+		return null;
 	}
 
 	/**
@@ -301,6 +332,25 @@ public class TreeData {
 	 */
 	public String getText() {
 		return pText;
+	}
+
+	/**
+	 * Converts the current node into a JFace {@link TreePath}
+	 * 
+	 * @return The JFace tree path
+	 */
+	public TreePath getTreePath() {
+
+		Object[] segments = new Object[pLevel + 1];
+		TreeData current = this;
+		int i = pLevel;
+
+		while (current != null) {
+			segments[i--] = current;
+			current = current.pParent;
+		}
+
+		return new TreePath(segments);
 	}
 
 	/**

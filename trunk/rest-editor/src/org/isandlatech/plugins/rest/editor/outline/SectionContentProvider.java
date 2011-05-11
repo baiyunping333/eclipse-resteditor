@@ -198,6 +198,15 @@ public class SectionContentProvider implements ITreePathContentProvider {
 		return null;
 	}
 
+	/**
+	 * Retrieves the document root
+	 * 
+	 * @return The document root
+	 */
+	public TreeData getRoot() {
+		return pDocumentRoot;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 

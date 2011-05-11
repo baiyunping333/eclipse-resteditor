@@ -7,6 +7,7 @@ package org.isandlatech.plugins.rest.editor.outline;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 import org.isandlatech.plugins.rest.i18n.Messages;
@@ -69,6 +70,14 @@ public class RefreshOutlineAction extends Action {
 	 */
 	@Override
 	public void run() {
+
+		TreeSelection previousSelection = (TreeSelection) pOutline
+				.getSelection();
+
+		// Refresh tree content (new objects)
 		pOutline.update();
+
+		// Reset the tree selection
+		OutlineUtil.postUpdateSelection(pOutline, previousSelection);
 	}
 }

@@ -8,6 +8,8 @@ import java.io.InputStreamReader;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.isandlatech.plugins.rest.editor.scanners.RestPartitionScanner;
 import org.isandlatech.plugins.rest.i18n.Messages;
@@ -147,5 +149,42 @@ public class RestPlugin extends AbstractUIPlugin {
 	public void stop(final BundleContext context) throws Exception {
 		plugin = null;
 		super.stop(context);
+	}
+
+	/**
+	 * Makes a new image which is a 45° counter-clockwise rotation of the given
+	 * one
+	 * 
+	 * @param aImage
+	 *            Base image
+	 * @return A rotated image
+	 */
+	public static ImageDescriptor rotateImage(final Image aImage) {
+	
+		ImageData srcData = aImage.getImageData();
+		if (srcData == null) {
+			return null;
+		}
+	
+		ImageData destData = new ImageData(srcData.height, srcData.width,
+				srcData.depth, srcData.palette);
+	
+		/* rotate by rearranging the pixels */
+		for (int i = 0; i < srcData.width; i++) {
+	
+			for (int j = 0; j < srcData.height; j++) {
+	
+				// Color
+				int pixel = srcData.getPixel(i, j);
+				destData.setPixel(j, srcData.width - 1 - i, pixel);
+	
+				// Transparency
+				int alpha = srcData.getAlpha(i, j);
+				destData.setAlpha(j, srcData.width - 1 - i, alpha);
+	
+			}
+		}
+	
+		return ImageDescriptor.createFromImageData(destData);
 	}
 }

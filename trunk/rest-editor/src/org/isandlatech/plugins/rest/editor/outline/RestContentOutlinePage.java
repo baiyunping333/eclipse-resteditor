@@ -6,6 +6,7 @@
 package org.isandlatech.plugins.rest.editor.outline;
 
 import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
@@ -128,12 +129,13 @@ public class RestContentOutlinePage extends ContentOutlinePage {
 			TreeData selectedElement = (TreeData) structuredSelection
 					.getFirstElement();
 
-			int sectionTitleOffset = selectedElement.getLineOffset();
-			if (sectionTitleOffset < 0) {
-				sectionTitleOffset = 0;
-			}
+			IRegion sectionRegion = OutlineUtil
+					.getCompleteSection(selectedElement);
 
-			pParentEditor.setHighlightRange(sectionTitleOffset, 0, true);
+			pParentEditor.setHighlightRange(sectionRegion.getOffset(),
+					sectionRegion.getLength(), true);
+
+			pParentEditor.selectAndReveal(sectionRegion.getOffset(), 0);
 		}
 	}
 
