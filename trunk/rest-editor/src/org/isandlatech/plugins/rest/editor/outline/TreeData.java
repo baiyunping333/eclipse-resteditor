@@ -243,7 +243,7 @@ public class TreeData {
 	public TreeData getNext() {
 
 		// No parent, no brother
-		if (pParent == null) {
+		if (pParent == null || pLevel == 1) {
 			return null;
 		}
 
@@ -267,6 +267,31 @@ public class TreeData {
 	 */
 	public TreeData getParent() {
 		return pParent;
+	}
+
+	/**
+	 * Gets the preceding tree node at the same or upper level
+	 * 
+	 * @return The preceding node, null if none
+	 */
+	public TreeData getPrevious() {
+
+		// No parent, no brother
+		if (pParent == null || pLevel == 1) {
+			return null;
+		}
+
+		List<TreeData> brotherHood = pParent.pChildren;
+
+		// Find this node index
+		int thisIndex = brotherHood.indexOf(this);
+
+		if (thisIndex <= 0) {
+			// This node is the first one
+			return pParent.getNext();
+		}
+
+		return brotherHood.get(thisIndex - 1);
 	}
 
 	/**

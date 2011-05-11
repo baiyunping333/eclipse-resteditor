@@ -5,6 +5,8 @@
  */
 package org.isandlatech.plugins.rest.editor.outline;
 
+import java.util.Arrays;
+
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
@@ -32,8 +34,11 @@ public class RestContentOutlinePage extends ContentOutlinePage {
 	 * @author Thomas Calmant
 	 */
 	enum Direction {
-		UP, DOWN, LEFT, RIGHT,
+		DOWN, LEFT, RIGHT, UP,
 	}
+
+	/** Outline page content provider */
+	private SectionContentProvider pContentProvider;
 
 	/** Parent document provider */
 	private IDocumentProvider pDocumentProvider;
@@ -55,8 +60,51 @@ public class RestContentOutlinePage extends ContentOutlinePage {
 
 		pDocumentProvider = aDocumentProvider;
 		pParentEditor = aParentEditor;
+		pContentProvider = new SectionContentProvider(this);
 	}
 
+	/**
+	 * Change section and sub-sections decoration to correspond to its new level
+	 * 
+	 * @param aSectionNode
+	 *            Section to be modified
+	 * @param aIncrement
+	 *            Direction of level modification (+1, -1)
+	 */
+	private void changeSectionLevel(final TreeData aSectionNode, int aIncrement) {
+
+		if (aIncrement == 0) {
+			return;
+		}
+
+		// Normalize level modification
+		if (aIncrement < 0) {
+			aIncrement = -1;
+		}
+
+		if (aIncrement > 0) {
+			aIncrement = 1;
+		}
+
+		if (aSectionNode.getLevel() + aIncrement < 1) {
+			return;
+		}
+
+		// Let's go
+		replaceDecorators(aSectionNode, aIncrement);
+
+		for (TreeData node : aSectionNode.getChildrenArray()) {
+			changeSectionLevel(node, aIncrement);
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.eclipse.ui.views.contentoutline.ContentOutlinePage#createControl(
+	 * org.eclipse.swt.widgets.Composite)
+	 */
 	@Override
 	public void createControl(final Composite parent) {
 		// Creates the outline view control
@@ -65,7 +113,7 @@ public class RestContentOutlinePage extends ContentOutlinePage {
 		// TODO insert hierarchy actions to the outline toolbar
 
 		TreeViewer tree = getTreeViewer();
-		tree.setContentProvider(new SectionContentProvider(this));
+		tree.setContentProvider(pContentProvider);
 		tree.setLabelProvider(new SectionLabelProvider());
 
 		tree.setInput(pParentEditor.getEditorInput());
@@ -133,6 +181,10 @@ public class RestContentOutlinePage extends ContentOutlinePage {
 	 */
 	protected int getCompleteSectionOffset(final TreeData aSectionNode) {
 
+		if (aSectionNode == null) {
+			return 0;
+		}
+
 		IDocument document = aSectionNode.getDocument();
 		int offset = aSectionNode.getLineOffset();
 
@@ -142,6 +194,7 @@ public class RestContentOutlinePage extends ContentOutlinePage {
 
 			try {
 				offset = document.getLineOffset(line);
+
 			} catch (BadLocationException e) {
 				offset = aSectionNode.getLineOffset();
 			}
@@ -170,7 +223,16 @@ public class RestContentOutlinePage extends ContentOutlinePage {
 		return super.getTreeViewer();
 	}
 
-	protected boolean moveSection(final TreeData aSectionNode,
+	/**
+	 * Handles hierarchy modification buttons
+	 * 
+	 * @param aSectionNode
+	 *            Modified section
+	 * @param aDirection
+	 *            Direction of hierarchy modification
+	 * @return True on success, else false
+	 */
+	protected boolean handleHierarchyMovement(final TreeData aSectionNode,
 			final Direction aDirection) {
 
 		TreeData targetNode = null;
@@ -180,24 +242,30 @@ public class RestContentOutlinePage extends ContentOutlinePage {
 
 		switch (aDirection) {
 		case UP:
-			// TODO : move up !
+			targetNode = aSectionNode.getPrevious();
+
+			// No need to handle first replacement nor the target section length
 			break;
 
 		case DOWN:
 			targetNode = aSectionNode.getNext();
+
+			// Move *after* the complete section, not only its title
+			targetOffset = getCompleteSectionLength(targetNode);
+
 			// Handle the first replacement : text moves up
 			targetOffset -= sourceSection.getLength();
-			// Move *after* the complete section, not only its title
-			targetOffset += getCompleteSectionLength(targetNode);
 			break;
 
 		case LEFT:
-			// TODO: only replace section title decoration
-			break;
+			changeSectionLevel(aSectionNode, -1);
+			update();
+			return true;
 
 		case RIGHT:
-			// TODO: only replace section title decoration
-			break;
+			changeSectionLevel(aSectionNode, +1);
+			update();
+			return true;
 		}
 
 		if (targetNode == null
@@ -205,26 +273,123 @@ public class RestContentOutlinePage extends ContentOutlinePage {
 			return false;
 		}
 
+		// Target offset rebase
 		targetOffset += getCompleteSectionOffset(targetNode);
+		moveRegion(document, sourceSection, targetOffset);
+
+		update();
+		return true;
+	}
+
+	/**
+	 * Moves the given region content to the given target offset. Uses
+	 * {@link IDocument#replace(int, int, String)} method.
+	 * 
+	 * Reverts document content on error.
+	 * 
+	 * @param aDocument
+	 *            Document to modify
+	 * @param aMovedRegion
+	 *            Region to be moved
+	 * @param aTargetOffset
+	 *            Target offset for region movement
+	 * @return True on success, False on error
+	 */
+	private boolean moveRegion(final IDocument aDocument,
+			final IRegion aMovedRegion, final int aTargetOffset) {
+
+		// Save text content (in case of error)
+		String documentText = aDocument.get();
 
 		// Movement by 2 replacements...
 		String sectionText;
 		try {
-			sectionText = document.get(sourceSection.getOffset(),
-					sourceSection.getLength());
+			sectionText = aDocument.get(aMovedRegion.getOffset(),
+					aMovedRegion.getLength());
 
-			document.replace(sourceSection.getOffset(),
-					sourceSection.getLength(), "");
+			// Just to be sure we have a correct section separation
+			if (!sectionText.endsWith("\n")) {
+				sectionText += "\n\n";
+			}
 
-			document.replace(targetOffset, 0, sectionText);
+			// Remove current section text
+			aDocument.replace(aMovedRegion.getOffset(),
+					aMovedRegion.getLength(), "");
+
+			// Insert text at its new position
+			aDocument.replace(aTargetOffset, 0, sectionText);
 
 		} catch (BadLocationException e) {
+			// Revert text
+			aDocument.set(documentText);
+
 			e.printStackTrace();
 			return false;
 		}
 
-		update();
 		return true;
+	}
+
+	/**
+	 * Replaces section title decoration lines
+	 * 
+	 * @param aSectionNode
+	 *            The section to be modified
+	 * @param aIncrement
+	 *            The level modification indicator (+1, -1)
+	 */
+	private void replaceDecorators(final TreeData aSectionNode,
+			final int aIncrement) {
+
+		IDocument document = aSectionNode.getDocument();
+		if (document == null) {
+			return;
+		}
+
+		String endOfLine;
+		try {
+			endOfLine = document.getLineDelimiter(aSectionNode.getLine() - 1);
+
+		} catch (BadLocationException e1) {
+			endOfLine = "\n";
+		}
+
+		// Get the decoration character
+		int newLevel = aSectionNode.getLevel() + aIncrement;
+		char newDecorator = pContentProvider.getDecorationForLevel(newLevel);
+
+		// Prepare the decoration line
+		char[] decorationArray = new char[aSectionNode.getText().length()];
+		Arrays.fill(decorationArray, newDecorator);
+		String decorationLine = new String(decorationArray) + endOfLine;
+
+		// Replace the upper line, if needed
+		if (aSectionNode.isUpperlined()) {
+
+			try {
+				int upperline = aSectionNode.getLine() - 2;
+				int upperlineOffset = document.getLineOffset(upperline);
+				int upperlineLength = document.getLineLength(upperline);
+
+				document.replace(upperlineOffset, upperlineLength,
+						decorationLine);
+
+			} catch (BadLocationException e) {
+				e.printStackTrace();
+			}
+		}
+
+		// Replace the under line
+		try {
+			int underline = aSectionNode.getLine();
+			int underlineOffset = document.getLineOffset(underline);
+			int underlineLength = document.getLineLength(underline);
+
+			document.replace(underlineOffset, underlineLength, decorationLine);
+
+		} catch (BadLocationException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/*
@@ -257,12 +422,10 @@ public class RestContentOutlinePage extends ContentOutlinePage {
 			pParentEditor.setHighlightRange(region.getOffset(),
 					region.getLength(), true);
 
-			/*
-			 * pParentEditor.selectAndReveal(region.getOffset(),
-			 * region.getLength());
-			 * 
-			 * moveSection(selectedElement, Direction.DOWN);
-			 */
+			// pParentEditor.selectAndReveal(region.getOffset(),
+			// region.getLength());
+			//
+			// handleHierarchyMovement(selectedElement, Direction.RIGHT);
 		}
 	}
 

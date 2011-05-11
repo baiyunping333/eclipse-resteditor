@@ -49,10 +49,39 @@ public class SectionContentProvider implements ITreePathContentProvider {
 		pParentOutline = aParent;
 	}
 
-	@Override
-	public void dispose() {
+	/**
+	 * Appends the first available section decoration character to the current
+	 * levels decoration list
+	 */
+	private void appendDecorator() {
+
+		for (char decoration : RestLanguage.SECTION_DECORATIONS) {
+
+			if (!pDecoratorsLevels.contains(decoration)) {
+				pDecoratorsLevels.add(decoration);
+				return;
+			}
+		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.eclipse.jface.viewers.IContentProvider#dispose()
+	 */
+	@Override
+	public void dispose() {
+		pDecoratorsLevels.clear();
+		pDocumentRoot.clearChildren();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.eclipse.jface.viewers.ITreePathContentProvider#getChildren(org.eclipse
+	 * .jface.viewers.TreePath)
+	 */
 	@Override
 	public Object[] getChildren(final TreePath aParentPath) {
 
@@ -65,13 +94,36 @@ public class SectionContentProvider implements ITreePathContentProvider {
 	}
 
 	/**
+	 * Retrieves the decoration associated to the given level
+	 * 
+	 * @param aLevel
+	 *            Section level
+	 * @return The section decoration
+	 */
+	protected char getDecorationForLevel(int aLevel) {
+
+		// Rebase level (root = 1 in data)
+		aLevel = aLevel - 1;
+
+		if (aLevel >= RestLanguage.SECTION_DECORATIONS.length) {
+			return pDecoratorsLevels.get(pDecoratorsLevels.size() - 1);
+		}
+
+		while (aLevel >= pDecoratorsLevels.size()) {
+			appendDecorator();
+		}
+
+		return pDecoratorsLevels.get(aLevel);
+	}
+
+	/**
 	 * Retrieves the level of the given decorator
 	 * 
 	 * @param aChar
 	 *            The decorator to find
 	 * @return The level of the decorator
 	 */
-	private int getDecorationLevel(final char aChar) {
+	protected int getDecorationLevel(final char aChar) {
 
 		if (!DecoratedLinesRule.isDecorationCharacter(aChar)) {
 			return -1;
@@ -88,6 +140,13 @@ public class SectionContentProvider implements ITreePathContentProvider {
 		return pDecoratorsLevels.indexOf(aCharObject) + 1;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.eclipse.jface.viewers.ITreePathContentProvider#getElements(java.lang
+	 * .Object)
+	 */
 	@Override
 	public Object[] getElements(final Object aInputElement) {
 		// Called by TreeViewer.setInput. Returns the root element(s).

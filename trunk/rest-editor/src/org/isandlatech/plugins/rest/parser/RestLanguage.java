@@ -113,9 +113,9 @@ public interface RestLanguage {
 	String ROLE_MARKER = ":";
 
 	/** Possible decorations for a ReST section */
-	char[] SECTION_DECORATIONS = { '!', '"', '#', '$', '%', '&', '\'', '(',
-			')', '*', '+', ',', '-', '.', '/', ':', ';', '<', '=', '>', '?',
-			'@', '[', '\\', ']', '^', '_', '`', '{', '|', '}', '~' };
+	char[] SECTION_DECORATIONS = { '#', '*', '=', '-', '^', '"', '!', '$', '%',
+			'&', '\'', '(', ')', '+', ',', '.', '/', ':', ';', '<', '>', '?',
+			'@', '[', '\\', ']', '_', '`', '{', '|', '}', '~' };
 
 	/** ReST simple table line marker */
 	char SIMPLE_TABLE_MARKER = '=';
