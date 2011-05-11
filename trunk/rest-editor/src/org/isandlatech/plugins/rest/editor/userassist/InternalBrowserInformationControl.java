@@ -172,7 +172,8 @@ public class InternalBrowserInformationControl extends
 
 			String location;
 			try {
-				// TODO: get the doc/platform charset
+				// TODO: get the doc/platform charset => needs to have a
+				// reference to the IFile
 				location = URLDecoder.decode(rawLocation, "UTF-8");
 			} catch (UnsupportedEncodingException e) {
 				e.printStackTrace();

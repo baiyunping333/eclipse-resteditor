@@ -8,6 +8,8 @@ package org.isandlatech.plugins.rest.editor.outline;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.jface.text.IDocument;
+
 /**
  * @author Thomas Calmant
  * 
@@ -40,6 +42,9 @@ public class TreeData {
 	/** Element children */
 	private List<TreeData> pChildren;
 
+	/** Element document */
+	private IDocument pDocument;
+
 	/** Element level */
 	private int pLevel;
 
@@ -54,6 +59,9 @@ public class TreeData {
 
 	/** Element label */
 	private String pText;
+
+	/** Does the element have an upper line decoration ? */
+	private boolean pUpperlined;
 
 	/**
 	 * Configures the tree element
@@ -74,9 +82,12 @@ public class TreeData {
 	 *            Element extra data : line in the source document
 	 * @param aLineOffset
 	 *            Element extra data : line offset in the source document
+	 * @param aUpperline
+	 *            Element extra data : is there a line upon the element ?
 	 */
-	public TreeData(final String aText, final int aLine, final int aLineOffset) {
-		this(null, aText, aLine, aLineOffset);
+	public TreeData(final String aText, final int aLine, final int aLineOffset,
+			final boolean aUpperline) {
+		this(null, aText, aLine, aLineOffset, aUpperline);
 	}
 
 	/**
@@ -88,7 +99,7 @@ public class TreeData {
 	 *            Element label
 	 */
 	public TreeData(final TreeData aParent, final String aText) {
-		this(aParent, aText, -1, 0);
+		this(aParent, aText, -1, 0, false);
 	}
 
 	/**
@@ -102,9 +113,11 @@ public class TreeData {
 	 *            Element extra data : line in the source document
 	 * @param aLineOffset
 	 *            Element extra data : line offset in the source document
+	 * @param aUpperline
+	 *            Element extra data : is there a line upon the element ?
 	 */
 	public TreeData(final TreeData aParent, final String aText,
-			final int aLine, final int aLineOffset) {
+			final int aLine, final int aLineOffset, final boolean aUpperline) {
 		pParent = aParent;
 		pChildren = new ArrayList<TreeData>();
 		pText = String.valueOf(aText);
@@ -117,6 +130,7 @@ public class TreeData {
 
 		pLine = aLine;
 		pLineOffset = aLineOffset;
+		pUpperlined = aUpperline;
 	}
 
 	/**
@@ -188,6 +202,13 @@ public class TreeData {
 	}
 
 	/**
+	 * @return the document
+	 */
+	public IDocument getDocument() {
+		return pDocument;
+	}
+
+	/**
 	 * Retrieves the element level
 	 * 
 	 * @return The element level
@@ -212,6 +233,31 @@ public class TreeData {
 	 */
 	public int getLineOffset() {
 		return pLineOffset;
+	}
+
+	/**
+	 * Gets the following tree node at the same or upper level
+	 * 
+	 * @return The following node, null if none
+	 */
+	public TreeData getNext() {
+
+		// No parent, no brother
+		if (pParent == null) {
+			return null;
+		}
+
+		List<TreeData> brotherHood = pParent.pChildren;
+
+		// Find this node index
+		int thisIndex = brotherHood.indexOf(this);
+
+		if (thisIndex == -1 || thisIndex == brotherHood.size() - 1) {
+			// This node is the last one
+			return pParent.getNext();
+		}
+
+		return brotherHood.get(thisIndex + 1);
 	}
 
 	/**
@@ -242,6 +288,15 @@ public class TreeData {
 	}
 
 	/**
+	 * Returns true if the element has an upper line decoration
+	 * 
+	 * @return if the element has an upper line decoration
+	 */
+	public boolean isUpperlined() {
+		return pUpperlined;
+	}
+
+	/**
 	 * Removes a child from the element
 	 * 
 	 * @param aChild
@@ -259,6 +314,14 @@ public class TreeData {
 	}
 
 	/**
+	 * @param aDocument
+	 *            the document to set
+	 */
+	public void setDocument(final IDocument aDocument) {
+		pDocument = aDocument;
+	}
+
+	/**
 	 * Sets the element parent.
 	 * 
 	 * @param parent
@@ -273,6 +336,9 @@ public class TreeData {
 		pText = String.valueOf(text);
 	}
 
+	/**
+	 * @return A simple description of the node that can be used as a label
+	 */
 	@Override
 	public String toString() {
 		if (pLine != -1) {

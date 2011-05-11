@@ -175,6 +175,8 @@ public class SectionContentProvider implements ITreePathContentProvider {
 			return;
 		}
 
+		pDocumentRoot.setDocument(document);
+
 		// Get the partitioner
 		IDocumentPartitioner partitioner;
 		if (document instanceof IDocumentExtension3) {
@@ -259,6 +261,7 @@ public class SectionContentProvider implements ITreePathContentProvider {
 
 		TreeData newElement = aCurrentElement;
 		char decorationChar = 0;
+		boolean upperlined = false;
 		boolean underlined = false;
 		String sectionTitle = null;
 
@@ -269,6 +272,8 @@ public class SectionContentProvider implements ITreePathContentProvider {
 
 				if (!DecoratedLinesRule.isDecorativeLine(sectionBlockLine)) {
 					sectionTitle = sectionBlockLine;
+				} else {
+					upperlined = true;
 				}
 
 			} else if (sectionTitle != null
@@ -314,10 +319,16 @@ public class SectionContentProvider implements ITreePathContentProvider {
 					root = pDocumentRoot;
 				}
 
-				// Why "-1" ? I don't know :/
-				newElement = root.addChild(new TreeData(sectionTitle,
-						aSectionLineNumber, aDocument
-								.getLineOffset(aSectionLineNumber - 1)));
+				// Why "-1" ? getLine() begins at 1, getLineOffset() at 0.
+				int lineOffset = aDocument
+						.getLineOffset(aSectionLineNumber - 1);
+
+				// Store the document in node data
+				TreeData newNodeData = new TreeData(sectionTitle,
+						aSectionLineNumber, lineOffset, upperlined);
+				newNodeData.setDocument(aDocument);
+
+				newElement = root.addChild(newNodeData);
 			}
 		}
 
