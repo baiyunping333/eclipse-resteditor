@@ -8,7 +8,6 @@ package org.isandlatech.plugins.rest.editor.userassist;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
-import org.isandlatech.plugins.rest.i18n.Messages;
 
 /**
  * Basic hover browser internal links handler. Provides complete spell checking
@@ -85,7 +84,7 @@ public class BasicInternalLinkHandler implements IInternalBrowserListener {
 		IDocument document = aAssociatedData.getDocument();
 		IRegion region = aAssociatedData.getHoverRegion();
 
-		String sample = Messages.getDirectiveSample(aDirective);
+		String sample = HelpMessagesUtil.getDirectiveSample(aDirective);
 		if (sample == null) {
 			return false;
 		}

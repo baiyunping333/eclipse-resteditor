@@ -12,7 +12,7 @@ import java.util.TreeMap;
 
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
-import org.isandlatech.plugins.rest.i18n.Messages;
+import org.isandlatech.plugins.rest.editor.userassist.HelpMessagesUtil;
 import org.isandlatech.plugins.rest.parser.RestLanguage;
 
 /**
@@ -83,19 +83,19 @@ public class DeclarativeProposalProcessor extends AbstractProposalProcessor {
 
 		for (String keyword : RestLanguage.DIRECTIVES) {
 			if (keyword.startsWith(aWord)) {
-				result.put(keyword, Messages.getDirectiveHelp(keyword));
+				result.put(keyword, HelpMessagesUtil.getDirectiveHelp(keyword));
 			}
 		}
 
 		for (String keyword : RestLanguage.SPHINX_DIRECTIVES) {
 			if (keyword.startsWith(aWord)) {
-				result.put(keyword, Messages.getDirectiveHelp(keyword));
+				result.put(keyword, HelpMessagesUtil.getDirectiveHelp(keyword));
 			}
 		}
 
 		for (String keyword : RestLanguage.SPHINX_EXTENSIONS_DIRECTIVES) {
 			if (keyword.startsWith(aWord)) {
-				result.put(keyword, Messages.getDirectiveHelp(keyword));
+				result.put(keyword, HelpMessagesUtil.getDirectiveHelp(keyword));
 			}
 		}
 

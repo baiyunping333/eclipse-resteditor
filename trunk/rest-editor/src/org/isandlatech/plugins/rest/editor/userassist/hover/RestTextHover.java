@@ -27,11 +27,11 @@ import org.eclipse.ui.texteditor.spelling.SpellingContext;
 import org.eclipse.ui.texteditor.spelling.SpellingProblem;
 import org.isandlatech.plugins.rest.editor.scanners.RestPartitionScanner;
 import org.isandlatech.plugins.rest.editor.userassist.BasicInternalLinkHandler;
+import org.isandlatech.plugins.rest.editor.userassist.HelpMessagesUtil;
 import org.isandlatech.plugins.rest.editor.userassist.IAssistanceConstants;
 import org.isandlatech.plugins.rest.editor.userassist.IInternalBrowserListener;
 import org.isandlatech.plugins.rest.editor.userassist.InternalBrowserData;
 import org.isandlatech.plugins.rest.editor.userassist.InternalBrowserInformationControl;
-import org.isandlatech.plugins.rest.i18n.Messages;
 
 /**
  * Text assistant : spell checker or directive helper
@@ -122,7 +122,7 @@ public class RestTextHover implements ITextHover, ITextHoverExtension,
 		// Remove trailing "::"
 		directive = directive.substring(0, directive.length() - 2);
 
-		return Messages.getDirectiveHelp(directive);
+		return HelpMessagesUtil.getDirectiveHelp(directive);
 	}
 
 	/**
