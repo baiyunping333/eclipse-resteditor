@@ -37,6 +37,7 @@ import org.eclipse.ui.texteditor.spelling.ISpellingEngine;
 import org.eclipse.ui.texteditor.spelling.SpellingReconcileStrategy;
 import org.eclipse.ui.texteditor.spelling.SpellingService;
 import org.isandlatech.plugins.rest.RestPlugin;
+import org.isandlatech.plugins.rest.editor.formatters.DefaultTextFormattingStrategy;
 import org.isandlatech.plugins.rest.editor.formatters.GridTableFormattingStrategy;
 import org.isandlatech.plugins.rest.editor.formatters.SectionFormattingStrategy;
 import org.isandlatech.plugins.rest.editor.providers.RuleProvider;
@@ -175,7 +176,11 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 					RestPartitionScanner.GRID_TABLE_BLOCK);
 
 			// TODO RestPartitionScanner.SIMPLE_TABLE_BLOCK
-			// TODO IDocument.DEFAULT_CONTENT_TYPE
+
+			// Removes trailing spaces
+			pDocFormatter.setFormattingStrategy(
+					new DefaultTextFormattingStrategy(),
+					IDocument.DEFAULT_CONTENT_TYPE);
 		}
 
 		return pDocFormatter;

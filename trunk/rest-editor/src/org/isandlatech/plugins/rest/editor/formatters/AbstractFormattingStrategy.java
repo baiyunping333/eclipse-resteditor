@@ -8,6 +8,7 @@ package org.isandlatech.plugins.rest.editor.formatters;
 import java.util.Arrays;
 import java.util.StringTokenizer;
 
+import org.eclipse.jface.text.TextUtilities;
 import org.eclipse.jface.text.formatter.IFormattingStrategy;
 
 /**
@@ -16,6 +17,9 @@ import org.eclipse.jface.text.formatter.IFormattingStrategy;
  * @author Thomas Calmant
  */
 public abstract class AbstractFormattingStrategy implements IFormattingStrategy {
+
+	/** Well known line breaker, for internal string representation */
+	public static final String NORMALIZED_LINE_BREAK = "\n";
 
 	/**
 	 * Counts the occurrences of the given character in the given text
@@ -41,20 +45,32 @@ public abstract class AbstractFormattingStrategy implements IFormattingStrategy 
 	}
 
 	/**
-	 * Retrieves an of all lines extracted from the given string
+	 * Retrieves an of all lines extracted from the given normalized string.
 	 * 
-	 * @param aText
-	 *            Source text
+	 * The given string should be the result of
+	 * {@link #normalizeEndOfLines(String)}.
+	 * 
+	 * @param aNormalizedText
+	 *            Source text, after having been normalized.
 	 * @return An array of lines
 	 */
-	public static String[] getLines(final String aText) {
+	public static String[] getLines(final String aNormalizedText) {
 
-		StringTokenizer tokenizer = new StringTokenizer(aText, "\n");
+		StringTokenizer tokenizer = new StringTokenizer(aNormalizedText,
+				NORMALIZED_LINE_BREAK, true);
+
 		String[] result = new String[tokenizer.countTokens()];
 
 		int i = 0;
 		while (tokenizer.hasMoreTokens()) {
-			result[i++] = tokenizer.nextToken();
+			String line = tokenizer.nextToken();
+
+			// Remove the token, this way, we can handle empty lines.
+			if (line.equals(NORMALIZED_LINE_BREAK)) {
+				line = "";
+			}
+
+			result[i++] = line;
 		}
 
 		return result;
@@ -100,23 +116,11 @@ public abstract class AbstractFormattingStrategy implements IFormattingStrategy 
 		return result.toString();
 	}
 
-	/**
-	 * Converts all lines ending into "\n"
-	 * 
-	 * @param aText
-	 *            Source text
-	 * @return A converted copy of the source text
-	 */
-	public static String normalizeEndOfLines(final String aText) {
-		if (aText == null) {
-			return null;
-		}
-
-		return aText.replace('\r', '\n').replace("\n\n", "\n");
-	}
-
 	/** Initial indentation */
 	private String pInitialIndentation = "";
+
+	/** Document end of line character(s) */
+	private String pEndOfLine;
 
 	@Override
 	public abstract String format(String aContent, boolean aIsLineStart,
@@ -142,4 +146,45 @@ public abstract class AbstractFormattingStrategy implements IFormattingStrategy 
 		return pInitialIndentation;
 	}
 
+	/**
+	 * Converts all lines ending into "\n"
+	 * 
+	 * @param aText
+	 *            Source text
+	 * @return A converted copy of the source text
+	 */
+	public String normalizeEndOfLines(final String aText) {
+
+		if (aText == null) {
+			return null;
+		}
+
+		// Replace current line break by a well known one
+		pEndOfLine = TextUtilities.determineLineDelimiter(aText,
+				NORMALIZED_LINE_BREAK);
+		return aText.replace(pEndOfLine, NORMALIZED_LINE_BREAK);
+	}
+
+	/**
+	 * Reset end of line characters to document ones. May be called after
+	 * treatments on a {@link #normalizeEndOfLines(String)} result.
+	 * 
+	 * @param aNormalizedText
+	 *            Normalized text
+	 * @return A text with document end of lines
+	 */
+	public String resetEndOfLines(final String aNormalizedText) {
+
+		if (aNormalizedText == null) {
+			return null;
+		}
+
+		// Replace current line break by a well known one
+		if (pEndOfLine == null) {
+			pEndOfLine = TextUtilities.determineLineDelimiter(aNormalizedText,
+					NORMALIZED_LINE_BREAK);
+		}
+
+		return aNormalizedText.replace(NORMALIZED_LINE_BREAK, pEndOfLine);
+	}
 }
