@@ -32,6 +32,7 @@ import org.eclipse.jface.text.reconciler.MonoReconciler;
 import org.eclipse.jface.text.rules.DefaultDamagerRepairer;
 import org.eclipse.jface.text.rules.ITokenScanner;
 import org.eclipse.jface.text.source.ISourceViewer;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.ui.editors.text.TextSourceViewerConfiguration;
 import org.eclipse.ui.texteditor.spelling.ISpellingEngine;
 import org.eclipse.ui.texteditor.spelling.SpellingReconcileStrategy;
@@ -177,10 +178,14 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 
 			// TODO RestPartitionScanner.SIMPLE_TABLE_BLOCK
 
-			// Removes trailing spaces
-			pDocFormatter.setFormattingStrategy(
-					new DefaultTextFormattingStrategy(),
-					IDocument.DEFAULT_CONTENT_TYPE);
+			if (pPreferenceStore
+					.getBoolean(IEditorPreferenceConstants.EDITOR_SAVE_TRIM)) {
+
+				// Removes trailing spaces
+				pDocFormatter.setFormattingStrategy(
+						new DefaultTextFormattingStrategy(),
+						IDocument.DEFAULT_CONTENT_TYPE);
+			}
 		}
 
 		return pDocFormatter;
@@ -355,8 +360,15 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 			IDocument document = aSourceViewer.getDocument();
 			IRegion docRegion = new Region(0, document.getLength());
 
+			// Store current pointer location
+			Point currentLocation = aSourceViewer.getSelectedRange();
+
 			// Format the document
 			pDocFormatter.format(document, docRegion);
+
+			// Reset point location
+			aSourceViewer
+					.setSelectedRange(currentLocation.x, currentLocation.y);
 		}
 	}
 }

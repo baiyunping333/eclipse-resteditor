@@ -44,6 +44,9 @@ public class EditorPreferencePage extends FieldEditorPreferencePage implements
 	/** Tabs to space activation field */
 	private BooleanFieldEditor pTabsToSpaceField;
 
+	/** Right trim text on save */
+	private BooleanFieldEditor pTrimOnSave;
+
 	/**
 	 * Prepares the preference store
 	 */
@@ -63,7 +66,11 @@ public class EditorPreferencePage extends FieldEditorPreferencePage implements
 		/* Save actions */
 		pFormatOnSave = new BooleanFieldEditor(
 				IEditorPreferenceConstants.EDITOR_SAVE_FORMAT,
-				"&Format on save", parent);
+				Messages.getString("preferences.save.format"), parent);
+
+		pTrimOnSave = new BooleanFieldEditor(
+				IEditorPreferenceConstants.EDITOR_SAVE_TRIM,
+				Messages.getString("preferences.save.trim"), parent);
 
 		/* Tabulations */
 		pTabsLengthField = new IntegerFieldEditor(
@@ -90,6 +97,7 @@ public class EditorPreferencePage extends FieldEditorPreferencePage implements
 		addField(pTabsLengthField);
 		addField(pTabsToSpaceField);
 		addField(pFormatOnSave);
+		addField(pTrimOnSave);
 
 		addField(pSpellingServiceEnabledField);
 		addField(pSpellingServiceIdField);

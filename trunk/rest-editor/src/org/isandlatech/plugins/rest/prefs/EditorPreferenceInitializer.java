@@ -16,6 +16,7 @@ public class EditorPreferenceInitializer extends AbstractPreferenceInitializer {
 		IPreferenceStore store = RestPlugin.getDefault().getPreferenceStore();
 
 		store.setDefault(IEditorPreferenceConstants.EDITOR_SAVE_FORMAT, true);
+		store.setDefault(IEditorPreferenceConstants.EDITOR_SAVE_TRIM, false);
 		store.setDefault(IEditorPreferenceConstants.EDITOR_TABS_LENGTH, 3);
 		store.setDefault(IEditorPreferenceConstants.EDITOR_TABS_TO_SPACES, true);
 	}
