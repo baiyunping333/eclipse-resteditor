@@ -13,6 +13,12 @@ public interface IEditorPreferenceConstants {
 	/** Trim lines on save */
 	String EDITOR_SAVE_TRIM = "editor.save.trim";
 
+	/** Reset section markers on save */
+	String EDITOR_SAVE_RESET_MARKERS = "editor.save.markers";
+
+	/** Preferred section marker order */
+	String EDITOR_SECTION_MARKERS = "editor.section.markers";
+
 	/** Tabs length */
 	String EDITOR_TABS_LENGTH = "editor.tabs.length";
 

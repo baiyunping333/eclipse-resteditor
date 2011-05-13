@@ -6,11 +6,13 @@ import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.ComboFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IntegerFieldEditor;
+import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.editors.text.EditorsUI;
@@ -31,6 +33,12 @@ public class EditorPreferencePage extends FieldEditorPreferencePage implements
 
 	/** Formatting on file save activation */
 	private BooleanFieldEditor pFormatOnSave;
+
+	/** Reset section markers on save */
+	private BooleanFieldEditor pResetMarkersOnsave;
+
+	/** Preferred section markers */
+	private StringFieldEditor pSectionMarkers;
 
 	/** Spelling service activation */
 	private BooleanFieldEditor pSpellingServiceEnabledField;
@@ -67,39 +75,51 @@ public class EditorPreferencePage extends FieldEditorPreferencePage implements
 		pFormatOnSave = new BooleanFieldEditor(
 				IEditorPreferenceConstants.EDITOR_SAVE_FORMAT,
 				Messages.getString("preferences.save.format"), parent);
+		addField(pFormatOnSave);
 
 		pTrimOnSave = new BooleanFieldEditor(
 				IEditorPreferenceConstants.EDITOR_SAVE_TRIM,
 				Messages.getString("preferences.save.trim"), parent);
+		addField(pTrimOnSave);
+
+		/* Section markers */
+		pSectionMarkers = new StringFieldEditor(
+				IEditorPreferenceConstants.EDITOR_SECTION_MARKERS,
+				Messages.getString("preferences.save.markers.preferred"),
+				parent);
+		addField(pSectionMarkers);
+
+		pResetMarkersOnsave = new BooleanFieldEditor(
+				IEditorPreferenceConstants.EDITOR_SAVE_RESET_MARKERS,
+				Messages.getString("preferences.save.markers.reset"), parent);
+		addField(pResetMarkersOnsave);
 
 		/* Tabulations */
 		pTabsLengthField = new IntegerFieldEditor(
 				IEditorPreferenceConstants.EDITOR_TABS_LENGTH,
 				Messages.getString("preferences.tab.len"), parent);
 		pTabsLengthField.setValidRange(1, 16);
+		addField(pTabsLengthField);
 
 		pTabsToSpaceField = new BooleanFieldEditor(
 				IEditorPreferenceConstants.EDITOR_TABS_TO_SPACES,
 				Messages.getString("preferences.tab.tospace"), parent);
+		addField(pTabsToSpaceField);
+
+		/* Separator */
+		new Label(parent, SWT.SEPARATOR | SWT.HORIZONTAL);
 
 		/* Spell engine */
 		pSpellingServiceEnabledField = new BooleanFieldEditor(
 				SpellingService.PREFERENCE_SPELLING_ENABLED,
 				Messages.getString("preferences.spell.activate"), parent);
+		addField(pSpellingServiceEnabledField);
 
 		String[][] descriptorsNames = listSpellingEngines();
 		pSpellingServiceIdField = new ComboFieldEditor(
 				SpellingService.PREFERENCE_SPELLING_ENGINE,
 				Messages.getString("preferences.spell.service"),
 				descriptorsNames, parent);
-
-		/* Add those fields */
-		addField(pTabsLengthField);
-		addField(pTabsToSpaceField);
-		addField(pFormatOnSave);
-		addField(pTrimOnSave);
-
-		addField(pSpellingServiceEnabledField);
 		addField(pSpellingServiceIdField);
 
 		/* Reset colors preferences button (not a field) */
@@ -120,6 +140,12 @@ public class EditorPreferencePage extends FieldEditorPreferencePage implements
 		});
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.eclipse.ui.IWorkbenchPreferencePage#init(org.eclipse.ui.IWorkbench)
+	 */
 	@Override
 	public void init(final IWorkbench workbench) {
 		// Do nothing
