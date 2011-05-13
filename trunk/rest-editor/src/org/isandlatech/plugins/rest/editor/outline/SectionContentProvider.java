@@ -265,6 +265,7 @@ public class SectionContentProvider implements ITreePathContentProvider {
 		TreeData currentElement = pDocumentRoot;
 		pDocumentRoot.clearChildren();
 		pDecoratorsLevels.clear();
+		TreeData.resetNumbering();
 
 		// Loop while there are some sections
 		try {

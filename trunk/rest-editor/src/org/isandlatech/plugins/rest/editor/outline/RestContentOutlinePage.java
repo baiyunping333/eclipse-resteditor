@@ -5,11 +5,17 @@
  */
 package org.isandlatech.plugins.rest.editor.outline;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -33,6 +39,8 @@ public class RestContentOutlinePage extends ContentOutlinePage {
 	/** Parent ReST source editor */
 	private RestEditor pParentEditor;
 
+	private boolean pNormalize;
+
 	/**
 	 * Configures the outline page
 	 * 
@@ -48,6 +56,37 @@ public class RestContentOutlinePage extends ContentOutlinePage {
 		pDocumentProvider = aDocumentProvider;
 		pParentEditor = aParentEditor;
 		pContentProvider = new SectionContentProvider(this);
+		pNormalize = true;
+	}
+
+	private boolean collectNodes(final TreeData aNode, final int aFirst,
+			final int aLast, final List<TreeData> aCurrentList) {
+
+		int nodeNumber = aNode.getNumber();
+
+		// Add the current if it is in the selection range
+		if (nodeNumber >= aFirst && nodeNumber <= aLast) {
+			System.out.println("Added : " + aNode);
+			aCurrentList.add(aNode);
+		}
+
+		// Stop the recursion if we found the last one
+		if (nodeNumber == aLast) {
+			System.out.println("Last one - " + aNode);
+			return true;
+		}
+
+		// Continue to children...
+		for (TreeData child : aNode.getChildrenArray()) {
+
+			// Stop on the first child who stopped
+			if (collectNodes(child, aFirst, aLast, aCurrentList)) {
+				System.out.println("Stop on " + child);
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/*
@@ -114,6 +153,48 @@ public class RestContentOutlinePage extends ContentOutlinePage {
 		return super.getTreeViewer();
 	}
 
+	@SuppressWarnings("unchecked")
+	private void normalizeSelection(
+			final IStructuredSelection aStructuredSelection) {
+
+		List<TreeData> oldSelection = aStructuredSelection.toList();
+		String message = "";
+		for (TreeData data : oldSelection) {
+			message += data + "\n";
+		}
+
+		DebugPlugin.logMessage(message, null);
+
+		// Be sure we have the good order...
+		Collections.sort(oldSelection);
+
+		TreeData firstNode = oldSelection.get(0);
+		TreeData lastNode = oldSelection.get(oldSelection.size() - 1);
+
+		int distance = lastNode.getNumber() - firstNode.getNumber();
+
+		// Selection complete, no work to do
+		if (distance == oldSelection.size() - 1) {
+			return;
+		}
+
+		// List all nodes between those two ones
+		List<TreeData> newSelectionContent = new ArrayList<TreeData>(distance);
+
+		if (!collectNodes(pContentProvider.getRoot(), firstNode.getNumber(),
+				lastNode.getNumber(), newSelectionContent)) {
+			// Not all nodes were found
+			return;
+		}
+
+		if (newSelectionContent.size() > oldSelection.size()) {
+
+			StructuredSelection newSelection = new StructuredSelection(
+					newSelectionContent);
+			setSelection(newSelection);
+		}
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -125,7 +206,7 @@ public class RestContentOutlinePage extends ContentOutlinePage {
 	public void selectionChanged(final SelectionChangedEvent aEvent) {
 		super.selectionChanged(aEvent);
 
-		ISelection selection = aEvent.getSelection();
+		ISelection selection = getSelection();
 		if (selection.isEmpty()) {
 			pParentEditor.resetHighlightRange();
 
@@ -141,7 +222,16 @@ public class RestContentOutlinePage extends ContentOutlinePage {
 					sectionRegion.getLength(), true);
 
 			pParentEditor.selectAndReveal(sectionRegion.getOffset(), 0);
+
+			// Make the selection contiguous
+			if (pNormalize) {
+				normalizeSelection(structuredSelection);
+			}
 		}
+	}
+
+	public void setNormalizeSelection(final boolean aNormalize) {
+		pNormalize = aNormalize;
 	}
 
 	/**

@@ -311,6 +311,8 @@ public class HierarchyAction extends Action {
 	@Override
 	public void run() {
 
+		pOutline.setNormalizeSelection(false);
+
 		TreeSelection selectedNodes = (TreeSelection) pOutline.getSelection();
 
 		Iterator<?> iterator = selectedNodes.iterator();
@@ -327,5 +329,7 @@ public class HierarchyAction extends Action {
 		}
 
 		OutlineUtil.postUpdateSelection(pOutline, selectedNodes);
+
+		pOutline.setNormalizeSelection(true);
 	}
 }

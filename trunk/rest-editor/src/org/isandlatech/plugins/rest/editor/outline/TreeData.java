@@ -15,7 +15,7 @@ import org.eclipse.jface.viewers.TreePath;
  * @author Thomas Calmant
  * 
  */
-public class TreeData {
+public class TreeData implements Comparable<TreeData> {
 
 	/**
 	 * Creates an array of TreeData objects from a list of labels
@@ -63,6 +63,14 @@ public class TreeData {
 
 	/** Does the element have an upper line decoration ? */
 	private boolean pUpperlined;
+
+	private static int sNextNumber = 0;
+
+	public static void resetNumbering() {
+		sNextNumber = 0;
+	}
+
+	private int pNumber;
 
 	/**
 	 * Configures the tree element
@@ -132,6 +140,8 @@ public class TreeData {
 		pLine = aLine;
 		pLineOffset = aLineOffset;
 		pUpperlined = aUpperline;
+
+		pNumber = -1;
 	}
 
 	/**
@@ -150,6 +160,8 @@ public class TreeData {
 		aChild.pParent = this;
 		aChild.pLevel = pLevel + 1;
 
+		aChild.pNumber = sNextNumber++;
+
 		return aChild;
 	}
 
@@ -164,6 +176,20 @@ public class TreeData {
 		}
 
 		pChildren.clear();
+	}
+
+	@Override
+	public int compareTo(final TreeData aOther) {
+
+		if (aOther == null || aOther.pNumber < pNumber) {
+			return 1;
+		}
+
+		if (aOther.pNumber > pNumber) {
+			return -1;
+		}
+
+		return 0;
 	}
 
 	@Override
@@ -289,6 +315,10 @@ public class TreeData {
 		}
 
 		return brotherHood.get(thisIndex + 1);
+	}
+
+	public int getNumber() {
+		return pNumber;
 	}
 
 	/**
@@ -417,7 +447,7 @@ public class TreeData {
 	@Override
 	public String toString() {
 		if (pLine != -1) {
-			return pText + " (" + pLine + ")";
+			return pText + " (" + pLine + ") - " + pNumber;
 		}
 
 		return pText;
