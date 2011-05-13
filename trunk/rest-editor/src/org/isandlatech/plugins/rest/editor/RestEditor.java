@@ -80,15 +80,25 @@ public class RestEditor extends TextEditor {
 
 		// Request for a content outline page adapter
 		if (IContentOutlinePage.class.equals(adapter)) {
-			if (pOutlinePage == null) {
-				pOutlinePage = new RestContentOutlinePage(
-						getDocumentProvider(), this);
-			}
-
-			return pOutlinePage;
+			return getOutlinePage();
 		}
 
 		return super.getAdapter(adapter);
+	}
+
+	/**
+	 * Retrieves the unique outline page instance for this editor
+	 * 
+	 * @return the unique outline page instance for this editor
+	 */
+	public RestContentOutlinePage getOutlinePage() {
+
+		if (pOutlinePage == null) {
+			pOutlinePage = new RestContentOutlinePage(getDocumentProvider(),
+					this);
+		}
+
+		return pOutlinePage;
 	}
 
 	@Override
@@ -96,7 +106,7 @@ public class RestEditor extends TextEditor {
 		super.initializeEditor();
 
 		// Set the viewer configuration
-		pConfiguration = new RestViewerConfiguration();
+		pConfiguration = new RestViewerConfiguration(this);
 		setSourceViewerConfiguration(pConfiguration);
 	}
 

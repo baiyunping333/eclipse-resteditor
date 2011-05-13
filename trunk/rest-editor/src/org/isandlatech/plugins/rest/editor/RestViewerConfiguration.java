@@ -41,6 +41,7 @@ import org.isandlatech.plugins.rest.RestPlugin;
 import org.isandlatech.plugins.rest.editor.formatters.DefaultTextFormattingStrategy;
 import org.isandlatech.plugins.rest.editor.formatters.GridTableFormattingStrategy;
 import org.isandlatech.plugins.rest.editor.formatters.SectionFormattingStrategy;
+import org.isandlatech.plugins.rest.editor.outline.OutlineUtil;
 import org.isandlatech.plugins.rest.editor.providers.RuleProvider;
 import org.isandlatech.plugins.rest.editor.providers.TokenProvider;
 import org.isandlatech.plugins.rest.editor.scanners.RestLiteralBlockScanner;
@@ -74,6 +75,9 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 	/** Preference store */
 	private IPreferenceStore pPreferenceStore = null;
 
+	/** Parent editor */
+	private RestEditor pEditor;
+
 	/** Scanner rule provider */
 	private RuleProvider pRuleProvider = null;
 
@@ -85,9 +89,13 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 
 	/**
 	 * Prepares the configuration. Get a preference store reference.
+	 * 
+	 * @param Parent
+	 *            ReST Editor instance
 	 */
-	public RestViewerConfiguration() {
+	public RestViewerConfiguration(final RestEditor aParentEditor) {
 		super();
+		pEditor = aParentEditor;
 		pPreferenceStore = RestPlugin.getDefault().getPreferenceStore();
 	}
 
@@ -346,7 +354,11 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 	}
 
 	/**
-	 * Auto formating when the editor saves the file
+	 * On-save operations :
+	 * 
+	 * * Auto section markers normalization
+	 * 
+	 * * Auto formating when the editor saves the file
 	 * 
 	 * @param aSourceViewer
 	 *            The editor source viewer
@@ -354,7 +366,21 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 	public void onEditorPerformSave(final ISourceViewer aSourceViewer) {
 
 		if (pPreferenceStore
+				.getBoolean(IEditorPreferenceConstants.EDITOR_SAVE_RESET_MARKERS)) {
+			// Auto section blocks normalization
+
+			if (pEditor != null && pEditor.getOutlinePage() != null) {
+				OutlineUtil.normalizeSectionsMarker(pEditor.getOutlinePage()
+						.getContentProvider().getRoot());
+			}
+		}
+
+		// Formatting text _must_ be the last thing to do : it modifies the
+		// document content, therefore it may induce unpredictable behavior for
+		// next document readers
+		if (pPreferenceStore
 				.getBoolean(IEditorPreferenceConstants.EDITOR_SAVE_FORMAT)) {
+			// Text format on save
 
 			// Doc informations
 			IDocument document = aSourceViewer.getDocument();

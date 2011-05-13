@@ -70,12 +70,17 @@ public class RestContentOutlinePage extends ContentOutlinePage {
 		tree.setInput(pParentEditor.getEditorInput());
 		tree.expandAll();
 
-		// Insert hierarchy actions to the outline toolbar
+		// Get the outline page toolbar
 		IToolBarManager toolbarManager = getSite().getActionBars()
 				.getToolBarManager();
 
+		// Insert the refresh button
 		toolbarManager.add(new RefreshOutlineAction(this));
 
+		// Insert the normalize button
+		toolbarManager.add(new NormalizeSectionsAction(this));
+
+		// Insert hierarchy actions to the outline toolbar
 		HierarchyAction[] actions = HierarchyAction.createActions(this);
 		for (HierarchyAction action : actions) {
 			toolbarManager.add(action);

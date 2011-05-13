@@ -206,7 +206,7 @@ public class OutlineUtil {
 	 * @param aMarkers
 	 *            Preferred markers array.
 	 */
-	public static void normalizeSectionsMarker(final TreeData aSectionNode,
+	protected static void normalizeSectionsMarker(final TreeData aSectionNode,
 			final char[] aMarkers) {
 
 		int sectionLevel = aSectionNode.getLevel();
