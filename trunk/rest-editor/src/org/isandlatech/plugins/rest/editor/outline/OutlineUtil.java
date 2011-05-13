@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
@@ -17,6 +18,9 @@ import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.TextUtilities;
 import org.eclipse.jface.viewers.TreePath;
 import org.eclipse.jface.viewers.TreeSelection;
+import org.isandlatech.plugins.rest.RestPlugin;
+import org.isandlatech.plugins.rest.parser.RestLanguage;
+import org.isandlatech.plugins.rest.prefs.IEditorPreferenceConstants;
 
 /**
  * Utility class for outline operations
@@ -147,6 +151,84 @@ public class OutlineUtil {
 		}
 
 		return new Region(blockOffset, blockLength);
+	}
+
+	/**
+	 * Rewrites section and subsections titles blocks to use the preferred
+	 * marker for its level. Reads the preferred markers from the editor
+	 * preferences.
+	 * 
+	 * It is recommended to have a least 6 preferred markers.
+	 * 
+	 * @param aSectionNode
+	 *            Base node to modify (its children will be modified to)
+	 */
+	public static void normalizeSectionsMarker(final TreeData aSectionNode) {
+
+		if (aSectionNode == null) {
+			return;
+		}
+
+		// Get preferred markers
+		IPreferenceStore preferenceStore = RestPlugin.getDefault()
+				.getPreferenceStore();
+		char[] preferredMarkersArray;
+
+		// Try current preferences
+		String preferredMarkers = preferenceStore
+				.getString(IEditorPreferenceConstants.EDITOR_SECTION_MARKERS);
+
+		if (preferredMarkers == null || preferredMarkers.isEmpty()) {
+			// Else, try default preferences
+			preferredMarkers = preferenceStore
+					.getDefaultString(IEditorPreferenceConstants.EDITOR_SECTION_MARKERS);
+		}
+
+		if (preferredMarkers == null || preferredMarkers.isEmpty()) {
+			// Else, use language definitions
+			preferredMarkersArray = RestLanguage.SECTION_DECORATIONS;
+		} else {
+
+			preferredMarkersArray = preferredMarkers.toCharArray();
+		}
+
+		normalizeSectionsMarker(aSectionNode, preferredMarkersArray);
+	}
+
+	/**
+	 * Rewrites section and subsections titles blocks to use the preferred
+	 * marker for its level.
+	 * 
+	 * It is recommended to have a least 6 preferred markers.
+	 * 
+	 * @param aSectionNode
+	 *            Base node to modify (its children will be modified to)
+	 * @param aMarkers
+	 *            Preferred markers array.
+	 */
+	public static void normalizeSectionsMarker(final TreeData aSectionNode,
+			final char[] aMarkers) {
+
+		int sectionLevel = aSectionNode.getLevel();
+
+		// Ignore logical nodes (level <= 0)
+		if (sectionLevel > 0) {
+
+			// Rebase to 0
+			sectionLevel--;
+
+			// Don't use more than the given amount of markers
+			if (sectionLevel >= aMarkers.length) {
+				sectionLevel = aMarkers.length - 1;
+			}
+
+			replaceSectionMarker(aSectionNode, aMarkers[sectionLevel]);
+		}
+
+		// Treat children
+		for (TreeData section : aSectionNode.getChildrenArray()) {
+			normalizeSectionsMarker(section, aMarkers);
+		}
 	}
 
 	/**
