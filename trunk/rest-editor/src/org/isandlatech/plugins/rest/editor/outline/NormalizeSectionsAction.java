@@ -56,6 +56,9 @@ public class NormalizeSectionsAction extends Action {
 	@Override
 	public void run() {
 
+		// First refresh : be sure we have a correct content representation
+		pOutline.update();
+
 		// Do the work
 		TreeData rootElement = pOutline.getContentProvider().getRoot();
 		OutlineUtil.normalizeSectionsMarker(rootElement);

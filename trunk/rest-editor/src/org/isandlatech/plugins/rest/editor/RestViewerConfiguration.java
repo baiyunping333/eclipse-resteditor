@@ -42,6 +42,7 @@ import org.isandlatech.plugins.rest.editor.formatters.DefaultTextFormattingStrat
 import org.isandlatech.plugins.rest.editor.formatters.GridTableFormattingStrategy;
 import org.isandlatech.plugins.rest.editor.formatters.SectionFormattingStrategy;
 import org.isandlatech.plugins.rest.editor.outline.OutlineUtil;
+import org.isandlatech.plugins.rest.editor.outline.RestContentOutlinePage;
 import org.isandlatech.plugins.rest.editor.providers.RuleProvider;
 import org.isandlatech.plugins.rest.editor.providers.TokenProvider;
 import org.isandlatech.plugins.rest.editor.scanners.RestLiteralBlockScanner;
@@ -369,7 +370,17 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 				.getBoolean(IEditorPreferenceConstants.EDITOR_SAVE_RESET_MARKERS)) {
 			// Auto section blocks normalization
 
-			if (pEditor != null && pEditor.getOutlinePage() != null) {
+			RestContentOutlinePage outlinePage = null;
+
+			if (pEditor != null) {
+				outlinePage = pEditor.getOutlinePage();
+			}
+
+			if (outlinePage != null) {
+
+				// Don't forget to refresh the tree !
+				outlinePage.update();
+
 				OutlineUtil.normalizeSectionsMarker(pEditor.getOutlinePage()
 						.getContentProvider().getRoot());
 			}

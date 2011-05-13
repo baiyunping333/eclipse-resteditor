@@ -127,6 +127,11 @@ public class OutlineUtil {
 			return null;
 		}
 
+		// Do not handle logical nodes
+		if (aSectionNode.getLevel() <= 0) {
+			return null;
+		}
+
 		int blockOffset = getCompleteSectionOffset(aSectionNode);
 
 		// Compute block length
@@ -226,8 +231,10 @@ public class OutlineUtil {
 		}
 
 		// Treat children
-		for (TreeData section : aSectionNode.getChildrenArray()) {
-			normalizeSectionsMarker(section, aMarkers);
+		TreeData[] subSections = aSectionNode.getChildrenArray();
+
+		for (int i = subSections.length - 1; i >= 0; i--) {
+			normalizeSectionsMarker(subSections[i], aMarkers);
 		}
 	}
 
