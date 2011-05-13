@@ -5,7 +5,6 @@
  */
 package org.isandlatech.plugins.rest.editor.outline;
 
-import java.util.Arrays;
 import java.util.Iterator;
 
 import org.eclipse.jface.action.Action;
@@ -296,56 +295,12 @@ public class HierarchyAction extends Action {
 	protected void replaceDecorators(final TreeData aSectionNode,
 			final int aIncrement) {
 
-		IDocument document = aSectionNode.getDocument();
-		if (document == null) {
-			return;
-		}
-
-		String endOfLine;
-		try {
-			endOfLine = document.getLineDelimiter(aSectionNode.getLine() - 1);
-
-		} catch (BadLocationException e1) {
-			endOfLine = "\n";
-		}
-
 		// Get the decoration character
 		int newLevel = aSectionNode.getLevel() + aIncrement;
 		char newDecorator = pOutline.getContentProvider()
 				.getDecorationForLevel(newLevel);
 
-		// Prepare the decoration line
-		char[] decorationArray = new char[aSectionNode.getText().length()];
-		Arrays.fill(decorationArray, newDecorator);
-		String decorationLine = new String(decorationArray) + endOfLine;
-
-		// Replace the upper line, if needed
-		if (aSectionNode.isUpperlined()) {
-
-			try {
-				int upperline = aSectionNode.getLine() - 2;
-				int upperlineOffset = document.getLineOffset(upperline);
-				int upperlineLength = document.getLineLength(upperline);
-
-				document.replace(upperlineOffset, upperlineLength,
-						decorationLine);
-
-			} catch (BadLocationException e) {
-				e.printStackTrace();
-			}
-		}
-
-		// Replace the under line
-		try {
-			int underline = aSectionNode.getLine();
-			int underlineOffset = document.getLineOffset(underline);
-			int underlineLength = document.getLineLength(underline);
-
-			document.replace(underlineOffset, underlineLength, decorationLine);
-
-		} catch (BadLocationException e) {
-			e.printStackTrace();
-		}
+		OutlineUtil.replaceSectionMarker(aSectionNode, newDecorator);
 	}
 
 	/*
