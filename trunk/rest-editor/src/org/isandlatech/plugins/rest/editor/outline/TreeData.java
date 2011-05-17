@@ -12,10 +12,14 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.viewers.TreePath;
 
 /**
- * @author Thomas Calmant
+ * Represents a section node in the document hierarchy
  * 
+ * @author Thomas Calmant
  */
 public class TreeData implements Comparable<TreeData> {
+
+	/** Next value to be used as node ID */
+	private static int sNextId = 0;
 
 	/**
 	 * Creates an array of TreeData objects from a list of labels
@@ -40,6 +44,13 @@ public class TreeData implements Comparable<TreeData> {
 		return resultArray;
 	}
 
+	/**
+	 * Reset the next ID value to 0
+	 */
+	public static void resetIdIndex() {
+		sNextId = 0;
+	}
+
 	/** Element children */
 	private List<TreeData> pChildren;
 
@@ -55,6 +66,9 @@ public class TreeData implements Comparable<TreeData> {
 	/** Element line offset */
 	private int pLineOffset;
 
+	/** Node ID */
+	private int pNodeID;
+
 	/** Element parent */
 	private TreeData pParent;
 
@@ -63,14 +77,6 @@ public class TreeData implements Comparable<TreeData> {
 
 	/** Does the element have an upper line decoration ? */
 	private boolean pUpperlined;
-
-	private static int sNextNumber = 0;
-
-	public static void resetNumbering() {
-		sNextNumber = 0;
-	}
-
-	private int pNumber;
 
 	/**
 	 * Configures the tree element
@@ -141,7 +147,7 @@ public class TreeData implements Comparable<TreeData> {
 		pLineOffset = aLineOffset;
 		pUpperlined = aUpperline;
 
-		pNumber = -1;
+		pNodeID = -1;
 	}
 
 	/**
@@ -160,7 +166,7 @@ public class TreeData implements Comparable<TreeData> {
 		aChild.pParent = this;
 		aChild.pLevel = pLevel + 1;
 
-		aChild.pNumber = sNextNumber++;
+		aChild.pNodeID = sNextId++;
 
 		return aChild;
 	}
@@ -178,20 +184,32 @@ public class TreeData implements Comparable<TreeData> {
 		pChildren.clear();
 	}
 
+	/**
+	 * Compares the given node to the current one. Comparison is only based on
+	 * nodes ID.
+	 * 
+	 * @see Comparable#compareTo(Object)
+	 */
 	@Override
 	public int compareTo(final TreeData aOther) {
 
-		if (aOther == null || aOther.pNumber < pNumber) {
+		if (aOther == null || aOther.pNodeID < pNodeID) {
 			return 1;
 		}
 
-		if (aOther.pNumber > pNumber) {
+		if (aOther.pNodeID > pNodeID) {
 			return -1;
 		}
 
 		return 0;
 	}
 
+	/**
+	 * Tests if the given object is equal to the current one, based on type,
+	 * text and parent equality.
+	 * 
+	 * @see Object#equals(Object)
+	 */
 	@Override
 	public boolean equals(final Object aObj) {
 
@@ -259,10 +277,21 @@ public class TreeData implements Comparable<TreeData> {
 	}
 
 	/**
+	 * Retrieves the document associated to the section node
+	 * 
 	 * @return the document
 	 */
 	public IDocument getDocument() {
 		return pDocument;
+	}
+
+	/**
+	 * Retrieves the node ID
+	 * 
+	 * @return the node ID
+	 */
+	public int getId() {
+		return pNodeID;
 	}
 
 	/**
@@ -315,10 +344,6 @@ public class TreeData implements Comparable<TreeData> {
 		}
 
 		return brotherHood.get(thisIndex + 1);
-	}
-
-	public int getNumber() {
-		return pNumber;
 	}
 
 	/**
@@ -447,7 +472,7 @@ public class TreeData implements Comparable<TreeData> {
 	@Override
 	public String toString() {
 		if (pLine != -1) {
-			return pText + " (" + pLine + ") - " + pNumber;
+			return pText + " (" + pLine + ") - " + pNodeID;
 		}
 
 		return pText;

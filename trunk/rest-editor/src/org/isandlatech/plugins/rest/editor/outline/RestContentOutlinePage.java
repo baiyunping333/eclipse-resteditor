@@ -59,20 +59,31 @@ public class RestContentOutlinePage extends ContentOutlinePage {
 		pNormalize = true;
 	}
 
+	/**
+	 * Collects all nodes with an ID within aFirst and a aLast (included)
+	 * 
+	 * @param aNode
+	 *            Base node to search in
+	 * @param aFirst
+	 *            First ID to collect
+	 * @param aLast
+	 *            Last ID to collect
+	 * @param aCurrentList
+	 *            Growing list containing searched nodes
+	 * @return True on full success (all nodes were found), else false
+	 */
 	private boolean collectNodes(final TreeData aNode, final int aFirst,
 			final int aLast, final List<TreeData> aCurrentList) {
 
-		int nodeNumber = aNode.getNumber();
+		int nodeId = aNode.getId();
 
 		// Add the current if it is in the selection range
-		if (nodeNumber >= aFirst && nodeNumber <= aLast) {
-			System.out.println("Added : " + aNode);
+		if (nodeId >= aFirst && nodeId <= aLast) {
 			aCurrentList.add(aNode);
 		}
 
 		// Stop the recursion if we found the last one
-		if (nodeNumber == aLast) {
-			System.out.println("Last one - " + aNode);
+		if (nodeId == aLast) {
 			return true;
 		}
 
@@ -81,7 +92,6 @@ public class RestContentOutlinePage extends ContentOutlinePage {
 
 			// Stop on the first child who stopped
 			if (collectNodes(child, aFirst, aLast, aCurrentList)) {
-				System.out.println("Stop on " + child);
 				return true;
 			}
 		}
@@ -171,7 +181,7 @@ public class RestContentOutlinePage extends ContentOutlinePage {
 		TreeData firstNode = oldSelection.get(0);
 		TreeData lastNode = oldSelection.get(oldSelection.size() - 1);
 
-		int distance = lastNode.getNumber() - firstNode.getNumber();
+		int distance = lastNode.getId() - firstNode.getId();
 
 		// Selection complete, no work to do
 		if (distance == oldSelection.size() - 1) {
@@ -181,8 +191,8 @@ public class RestContentOutlinePage extends ContentOutlinePage {
 		// List all nodes between those two ones
 		List<TreeData> newSelectionContent = new ArrayList<TreeData>(distance);
 
-		if (!collectNodes(pContentProvider.getRoot(), firstNode.getNumber(),
-				lastNode.getNumber(), newSelectionContent)) {
+		if (!collectNodes(pContentProvider.getRoot(), firstNode.getId(),
+				lastNode.getId(), newSelectionContent)) {
 			// Not all nodes were found
 			return;
 		}
