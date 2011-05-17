@@ -216,6 +216,13 @@ public class OutlineUtil {
 
 		int sectionLevel = aSectionNode.getLevel();
 
+		// Treat children
+		TreeData[] subSections = aSectionNode.getChildrenArray();
+
+		for (int i = subSections.length - 1; i >= 0; i--) {
+			normalizeSectionsMarker(subSections[i], aMarkers);
+		}
+
 		// Ignore logical nodes (level <= 0)
 		if (sectionLevel > 0) {
 
@@ -228,13 +235,6 @@ public class OutlineUtil {
 			}
 
 			replaceSectionMarker(aSectionNode, aMarkers[sectionLevel]);
-		}
-
-		// Treat children
-		TreeData[] subSections = aSectionNode.getChildrenArray();
-
-		for (int i = subSections.length - 1; i >= 0; i--) {
-			normalizeSectionsMarker(subSections[i], aMarkers);
 		}
 	}
 

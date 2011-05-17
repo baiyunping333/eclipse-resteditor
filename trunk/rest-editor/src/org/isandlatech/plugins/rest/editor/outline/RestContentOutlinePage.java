@@ -38,6 +38,7 @@ public class RestContentOutlinePage extends ContentOutlinePage {
 	/** Parent ReST source editor */
 	private RestEditor pParentEditor;
 
+	/** Selection normalization activation */
 	private boolean pNormalize;
 
 	/**
@@ -224,7 +225,7 @@ public class RestContentOutlinePage extends ContentOutlinePage {
 			pParentEditor.setHighlightRange(sectionRegion.getOffset(),
 					sectionRegion.getLength(), true);
 
-			pParentEditor.selectAndReveal(sectionRegion.getOffset(), 0);
+			pParentEditor.selectAndReveal(selectedElement.getLineOffset(), 0);
 
 			// Make the selection contiguous
 			if (pNormalize) {
