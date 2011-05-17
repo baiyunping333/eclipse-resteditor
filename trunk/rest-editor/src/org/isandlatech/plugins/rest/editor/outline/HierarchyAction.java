@@ -230,8 +230,37 @@ public class HierarchyAction extends Action {
 
 		// Target offset rebase
 		targetOffset += OutlineUtil.getCompleteSectionOffset(targetNode);
-		moveRegion(document, sourceSection, targetOffset);
 
+		// Handle movement after last section : we may need to add some
+		// blank lines
+		if (aDirection == Direction.B_DOWN && targetNode.getNext() == null) {
+
+			final String endOfLine = TextUtilities
+					.getDefaultLineDelimiter(document);
+			final String endOfSection = endOfLine + endOfLine;
+
+			try {
+
+				final String endOfDocument = document.get(document.getLength()
+						- endOfSection.length() - 1, endOfSection.length());
+
+				if (!endOfDocument.equals(endOfSection)) {
+					// Add blank lines, if needed
+					String content = document.get();
+					content += endOfSection;
+					document.set(content);
+
+					// Update target offset
+					targetOffset += endOfSection.length();
+				}
+
+			} catch (BadLocationException e) {
+				e.printStackTrace();
+			}
+		}
+
+		// Move !
+		moveRegion(document, sourceSection, targetOffset);
 		return true;
 	}
 

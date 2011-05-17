@@ -365,7 +365,7 @@ public class TreeData implements Comparable<TreeData> {
 	public TreeData getPrevious() {
 
 		// No parent, no brother
-		if (pParent == null || pLevel == 1) {
+		if (pParent == null || pLevel < 0) {
 			return null;
 		}
 

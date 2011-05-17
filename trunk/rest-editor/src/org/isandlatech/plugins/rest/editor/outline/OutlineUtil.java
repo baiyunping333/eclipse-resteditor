@@ -65,8 +65,6 @@ public class OutlineUtil {
 		IDocument document = aSectionNode.getDocument();
 		TreeData nextNode = aSectionNode.getNext();
 
-		System.out.println("Node : " + aSectionNode + " - Next : " + nextNode);
-
 		int offset = getCompleteSectionOffset(aSectionNode);
 		int length = 0;
 
