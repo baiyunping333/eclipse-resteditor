@@ -16,7 +16,7 @@ echo "Nettoyage..."
 rm $ZIP_FILE
 
 echo "Compression..."
-find $LOCAL_DIR | grep -v ".svn" | grep -v $THIS | zip $ZIP_FILE -@
+find -L $LOCAL_DIR | grep -v ".svn" | grep -v $THIS | zip $ZIP_FILE -@
 
 echo "Envoi..."
 scp $ZIP_FILE $DIST_USER@$HOST:$DIST_DIR/$ZIP_FILE
