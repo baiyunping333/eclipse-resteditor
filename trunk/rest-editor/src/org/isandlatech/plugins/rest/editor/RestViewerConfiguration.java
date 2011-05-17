@@ -32,13 +32,17 @@ import org.eclipse.jface.text.reconciler.MonoReconciler;
 import org.eclipse.jface.text.rules.DefaultDamagerRepairer;
 import org.eclipse.jface.text.rules.ITokenScanner;
 import org.eclipse.jface.text.source.ISourceViewer;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.ui.editors.text.TextSourceViewerConfiguration;
 import org.eclipse.ui.texteditor.spelling.ISpellingEngine;
 import org.eclipse.ui.texteditor.spelling.SpellingReconcileStrategy;
 import org.eclipse.ui.texteditor.spelling.SpellingService;
 import org.isandlatech.plugins.rest.RestPlugin;
+import org.isandlatech.plugins.rest.editor.formatters.DefaultTextFormattingStrategy;
 import org.isandlatech.plugins.rest.editor.formatters.GridTableFormattingStrategy;
 import org.isandlatech.plugins.rest.editor.formatters.SectionFormattingStrategy;
+import org.isandlatech.plugins.rest.editor.outline.OutlineUtil;
+import org.isandlatech.plugins.rest.editor.outline.RestContentOutlinePage;
 import org.isandlatech.plugins.rest.editor.providers.RuleProvider;
 import org.isandlatech.plugins.rest.editor.providers.TokenProvider;
 import org.isandlatech.plugins.rest.editor.scanners.RestLiteralBlockScanner;
@@ -72,6 +76,9 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 	/** Preference store */
 	private IPreferenceStore pPreferenceStore = null;
 
+	/** Parent editor */
+	private RestEditor pEditor;
+
 	/** Scanner rule provider */
 	private RuleProvider pRuleProvider = null;
 
@@ -83,9 +90,13 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 
 	/**
 	 * Prepares the configuration. Get a preference store reference.
+	 * 
+	 * @param Parent
+	 *            ReST Editor instance
 	 */
-	public RestViewerConfiguration() {
+	public RestViewerConfiguration(final RestEditor aParentEditor) {
 		super();
+		pEditor = aParentEditor;
 		pPreferenceStore = RestPlugin.getDefault().getPreferenceStore();
 	}
 
@@ -175,7 +186,15 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 					RestPartitionScanner.GRID_TABLE_BLOCK);
 
 			// TODO RestPartitionScanner.SIMPLE_TABLE_BLOCK
-			// TODO IDocument.DEFAULT_CONTENT_TYPE
+
+			if (pPreferenceStore
+					.getBoolean(IEditorPreferenceConstants.EDITOR_SAVE_TRIM)) {
+
+				// Removes trailing spaces
+				pDocFormatter.setFormattingStrategy(
+						new DefaultTextFormattingStrategy(),
+						IDocument.DEFAULT_CONTENT_TYPE);
+			}
 		}
 
 		return pDocFormatter;
@@ -336,7 +355,11 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 	}
 
 	/**
-	 * Auto formating when the editor saves the file
+	 * On-save operations :
+	 * 
+	 * * Auto section markers normalization
+	 * 
+	 * * Auto formating when the editor saves the file
 	 * 
 	 * @param aSourceViewer
 	 *            The editor source viewer
@@ -344,14 +367,45 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 	public void onEditorPerformSave(final ISourceViewer aSourceViewer) {
 
 		if (pPreferenceStore
+				.getBoolean(IEditorPreferenceConstants.EDITOR_SAVE_RESET_MARKERS)) {
+			// Auto section blocks normalization
+
+			RestContentOutlinePage outlinePage = null;
+
+			if (pEditor != null) {
+				outlinePage = pEditor.getOutlinePage();
+			}
+
+			if (outlinePage != null) {
+
+				// Don't forget to refresh the tree !
+				outlinePage.update();
+
+				OutlineUtil.normalizeSectionsMarker(pEditor.getOutlinePage()
+						.getContentProvider().getRoot());
+			}
+		}
+
+		// Formatting text _must_ be the last thing to do : it modifies the
+		// document content, therefore it may induce unpredictable behavior for
+		// next document readers
+		if (pPreferenceStore
 				.getBoolean(IEditorPreferenceConstants.EDITOR_SAVE_FORMAT)) {
+			// Text format on save
 
 			// Doc informations
 			IDocument document = aSourceViewer.getDocument();
 			IRegion docRegion = new Region(0, document.getLength());
 
+			// Store current pointer location
+			Point currentLocation = aSourceViewer.getSelectedRange();
+
 			// Format the document
 			pDocFormatter.format(document, docRegion);
+
+			// Reset point location
+			aSourceViewer
+					.setSelectedRange(currentLocation.x, currentLocation.y);
 		}
 	}
 }

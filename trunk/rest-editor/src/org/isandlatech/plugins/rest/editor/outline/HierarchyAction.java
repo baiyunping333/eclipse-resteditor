@@ -5,7 +5,6 @@
  */
 package org.isandlatech.plugins.rest.editor.outline;
 
-import java.util.Arrays;
 import java.util.Iterator;
 
 import org.eclipse.jface.action.Action;
@@ -13,6 +12,7 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
+import org.eclipse.jface.text.TextUtilities;
 import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
@@ -230,8 +230,16 @@ public class HierarchyAction extends Action {
 
 		// Target offset rebase
 		targetOffset += OutlineUtil.getCompleteSectionOffset(targetNode);
-		moveRegion(document, sourceSection, targetOffset);
 
+		// Handle movement after last section : we may need to add some
+		// blank lines
+		if (aDirection == Direction.B_DOWN && targetNode.getNext() == null) {
+
+			targetOffset += setEndOfDocument(document);
+		}
+
+		// Move !
+		moveRegion(document, sourceSection, targetOffset);
 		return true;
 	}
 
@@ -252,6 +260,9 @@ public class HierarchyAction extends Action {
 	private boolean moveRegion(final IDocument aDocument,
 			final IRegion aMovedRegion, final int aTargetOffset) {
 
+		// Document EOL
+		String endOfLine = TextUtilities.getDefaultLineDelimiter(aDocument);
+
 		// Save text content (in case of error)
 		String documentText = aDocument.get();
 
@@ -262,7 +273,7 @@ public class HierarchyAction extends Action {
 					aMovedRegion.getLength());
 
 			// Just to be sure we have a correct section separation
-			String endOfSection = "\n\n";
+			String endOfSection = endOfLine + endOfLine;
 			if (!sectionText.endsWith(endOfSection)) {
 				sectionText += endOfSection;
 			}
@@ -296,56 +307,12 @@ public class HierarchyAction extends Action {
 	protected void replaceDecorators(final TreeData aSectionNode,
 			final int aIncrement) {
 
-		IDocument document = aSectionNode.getDocument();
-		if (document == null) {
-			return;
-		}
-
-		String endOfLine;
-		try {
-			endOfLine = document.getLineDelimiter(aSectionNode.getLine() - 1);
-
-		} catch (BadLocationException e1) {
-			endOfLine = "\n";
-		}
-
 		// Get the decoration character
 		int newLevel = aSectionNode.getLevel() + aIncrement;
 		char newDecorator = pOutline.getContentProvider()
 				.getDecorationForLevel(newLevel);
 
-		// Prepare the decoration line
-		char[] decorationArray = new char[aSectionNode.getText().length()];
-		Arrays.fill(decorationArray, newDecorator);
-		String decorationLine = new String(decorationArray) + endOfLine;
-
-		// Replace the upper line, if needed
-		if (aSectionNode.isUpperlined()) {
-
-			try {
-				int upperline = aSectionNode.getLine() - 2;
-				int upperlineOffset = document.getLineOffset(upperline);
-				int upperlineLength = document.getLineLength(upperline);
-
-				document.replace(upperlineOffset, upperlineLength,
-						decorationLine);
-
-			} catch (BadLocationException e) {
-				e.printStackTrace();
-			}
-		}
-
-		// Replace the under line
-		try {
-			int underline = aSectionNode.getLine();
-			int underlineOffset = document.getLineOffset(underline);
-			int underlineLength = document.getLineLength(underline);
-
-			document.replace(underlineOffset, underlineLength, decorationLine);
-
-		} catch (BadLocationException e) {
-			e.printStackTrace();
-		}
+		OutlineUtil.replaceSectionMarker(aSectionNode, newDecorator);
 	}
 
 	/*
@@ -355,6 +322,9 @@ public class HierarchyAction extends Action {
 	 */
 	@Override
 	public void run() {
+
+		// Do not handle selection changes
+		pOutline.setNormalizeSelection(false);
 
 		TreeSelection selectedNodes = (TreeSelection) pOutline.getSelection();
 
@@ -371,6 +341,46 @@ public class HierarchyAction extends Action {
 			}
 		}
 
+		// Reset selection, with new data (positions...)
 		OutlineUtil.postUpdateSelection(pOutline, selectedNodes);
+
+		// Re-handle selection changes
+		pOutline.setNormalizeSelection(true);
+	}
+
+	/**
+	 * Adds an end of section sequence (2 ends of line sequence) at the end of
+	 * the document, if needed.
+	 * 
+	 * @param aDocument
+	 *            Document to be modified
+	 * @return The number of characters appended to the document
+	 */
+	private int setEndOfDocument(final IDocument aDocument) {
+
+		final String endOfLine = TextUtilities
+				.getDefaultLineDelimiter(aDocument);
+		final String endOfSection = endOfLine + endOfLine;
+
+		try {
+
+			final String endOfDocument = aDocument.get(aDocument.getLength()
+					- endOfSection.length() - 1, endOfSection.length());
+
+			if (!endOfDocument.equals(endOfSection)) {
+				// Add blank lines, if needed
+				String content = aDocument.get();
+				content += endOfSection;
+				aDocument.set(content);
+
+				// Update target offset
+				return endOfSection.length();
+			}
+
+		} catch (BadLocationException e) {
+			e.printStackTrace();
+		}
+
+		return 0;
 	}
 }

@@ -12,10 +12,14 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.viewers.TreePath;
 
 /**
- * @author Thomas Calmant
+ * Represents a section node in the document hierarchy
  * 
+ * @author Thomas Calmant
  */
-public class TreeData {
+public class TreeData implements Comparable<TreeData> {
+
+	/** Next value to be used as node ID */
+	private static int sNextId = 0;
 
 	/**
 	 * Creates an array of TreeData objects from a list of labels
@@ -40,6 +44,13 @@ public class TreeData {
 		return resultArray;
 	}
 
+	/**
+	 * Reset the next ID value to 0
+	 */
+	public static void resetIdIndex() {
+		sNextId = 0;
+	}
+
 	/** Element children */
 	private List<TreeData> pChildren;
 
@@ -54,6 +65,9 @@ public class TreeData {
 
 	/** Element line offset */
 	private int pLineOffset;
+
+	/** Node ID */
+	private int pNodeID;
 
 	/** Element parent */
 	private TreeData pParent;
@@ -132,6 +146,8 @@ public class TreeData {
 		pLine = aLine;
 		pLineOffset = aLineOffset;
 		pUpperlined = aUpperline;
+
+		pNodeID = -1;
 	}
 
 	/**
@@ -150,6 +166,8 @@ public class TreeData {
 		aChild.pParent = this;
 		aChild.pLevel = pLevel + 1;
 
+		aChild.pNodeID = sNextId++;
+
 		return aChild;
 	}
 
@@ -166,6 +184,32 @@ public class TreeData {
 		pChildren.clear();
 	}
 
+	/**
+	 * Compares the given node to the current one. Comparison is only based on
+	 * nodes ID.
+	 * 
+	 * @see Comparable#compareTo(Object)
+	 */
+	@Override
+	public int compareTo(final TreeData aOther) {
+
+		if (aOther == null || aOther.pNodeID < pNodeID) {
+			return 1;
+		}
+
+		if (aOther.pNodeID > pNodeID) {
+			return -1;
+		}
+
+		return 0;
+	}
+
+	/**
+	 * Tests if the given object is equal to the current one, based on type,
+	 * text and parent equality.
+	 * 
+	 * @see Object#equals(Object)
+	 */
 	@Override
 	public boolean equals(final Object aObj) {
 
@@ -233,10 +277,21 @@ public class TreeData {
 	}
 
 	/**
+	 * Retrieves the document associated to the section node
+	 * 
 	 * @return the document
 	 */
 	public IDocument getDocument() {
 		return pDocument;
+	}
+
+	/**
+	 * Retrieves the node ID
+	 * 
+	 * @return the node ID
+	 */
+	public int getId() {
+		return pNodeID;
 	}
 
 	/**
@@ -249,7 +304,8 @@ public class TreeData {
 	}
 
 	/**
-	 * Retrieves the line associated to the element
+	 * Retrieves the line associated to the element, the 1-based line number of
+	 * the title line (or the 0-based line number of the section underline)
 	 * 
 	 * @return The line associated to the element
 	 */
@@ -258,7 +314,8 @@ public class TreeData {
 	}
 
 	/**
-	 * Retrieves the line offset associated to the element
+	 * Retrieves the offset of the beginning of the title line associated to the
+	 * element
 	 * 
 	 * @return The line offset associated to the element
 	 */
@@ -274,7 +331,7 @@ public class TreeData {
 	public TreeData getNext() {
 
 		// No parent, no brother
-		if (pParent == null || pLevel == 1) {
+		if (pParent == null || pLevel < 0) {
 			return null;
 		}
 
@@ -308,7 +365,7 @@ public class TreeData {
 	public TreeData getPrevious() {
 
 		// No parent, no brother
-		if (pParent == null || pLevel == 1) {
+		if (pParent == null || pLevel < 0) {
 			return null;
 		}
 

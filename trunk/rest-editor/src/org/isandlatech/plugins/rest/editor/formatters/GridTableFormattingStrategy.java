@@ -132,6 +132,11 @@ public class GridTableFormattingStrategy extends AbstractFormattingStrategy {
 		// Analyze the grid
 		for (String line : tableLines) {
 
+			// Ignore empty lines
+			if (line.isEmpty()) {
+				continue;
+			}
+
 			if (line.charAt(0) == RestLanguage.GRID_TABLE_MARKER) {
 				// Grid line
 
@@ -182,7 +187,7 @@ public class GridTableFormattingStrategy extends AbstractFormattingStrategy {
 		}
 
 		// Set up a new grid
-		return generateGrid(tableContent, maxCols, kindOfLine);
+		return resetEndOfLines(generateGrid(tableContent, maxCols, kindOfLine));
 	}
 
 	/**
@@ -293,7 +298,7 @@ public class GridTableFormattingStrategy extends AbstractFormattingStrategy {
 			aContent.append(RestLanguage.GRID_TABLE_ROW_MARKER);
 		}
 
-		aContent.append('\n');
+		aContent.append(NORMALIZED_LINE_BREAK);
 	}
 
 	/**
@@ -316,7 +321,8 @@ public class GridTableFormattingStrategy extends AbstractFormattingStrategy {
 			maxWidth += columnWidth;
 		}
 
-		char[] markerLineChars = new char[maxWidth + 1];
+		char[] markerLineChars = new char[maxWidth
+				+ NORMALIZED_LINE_BREAK.length()];
 		Arrays.fill(markerLineChars, aSeparator);
 
 		int nextMarker = 0;
@@ -325,7 +331,10 @@ public class GridTableFormattingStrategy extends AbstractFormattingStrategy {
 			nextMarker += columnWidth + 1;
 		}
 
-		markerLineChars[maxWidth] = '\n';
+		for (int i = maxWidth; i < markerLineChars.length; i++) {
+			markerLineChars[i] = NORMALIZED_LINE_BREAK.charAt(i - maxWidth);
+		}
+
 		return new String(markerLineChars);
 	}
 

@@ -25,8 +25,16 @@ public class SectionFormattingStrategy extends AbstractFormattingStrategy {
 		String title = null;
 		String decoration = null;
 
+		String[] lines = getLines(normalizeEndOfLines(aContent));
+
 		// Analyze the content
-		for (String token : getLines(normalizeEndOfLines(aContent))) {
+		for (String token : lines) {
+
+			// Ignore empty lines
+			if (token.isEmpty()) {
+				continue;
+			}
+
 			if (title == null && !DecoratedLinesRule.isDecorativeLine(token)) {
 				title = token;
 			}
@@ -63,12 +71,12 @@ public class SectionFormattingStrategy extends AbstractFormattingStrategy {
 
 		StringBuffer content = new StringBuffer(aContent.length());
 		if (upperline) {
-			content.append(decoration).append("\n");
+			content.append(decoration).append(NORMALIZED_LINE_BREAK);
 		}
 
-		content.append(title).append("\n");
-		content.append(decoration).append("\n");
+		content.append(title).append(NORMALIZED_LINE_BREAK);
+		content.append(decoration).append(NORMALIZED_LINE_BREAK);
 
-		return content.toString();
+		return resetEndOfLines(content.toString());
 	}
 }

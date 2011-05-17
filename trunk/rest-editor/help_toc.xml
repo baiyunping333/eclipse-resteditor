@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<toc label="ReST Editor" topic="html/overview.html">
+	<topic label="Overview" href="html/overview.html" />
+	<topic label="Set up Sphinx" href="html/sphinx.html" />
+	<topic label="Configuration" href="html/config.html" />
+	<topic label="Credits" href="html/credits.html" />
+</toc>
