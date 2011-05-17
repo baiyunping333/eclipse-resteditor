@@ -235,28 +235,7 @@ public class HierarchyAction extends Action {
 		// blank lines
 		if (aDirection == Direction.B_DOWN && targetNode.getNext() == null) {
 
-			final String endOfLine = TextUtilities
-					.getDefaultLineDelimiter(document);
-			final String endOfSection = endOfLine + endOfLine;
-
-			try {
-
-				final String endOfDocument = document.get(document.getLength()
-						- endOfSection.length() - 1, endOfSection.length());
-
-				if (!endOfDocument.equals(endOfSection)) {
-					// Add blank lines, if needed
-					String content = document.get();
-					content += endOfSection;
-					document.set(content);
-
-					// Update target offset
-					targetOffset += endOfSection.length();
-				}
-
-			} catch (BadLocationException e) {
-				e.printStackTrace();
-			}
+			targetOffset += setEndOfDocument(document);
 		}
 
 		// Move !
@@ -367,5 +346,41 @@ public class HierarchyAction extends Action {
 
 		// Re-handle selection changes
 		pOutline.setNormalizeSelection(true);
+	}
+
+	/**
+	 * Adds an end of section sequence (2 ends of line sequence) at the end of
+	 * the document, if needed.
+	 * 
+	 * @param aDocument
+	 *            Document to be modified
+	 * @return The number of characters appended to the document
+	 */
+	private int setEndOfDocument(final IDocument aDocument) {
+
+		final String endOfLine = TextUtilities
+				.getDefaultLineDelimiter(aDocument);
+		final String endOfSection = endOfLine + endOfLine;
+
+		try {
+
+			final String endOfDocument = aDocument.get(aDocument.getLength()
+					- endOfSection.length() - 1, endOfSection.length());
+
+			if (!endOfDocument.equals(endOfSection)) {
+				// Add blank lines, if needed
+				String content = aDocument.get();
+				content += endOfSection;
+				aDocument.set(content);
+
+				// Update target offset
+				return endOfSection.length();
+			}
+
+		} catch (BadLocationException e) {
+			e.printStackTrace();
+		}
+
+		return 0;
 	}
 }
