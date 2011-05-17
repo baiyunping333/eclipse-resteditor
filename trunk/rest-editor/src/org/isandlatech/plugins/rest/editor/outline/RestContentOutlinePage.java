@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.viewers.ISelection;
@@ -168,12 +167,6 @@ public class RestContentOutlinePage extends ContentOutlinePage {
 			final IStructuredSelection aStructuredSelection) {
 
 		List<TreeData> oldSelection = aStructuredSelection.toList();
-		String message = "";
-		for (TreeData data : oldSelection) {
-			message += data + "\n";
-		}
-
-		DebugPlugin.logMessage(message, null);
 
 		// Be sure we have the good order...
 		Collections.sort(oldSelection);

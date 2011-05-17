@@ -12,6 +12,7 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
+import org.eclipse.jface.text.TextUtilities;
 import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
@@ -251,6 +252,9 @@ public class HierarchyAction extends Action {
 	private boolean moveRegion(final IDocument aDocument,
 			final IRegion aMovedRegion, final int aTargetOffset) {
 
+		// Document EOL
+		String endOfLine = TextUtilities.getDefaultLineDelimiter(aDocument);
+
 		// Save text content (in case of error)
 		String documentText = aDocument.get();
 
@@ -261,7 +265,7 @@ public class HierarchyAction extends Action {
 					aMovedRegion.getLength());
 
 			// Just to be sure we have a correct section separation
-			String endOfSection = "\n\n";
+			String endOfSection = endOfLine + endOfLine;
 			if (!sectionText.endsWith(endOfSection)) {
 				sectionText += endOfSection;
 			}
@@ -311,6 +315,7 @@ public class HierarchyAction extends Action {
 	@Override
 	public void run() {
 
+		// Do not handle selection changes
 		pOutline.setNormalizeSelection(false);
 
 		TreeSelection selectedNodes = (TreeSelection) pOutline.getSelection();
@@ -328,8 +333,10 @@ public class HierarchyAction extends Action {
 			}
 		}
 
+		// Reset selection, with new data (positions...)
 		OutlineUtil.postUpdateSelection(pOutline, selectedNodes);
 
+		// Re-handle selection changes
 		pOutline.setNormalizeSelection(true);
 	}
 }

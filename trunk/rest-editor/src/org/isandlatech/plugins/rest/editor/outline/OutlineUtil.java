@@ -65,6 +65,8 @@ public class OutlineUtil {
 		IDocument document = aSectionNode.getDocument();
 		TreeData nextNode = aSectionNode.getNext();
 
+		System.out.println("Node : " + aSectionNode + " - Next : " + nextNode);
+
 		int offset = getCompleteSectionOffset(aSectionNode);
 		int length = 0;
 
@@ -120,7 +122,7 @@ public class OutlineUtil {
 	 *            Section to select
 	 * @return The section title block, null on error
 	 */
-	public static IRegion getSectionBlock(final TreeData aSectionNode) {
+	public static IRegion getSectionTitleBlock(final TreeData aSectionNode) {
 
 		IDocument document = aSectionNode.getDocument();
 		if (document == null) {
@@ -289,7 +291,7 @@ public class OutlineUtil {
 		}
 
 		// Find old section block bounds
-		IRegion sectionBlock = getSectionBlock(aSectionNode);
+		IRegion sectionBlock = getSectionTitleBlock(aSectionNode);
 		if (sectionBlock == null) {
 			return;
 		}

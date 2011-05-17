@@ -304,7 +304,8 @@ public class TreeData implements Comparable<TreeData> {
 	}
 
 	/**
-	 * Retrieves the line associated to the element
+	 * Retrieves the line associated to the element, the 1-based line number of
+	 * the title line (or the 0-based line number of the section underline)
 	 * 
 	 * @return The line associated to the element
 	 */
@@ -313,7 +314,8 @@ public class TreeData implements Comparable<TreeData> {
 	}
 
 	/**
-	 * Retrieves the line offset associated to the element
+	 * Retrieves the offset of the beginning of the title line associated to the
+	 * element
 	 * 
 	 * @return The line offset associated to the element
 	 */
@@ -329,7 +331,7 @@ public class TreeData implements Comparable<TreeData> {
 	public TreeData getNext() {
 
 		// No parent, no brother
-		if (pParent == null || pLevel == 1) {
+		if (pParent == null || pLevel < 0) {
 			return null;
 		}
 
@@ -472,7 +474,7 @@ public class TreeData implements Comparable<TreeData> {
 	@Override
 	public String toString() {
 		if (pLine != -1) {
-			return pText + " (" + pLine + ") - " + pNodeID;
+			return pText + " (" + pLine + ")";
 		}
 
 		return pText;
