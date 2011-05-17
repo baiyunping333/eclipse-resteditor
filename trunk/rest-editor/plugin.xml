@@ -146,5 +146,12 @@
             value="73,116,230">
       </colorDefinition>
    </extension>
+   <extension
+         point="org.eclipse.help.toc">
+         <toc
+               file="help_toc.xml"
+               primary="true">
+         </toc>
+   </extension>
 
 </plugin>

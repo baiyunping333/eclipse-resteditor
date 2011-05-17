@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="stylesheet" href="style.css" type="text/css" media="screen" />
+<title>ReST Editor configuration</title>
+</head>
+<body>
+<h1>ReST Editor configuration</h1>
+
+<h2>Editor preferences</h2>
+<p>The editor must be re-opened to apply preferences.</p>
+
+<h3>Save actions</h3>
+<p>ReST Editor is currently able to perform some actions when the document is saved.
+You can enable or disable them using the preferences page :</p>
+<ul>
+<li>Format on save : formats complex elements (Section markers, grid tables) in order to obtain a valid ReST file</li>
+<li>Trim lines on save : delete blank spaces at the end of standard text lines. Other lines (source blocks, ...) are not modified</li>
+<li>Modify section markers on save : change all sections markers in the document to correspond to the preferred ones
+	<ul>
+	<li>Preferred section markers order : preferred section markers. The first one corresponds to the top level in the document.
+	It is highly recommended to have at least 6 preferred markers.
+	</li>
+	</ul>
+</li>
+</ul>
+
+<h3>Tabulations treatment</h3>
+<ul>
+<li>Tab length : the tab length to be used for display and tab to spaces operations</li>
+<li>Insert spaces instead of tabs : automatically transform tabulation into spaces</li>
+</ul>
+
+<h3>Line wrapping</h3>
+<p>Under development.</p>
+<p>Currently allows 2 wrap modes : None (doing nothing) or Hard (inserting end of line sequences) and allows to set the maximum line length when using the Hard mode.</p>
+<p>The Soft mode is the SWT Text widget wrap mode : no configuration is available and
+displayed line numbers are not valid.</p>
+
+<h3>Spell checking</h3>
+<p>ReST Editor has been developed to be used with the
+<a href="http://code.google.com/p/hunspell4eclipse/">Hunspell4Eclipse</a> plug-in.</p>
+<p>The editor doesn't work with the Java spelling service (provided by the JDT)</p>
+
+<h2>Run configuration</h2>
+<p>This plug-in provides a run configuration to generate easily your document using the Makefile
+(under Unix-like systems) or the make.bat file.</p>
+<p>Sphinx must be properly installed on the system to use this run configuration. If it is not
+in the PATH, use the environment tab to set up the PATH (path to the sphinx-build directory) variable
+or the SPHINXBUILD (complete sphinx-build path) variable</p>
+
+<h3>Main tab</h3>
+<p>Here you can choose the Makefile directory to be used while running the configuration, the
+Sphinx output formats and where to find the make command (on Unix-like systems).</p>
+
+<h3>Common tab</h3>
+<p>Common run configuration options. You may not need to use it.</p>
+
+<h3>Environment tab</h3>
+<p>This tab allows you to configure the process environment to use when the configuration is executed.</p>
+<p>You can set up the PATH variable to define where to find the sphinx-build script, or any other
+variable your Sphinx configuration script may use.</p>
+
+</body>
+</html>
