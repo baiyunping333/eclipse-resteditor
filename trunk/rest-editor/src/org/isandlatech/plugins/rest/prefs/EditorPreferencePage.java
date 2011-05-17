@@ -19,6 +19,7 @@ import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.texteditor.spelling.SpellingEngineDescriptor;
 import org.eclipse.ui.texteditor.spelling.SpellingService;
 import org.isandlatech.plugins.rest.RestPlugin;
+import org.isandlatech.plugins.rest.editor.linewrap.LineWrapUtil;
 import org.isandlatech.plugins.rest.editor.providers.IThemeConstants;
 import org.isandlatech.plugins.rest.i18n.Messages;
 import org.osgi.service.prefs.BackingStoreException;
@@ -33,6 +34,12 @@ public class EditorPreferencePage extends FieldEditorPreferencePage implements
 
 	/** Formatting on file save activation */
 	private BooleanFieldEditor pFormatOnSave;
+
+	/** Maximum line length before wrapping */
+	private IntegerFieldEditor pLineWrapLength;
+
+	/** Active line wrap mode */
+	private ComboFieldEditor pLineWrapMode;
 
 	/** Reset section markers on save */
 	private BooleanFieldEditor pResetMarkersOnsave;
@@ -106,6 +113,18 @@ public class EditorPreferencePage extends FieldEditorPreferencePage implements
 				Messages.getString("preferences.tab.tospace"), parent);
 		addField(pTabsToSpaceField);
 
+		/* Line wrap */
+		pLineWrapMode = new ComboFieldEditor(
+				IEditorPreferenceConstants.EDITOR_LINEWRAP_MODE,
+				Messages.getString("preferences.wrap.mode"),
+				prepareLineWrapEntries(), parent);
+		addField(pLineWrapMode);
+
+		pLineWrapLength = new IntegerFieldEditor(
+				IEditorPreferenceConstants.EDITOR_LINEWRAP_LENGTH,
+				Messages.getString("preferences.wrap.length"), parent);
+		addField(pLineWrapLength);
+
 		/* Separator */
 		new Label(parent, SWT.SEPARATOR | SWT.HORIZONTAL);
 
@@ -171,6 +190,24 @@ public class EditorPreferencePage extends FieldEditorPreferencePage implements
 			i++;
 		}
 		return descriptorsNames;
+	}
+
+	private String[][] prepareLineWrapEntries() {
+
+		LineWrapUtil.LineWrapMode[] wrapModes = LineWrapUtil.LineWrapMode
+				.values();
+		String[][] comboEntries = new String[wrapModes.length][2];
+
+		int i = 0;
+		for (LineWrapUtil.LineWrapMode mode : wrapModes) {
+			comboEntries[i][0] = Messages.getString("preferences.wrap.mode."
+					+ mode.toString());
+			comboEntries[i][1] = mode.toString();
+
+			i++;
+		}
+
+		return comboEntries;
 	}
 
 	/**

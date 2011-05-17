@@ -41,6 +41,7 @@ import org.isandlatech.plugins.rest.RestPlugin;
 import org.isandlatech.plugins.rest.editor.formatters.DefaultTextFormattingStrategy;
 import org.isandlatech.plugins.rest.editor.formatters.GridTableFormattingStrategy;
 import org.isandlatech.plugins.rest.editor.formatters.SectionFormattingStrategy;
+import org.isandlatech.plugins.rest.editor.linewrap.HardLineWrapAutoEdit;
 import org.isandlatech.plugins.rest.editor.outline.OutlineUtil;
 import org.isandlatech.plugins.rest.editor.outline.RestContentOutlinePage;
 import org.isandlatech.plugins.rest.editor.providers.RuleProvider;
@@ -106,6 +107,7 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 
 		List<IAutoEditStrategy> strategies = new ArrayList<IAutoEditStrategy>(2);
 		strategies.add(new DefaultIndentLineAutoEditStrategy());
+		strategies.add(new HardLineWrapAutoEdit());
 
 		if (pPreferenceStore
 				.getBoolean(IEditorPreferenceConstants.EDITOR_TABS_TO_SPACES)) {

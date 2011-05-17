@@ -1,0 +1,133 @@
+/**
+ * File:   LineWrapUtils.java
+ * Author: Thomas Calmant
+ * Date:   17 mai 2011
+ */
+package org.isandlatech.plugins.rest.editor.linewrap;
+
+import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.TextUtilities;
+import org.isandlatech.plugins.rest.RestPlugin;
+import org.isandlatech.plugins.rest.prefs.IEditorPreferenceConstants;
+
+/**
+ * Line wrapping utility class
+ * 
+ * @author Thomas Calmant
+ */
+public class LineWrapUtil {
+
+	/**
+	 * Line wrap modes definition
+	 * 
+	 * @author Thomas Calmant
+	 */
+	public enum LineWrapMode {
+		/** No wrapping */
+		NONE,
+		/** Virtual wrapping (text view only) */
+		SOFT,
+		/** Hard wrapping (end of line sequences added) */
+		HARD,
+	}
+
+	/** Minimal line length, under which no wrapping may be done */
+	public static final int MINIMAL_LINE_LENGTH = 10;
+
+	/** Lien wrap utility singleton */
+	private static LineWrapUtil sSingleton;
+
+	/**
+	 * Grabs an instance of the utility singleton
+	 * 
+	 * @return An instance of LineWrapUtil
+	 */
+	public static LineWrapUtil getInstance() {
+		if (sSingleton == null) {
+			sSingleton = new LineWrapUtil();
+		}
+
+		return sSingleton;
+	}
+
+	/** Plug-in preference store */
+	private IPreferenceStore pPreferenceStore;
+
+	/**
+	 * Stores an instance to the preference store
+	 */
+	private LineWrapUtil() {
+		pPreferenceStore = RestPlugin.getDefault().getPreferenceStore();
+	}
+
+	/**
+	 * Retrieves the maximum length of a line before it gets wrapped. The
+	 * minimum value accepted is {@link #MINIMAL_LINE_LENGTH} =
+	 * {@value #MINIMAL_LINE_LENGTH}
+	 * 
+	 * @return The maximum length of a line
+	 */
+	public int getMaxLineLength() {
+
+		int maxLen = pPreferenceStore
+				.getInt(IEditorPreferenceConstants.EDITOR_LINEWRAP_LENGTH);
+
+		if (maxLen <= MINIMAL_LINE_LENGTH) {
+			maxLen = pPreferenceStore
+					.getDefaultInt(IEditorPreferenceConstants.EDITOR_LINEWRAP_LENGTH);
+		}
+
+		return Math.max(maxLen, MINIMAL_LINE_LENGTH);
+	}
+
+	/**
+	 * Hards wrap the current line if its length goes over the preferred limit
+	 * 
+	 * @param aDocument
+	 *            Currently edited document
+	 * @param aCommand
+	 *            Document customization command
+	 * @return The number of characters added to the document
+	 * 
+	 * @throws BadLocationException
+	 *             Document command gives out of bound values
+	 */
+	public int hardWrapLine(final IDocument aDocument, final int aOffset)
+			throws BadLocationException {
+
+		final String endOfLine = TextUtilities
+				.getDefaultLineDelimiter(aDocument);
+
+		final int maxLen = getMaxLineLength();
+
+		int nbNewLines = 0;
+		int line = aDocument.getLineOfOffset(aOffset);
+		int lineOffset = aDocument.getLineOffset(line);
+		int lineLen = aDocument.getLineLength(line);
+
+		if (lineLen < maxLen) {
+			return 0;
+		}
+
+		String beforeNewEnd;
+		String afterNewEnd;
+		do {
+			final String oldLineContent = aDocument.get(lineOffset, lineLen);
+			beforeNewEnd = oldLineContent.substring(0, maxLen);
+			afterNewEnd = oldLineContent.substring(maxLen);
+
+			aDocument.replace(lineOffset, lineLen, beforeNewEnd + endOfLine
+					+ afterNewEnd);
+
+			nbNewLines++;
+			line++;
+			lineOffset = aDocument.getLineOffset(line);
+			lineLen = aDocument.getLineLength(line);
+
+		} while (lineLen > maxLen);
+
+		return nbNewLines * endOfLine.length();
+	}
+}
