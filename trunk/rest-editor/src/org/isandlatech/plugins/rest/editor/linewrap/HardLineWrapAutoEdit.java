@@ -5,6 +5,8 @@
  */
 package org.isandlatech.plugins.rest.editor.linewrap;
 
+import net.sourceforge.texlipse.editor.HardLineWrap;
+
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentCommand;
 import org.eclipse.jface.text.IAutoEditStrategy;
@@ -14,6 +16,8 @@ import org.eclipse.jface.text.IDocument;
  * @author Thomas Calmant
  */
 public class HardLineWrapAutoEdit implements IAutoEditStrategy {
+
+	private HardLineWrap pWrapper = new HardLineWrap();
 
 	/*
 	 * (non-Javadoc)
@@ -38,7 +42,9 @@ public class HardLineWrapAutoEdit implements IAutoEditStrategy {
 	}
 
 	/**
-	 * Hards wrap the current line if its length goes over the preferred limit
+	 * Hards wrap the current line if its length goes over the preferred limit.
+	 * 
+	 * Inspired by Texlipse hard line wrap.
 	 * 
 	 * @param aDocument
 	 *            Currently edited document
@@ -50,13 +56,6 @@ public class HardLineWrapAutoEdit implements IAutoEditStrategy {
 	private void wrapLine(final IDocument aDocument,
 			final DocumentCommand aCommand) throws BadLocationException {
 
-		int modifLen = LineWrapUtil.getInstance().hardWrapLine(aDocument,
-				aCommand.offset);
-
-		if (modifLen == 0) {
-			aCommand.doit = false;
-		} else {
-			aCommand.offset += modifLen;
-		}
+		pWrapper.doWrapB(aDocument, aCommand);
 	}
 }

@@ -8,6 +8,7 @@ package org.isandlatech.plugins.rest.editor.linewrap;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.TextUtilities;
 import org.isandlatech.plugins.rest.RestPlugin;
 import org.isandlatech.plugins.rest.prefs.IEditorPreferenceConstants;
@@ -63,6 +64,25 @@ public class LineWrapUtil {
 	}
 
 	/**
+	 * Tests if the given text contains a line delimiter. Based on
+	 * {@link TextUtilities#DELIMITERS}
+	 * 
+	 * @param aText
+	 *            Text to be tested
+	 * @return True if the text contains a line delimiter, else false
+	 */
+	public boolean containsLineDelimiter(final String aText) {
+
+		for (String delimiter : TextUtilities.DELIMITERS) {
+			if (aText.contains(delimiter)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * Retrieves the maximum length of a line before it gets wrapped. The
 	 * minimum value accepted is {@link #MINIMAL_LINE_LENGTH} =
 	 * {@value #MINIMAL_LINE_LENGTH}
@@ -83,7 +103,9 @@ public class LineWrapUtil {
 	}
 
 	/**
-	 * Hards wrap the current line if its length goes over the preferred limit
+	 * Hards wrap the current line if its length goes over the preferred limit.
+	 * 
+	 * Inspired by Texlipse hard line wrap.
 	 * 
 	 * @param aDocument
 	 *            Currently edited document
@@ -97,37 +119,47 @@ public class LineWrapUtil {
 	public int hardWrapLine(final IDocument aDocument, final int aOffset)
 			throws BadLocationException {
 
-		final String endOfLine = TextUtilities
-				.getDefaultLineDelimiter(aDocument);
+		// Get the line
+		IRegion commandRegion = aDocument.getLineInformationOfOffset(aOffset);
 
-		final int maxLen = getMaxLineLength();
+		System.out.println("Region : " + commandRegion);
+		System.out.println("Region text : '"
+				+ aDocument.get(commandRegion.getOffset(),
+						commandRegion.getLength()) + "'");
 
-		int nbNewLines = 0;
-		int line = aDocument.getLineOfOffset(aOffset);
-		int lineOffset = aDocument.getLineOffset(line);
-		int lineLen = aDocument.getLineLength(line);
+		return 0;
 
-		if (lineLen < maxLen) {
-			return 0;
-		}
-
-		String beforeNewEnd;
-		String afterNewEnd;
-		do {
-			final String oldLineContent = aDocument.get(lineOffset, lineLen);
-			beforeNewEnd = oldLineContent.substring(0, maxLen);
-			afterNewEnd = oldLineContent.substring(maxLen);
-
-			aDocument.replace(lineOffset, lineLen, beforeNewEnd + endOfLine
-					+ afterNewEnd);
-
-			nbNewLines++;
-			line++;
-			lineOffset = aDocument.getLineOffset(line);
-			lineLen = aDocument.getLineLength(line);
-
-		} while (lineLen > maxLen);
-
-		return nbNewLines * endOfLine.length();
+		// final String endOfLine = TextUtilities
+		// .getDefaultLineDelimiter(aDocument);
+		//
+		// final int maxLen = getMaxLineLength();
+		//
+		// int nbNewLines = 0;
+		// int line = aDocument.getLineOfOffset(aOffset);
+		// int lineOffset = aDocument.getLineOffset(line);
+		// int lineLen = aDocument.getLineLength(line);
+		//
+		// if (lineLen < maxLen) {
+		// return 0;
+		// }
+		//
+		// String beforeNewEnd;
+		// String afterNewEnd;
+		// do {
+		// final String oldLineContent = aDocument.get(lineOffset, lineLen);
+		// beforeNewEnd = oldLineContent.substring(0, maxLen);
+		// afterNewEnd = oldLineContent.substring(maxLen);
+		//
+		// aDocument.replace(lineOffset, lineLen, beforeNewEnd + endOfLine
+		// + afterNewEnd);
+		//
+		// nbNewLines++;
+		// line++;
+		// lineOffset = aDocument.getLineOffset(line);
+		// lineLen = aDocument.getLineLength(line);
+		//
+		// } while (lineLen > maxLen);
+		//
+		// return nbNewLines * endOfLine.length();
 	}
 }
