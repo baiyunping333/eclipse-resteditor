@@ -7,7 +7,12 @@ package org.isandlatech.plugins.rest.editor;
 
 import java.util.ResourceBundle;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.source.ISourceViewer;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.texteditor.ContentAssistAction;
 import org.eclipse.ui.texteditor.ITextEditorActionConstants;
@@ -55,12 +60,24 @@ public class RestEditor extends TextEditor {
 	}
 
 	@Override
+	public void createPartControl(final Composite parent) {
+		super.createPartControl(parent);
+		updateConfigurationDocument();
+	}
+
+	@Override
 	public void dispose() {
 		if (pOutlinePage != null) {
 			pOutlinePage.dispose();
 		}
 
 		super.dispose();
+	}
+
+	@Override
+	protected void doSetInput(final IEditorInput input) throws CoreException {
+		super.doSetInput(input);
+		updateConfigurationDocument();
 	}
 
 	@Override
@@ -136,6 +153,20 @@ public class RestEditor extends TextEditor {
 		pConfiguration.onEditorPerformSave(getSourceViewer());
 
 		super.performSaveAs(aProgressMonitor);
+	}
+
+	/**
+	 * Updates the document instance in the configuration, if needed.
+	 */
+	private void updateConfigurationDocument() {
+
+		ISourceViewer viewer = getSourceViewer();
+		if (viewer != null) {
+			IDocument document = viewer.getDocument();
+			if (document != null) {
+				pConfiguration.setDocument(document);
+			}
+		}
 	}
 
 	/**

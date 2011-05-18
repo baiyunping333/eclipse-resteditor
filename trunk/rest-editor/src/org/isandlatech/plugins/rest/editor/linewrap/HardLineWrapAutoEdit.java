@@ -5,19 +5,41 @@
  */
 package org.isandlatech.plugins.rest.editor.linewrap;
 
+import java.util.Arrays;
+
 import net.sourceforge.texlipse.editor.HardLineWrap;
 
 import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.BadPositionCategoryException;
+import org.eclipse.jface.text.DefaultPositionUpdater;
 import org.eclipse.jface.text.DocumentCommand;
 import org.eclipse.jface.text.IAutoEditStrategy;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IPositionUpdater;
 
 /**
+ * Modifies the document content to avoid lines above a preferred length
+ * 
  * @author Thomas Calmant
  */
 public class HardLineWrapAutoEdit implements IAutoEditStrategy {
 
-	private HardLineWrap pWrapper = new HardLineWrap();
+	/** Category of the positions that indicates hard wrapped lines */
+	public static final String WRAP_POSITION_CATEGORY = "ReST_Editor_line_wrap_";
+
+	/** Document position updater */
+	private final IPositionUpdater pPositionUpdater;
+
+	/** Modified Texlipse line wrapper */
+	private final HardLineWrap pWrapper;
+
+	/**
+	 * Prepares members : line wrapper and position updater
+	 */
+	public HardLineWrapAutoEdit() {
+		pWrapper = new HardLineWrap();
+		pPositionUpdater = new DefaultPositionUpdater(WRAP_POSITION_CATEGORY);
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -42,6 +64,29 @@ public class HardLineWrapAutoEdit implements IAutoEditStrategy {
 	}
 
 	/**
+	 * Prepares the position category for the given document
+	 * 
+	 * @param aDocument
+	 *            Document to set up
+	 */
+	public void setupPositionCategory(final IDocument aDocument) {
+
+		// Adds the position category
+		if (!aDocument.containsPositionCategory(WRAP_POSITION_CATEGORY)) {
+			aDocument.addPositionCategory(WRAP_POSITION_CATEGORY);
+		}
+
+		// Set the position updater, if needed
+		for (IPositionUpdater updater : aDocument.getPositionUpdaters()) {
+			if (pPositionUpdater.equals(updater)) {
+				return;
+			}
+		}
+
+		aDocument.addPositionUpdater(pPositionUpdater);
+	}
+
+	/**
 	 * Hards wrap the current line if its length goes over the preferred limit.
 	 * 
 	 * Inspired by Texlipse hard line wrap.
@@ -56,6 +101,14 @@ public class HardLineWrapAutoEdit implements IAutoEditStrategy {
 	private void wrapLine(final IDocument aDocument,
 			final DocumentCommand aCommand) throws BadLocationException {
 
-		pWrapper.doWrapB(aDocument, aCommand);
+		pWrapper.doLineWrap(aDocument, aCommand, WRAP_POSITION_CATEGORY);
+
+		try {
+			System.out.println("Positions : "
+					+ Arrays.toString(aDocument
+							.getPositions(WRAP_POSITION_CATEGORY)));
+		} catch (BadPositionCategoryException e) {
+			e.printStackTrace();
+		}
 	}
 }

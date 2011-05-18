@@ -68,17 +68,26 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 	/** Content pAssistant */
 	private ContentAssistant pAssistant = null;
 
+	/** Auto indent strategy */
+	private DefaultIndentLineAutoEditStrategy pAutoEditIndent;
+
+	/** Auto line wrapping strategy */
+	private HardLineWrapAutoEdit pAutoEditLineWrap;
+
+	/** Auto conversion from tabs to spaces */
+	private TabsToSpacesConverter pAutoEditTabsToSpace;
+
 	/** Document formatter */
 	private ContentFormatter pDocFormatter = null;
 
 	/** ReST document token scanner */
 	private RestScanner pDocScanner = null;
 
+	/** Parent editor */
+	private final RestEditor pEditor;
+
 	/** Preference store */
 	private IPreferenceStore pPreferenceStore = null;
-
-	/** Parent editor */
-	private RestEditor pEditor;
 
 	/** Scanner rule provider */
 	private RuleProvider pRuleProvider = null;
@@ -105,19 +114,30 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 	public IAutoEditStrategy[] getAutoEditStrategies(
 			final ISourceViewer aSourceViewer, final String aContentType) {
 
-		List<IAutoEditStrategy> strategies = new ArrayList<IAutoEditStrategy>(2);
-		strategies.add(new DefaultIndentLineAutoEditStrategy());
-		strategies.add(new HardLineWrapAutoEdit());
+		if (pAutoEditIndent == null) {
+			pAutoEditIndent = new DefaultIndentLineAutoEditStrategy();
+		}
+
+		if (pAutoEditLineWrap == null) {
+			pAutoEditLineWrap = new HardLineWrapAutoEdit();
+		}
+
+		List<IAutoEditStrategy> strategies = new ArrayList<IAutoEditStrategy>(3);
+		strategies.add(pAutoEditIndent);
+		strategies.add(pAutoEditLineWrap);
 
 		if (pPreferenceStore
 				.getBoolean(IEditorPreferenceConstants.EDITOR_TABS_TO_SPACES)) {
 
 			// Automatic tabs to space conversion
-			TabsToSpacesConverter tabs2spaces = new TabsToSpacesConverter();
-			tabs2spaces.setNumberOfSpacesPerTab(getTabWidth(aSourceViewer));
-			tabs2spaces.setLineTracker(new DefaultLineTracker());
+			if (pAutoEditTabsToSpace == null) {
+				pAutoEditTabsToSpace = new TabsToSpacesConverter();
+				pAutoEditTabsToSpace
+						.setNumberOfSpacesPerTab(getTabWidth(aSourceViewer));
+				pAutoEditTabsToSpace.setLineTracker(new DefaultLineTracker());
+			}
 
-			strategies.add(tabs2spaces);
+			strategies.add(pAutoEditTabsToSpace);
 		}
 
 		return strategies.toArray(new IAutoEditStrategy[0]);
@@ -408,6 +428,21 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 			// Reset point location
 			aSourceViewer
 					.setSelectedRange(currentLocation.x, currentLocation.y);
+		}
+	}
+
+	/**
+	 * Sets the document associated to the viewer configuration.
+	 * 
+	 * Updates the line wrapper, if needed.
+	 * 
+	 * @param aDocument
+	 *            Document associated to the source viewer
+	 */
+	public void setDocument(final IDocument aDocument) {
+
+		if (pAutoEditLineWrap != null) {
+			pAutoEditLineWrap.setupPositionCategory(aDocument);
 		}
 	}
 }

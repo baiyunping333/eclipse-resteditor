@@ -32,10 +32,12 @@ public class HardLineWrap {
 	/**
 	 * New line wrapping strategy. The actual wrapping method. Based on the
 	 * <code>IDocument d</code> and <code>DocumentCommand c</code> the method
-	 * determines how the line must be wrapped. <p> If there is more than
-	 * <code>MAX_LENGTH</code> characters at the line, the method tries to
-	 * detect the last white space before <code> MAX_LENGTH</code>. In case
-	 * there is none, the method finds the first white space after <code>
+	 * determines how the line must be wrapped.
+	 * <p>
+	 * If there is more than <code>MAX_LENGTH</code> characters at the line, the
+	 * method tries to detect the last white space before
+	 * <code> MAX_LENGTH</code>. In case there is none, the method finds the
+	 * first white space after <code>
 	 * MAX_LENGTH</code>. Normally it adds the rest of the currentline to the
 	 * next line. Exceptions are empty lines, commandlines, commentlines, and
 	 * special lines like \\ or \[.
@@ -44,9 +46,11 @@ public class HardLineWrap {
 	 *            Modified document
 	 * @param aCommand
 	 *            Applied modification
+	 * @param aPositionCategory
+	 *            Category to be used for forced new lines information
 	 */
-	public void doWrapB(final IDocument aDocument,
-			final DocumentCommand aCommand) {
+	public boolean doLineWrap(final IDocument aDocument,
+			final DocumentCommand aCommand, final String aPositionCategory) {
 
 		final int maxLineLength = LineWrapUtil.getInstance().getMaxLineLength();
 		final int suppressionLength = aCommand.length;
@@ -61,7 +65,7 @@ public class HardLineWrap {
 			if (isInsertion
 					&& (commandRegion.getLength() + aCommand.text.length() <= maxLineLength || LineWrapUtil
 							.getInstance().containsLineDelimiter(aCommand.text))) {
-				return;
+				return false;
 			}
 
 			// Get modified document line informations
@@ -75,6 +79,13 @@ public class HardLineWrap {
 
 			final int offsetOnLine = aCommand.offset
 					- commandRegion.getOffset();
+
+			// Special case : we are deleting the end of line
+			if (offsetOnLine + suppressionLength >= docLine.length()
+					&& !isInsertion) {
+				// TODO forget line
+				return false;
+			}
 
 			// Create the newLine, we rewrite the whole current line
 			StringBuffer newLineBuf = new StringBuffer();
@@ -95,7 +106,7 @@ public class HardLineWrap {
 			// Special case if there are white spaces at the end of the line
 			if (isInsertion
 					&& rtrim(newLineBuf.toString()).length() <= maxLineLength) {
-				return;
+				return false;
 			}
 
 			String delim = generateLineDelimiter(aDocument, docLineNumber);
@@ -126,7 +137,7 @@ public class HardLineWrap {
 
 			int breakpos = getLineBreakPosition(newLine, maxLineLength);
 			if (breakpos < 0) {
-				return;
+				return false;
 			}
 
 			aCommand.length = docLineLength;
@@ -170,10 +181,13 @@ public class HardLineWrap {
 			}
 
 			aCommand.text = buf.toString();
+			return true;
 
 		} catch (BadLocationException e) {
 			DebugPlugin.logMessage("Problem with hard line wrap", e);
 		}
+
+		return false;
 	}
 
 	/**
