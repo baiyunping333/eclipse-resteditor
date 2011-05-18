@@ -49,6 +49,8 @@ public class HardLineWrap {
 			final DocumentCommand aCommand) {
 
 		final int maxLineLength = LineWrapUtil.getInstance().getMaxLineLength();
+		final int suppressionLength = aCommand.length;
+		final boolean isInsertion = (suppressionLength == 0);
 
 		try {
 			// Get the line of the command excluding delimiter
@@ -56,17 +58,21 @@ public class HardLineWrap {
 					.getLineInformationOfOffset(aCommand.offset);
 
 			// Ignore texts with line endings
-			if (commandRegion.getLength() + aCommand.text.length() <= maxLineLength
-					|| LineWrapUtil.getInstance().containsLineDelimiter(
-							aCommand.text)) {
+			if (isInsertion
+					&& (commandRegion.getLength() + aCommand.text.length() <= maxLineLength || LineWrapUtil
+							.getInstance().containsLineDelimiter(aCommand.text))) {
 				return;
 			}
 
+			// Get modified document line informations
 			String docLine = aDocument.get(commandRegion.getOffset(),
 					commandRegion.getLength());
 			int docLineLength = docLine.length();
 
 			int docLineNumber = aDocument.getLineOfOffset(aCommand.offset);
+			final boolean isLastLine = (docLineNumber == aDocument
+					.getNumberOfLines());
+
 			final int offsetOnLine = aCommand.offset
 					- commandRegion.getOffset();
 
@@ -74,28 +80,25 @@ public class HardLineWrap {
 			StringBuffer newLineBuf = new StringBuffer();
 
 			newLineBuf.append(docLine.substring(0, offsetOnLine));
-			newLineBuf.append(aCommand.text);
-			newLineBuf.append(rtrim(docLine.substring(offsetOnLine)));
+
+			if (isInsertion) {
+				// Insert new text at given offset
+				newLineBuf.append(aCommand.text);
+				newLineBuf.append(rtrim(docLine.substring(offsetOnLine)));
+
+			} else {
+				// Skip deleted sub-section
+				newLineBuf.append(rtrim(docLine.substring(offsetOnLine
+						+ suppressionLength)));
+			}
 
 			// Special case if there are white spaces at the end of the line
-			if (rtrim(newLineBuf.toString()).length() <= maxLineLength) {
-				System.out.println("No need to wrap : white spaces...");
+			if (isInsertion
+					&& rtrim(newLineBuf.toString()).length() <= maxLineLength) {
 				return;
 			}
 
-			String delim = aDocument.getLineDelimiter(docLineNumber);
-			boolean isLastLine = false;
-			if (delim == null) {
-				// This is the last line in the document
-				isLastLine = true;
-				if (docLineNumber > 0) {
-					delim = aDocument.getLineDelimiter(docLineNumber - 1);
-				} else {
-					// Last chance
-					String delims[] = aDocument.getLegalLineDelimiters();
-					delim = delims[0];
-				}
-			}
+			String delim = generateLineDelimiter(aDocument, docLineNumber);
 
 			// Conserve indentation
 			String indent = getIndentation(docLine);
@@ -174,6 +177,35 @@ public class HardLineWrap {
 	}
 
 	/**
+	 * Retrieves the given line delimiter, or the document default one if not
+	 * readable
+	 * 
+	 * @param aDocument
+	 *            Document to use
+	 * @param aLineNumber
+	 *            Line number in document
+	 * @return The line delimiter (not null)
+	 * @throws BadLocationException
+	 *             The line is outside the document
+	 */
+	public String generateLineDelimiter(final IDocument aDocument,
+			final int aLineNumber) throws BadLocationException {
+
+		String delim = aDocument.getLineDelimiter(aLineNumber);
+		if (delim == null) {
+			// This is the last line in the document
+			if (aLineNumber > 0) {
+				delim = aDocument.getLineDelimiter(aLineNumber - 1);
+			} else {
+				// Last chance
+				TextUtilities.getDefaultLineDelimiter(aDocument);
+			}
+		}
+
+		return delim;
+	}
+
+	/**
 	 * Returns the indentation of the given string
 	 * 
 	 * @param aText
@@ -222,13 +254,10 @@ public class HardLineWrap {
 			line = aDocument.get(lineInfo.getOffset(), lineInfo.getLength());
 
 			// Remove trailing delimiter, if needed
-			if (!aIncludeDelimiters) {
-				int delimIndex = TextUtilities.endsWith(
-						TextUtilities.DELIMITERS, line);
-
-				if (delimIndex >= 0) {
-					line = line.substring(0, line.length()
-							- TextUtilities.DELIMITERS[delimIndex].length());
+			if (aIncludeDelimiters) {
+				String delim = aDocument.getLineDelimiter(aLineNumber);
+				if (delim != null) {
+					line = line + delim;
 				}
 			}
 
