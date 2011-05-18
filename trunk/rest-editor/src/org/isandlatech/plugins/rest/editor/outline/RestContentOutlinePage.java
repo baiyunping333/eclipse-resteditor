@@ -5,11 +5,16 @@
  */
 package org.isandlatech.plugins.rest.editor.outline;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -33,6 +38,9 @@ public class RestContentOutlinePage extends ContentOutlinePage {
 	/** Parent ReST source editor */
 	private RestEditor pParentEditor;
 
+	/** Selection normalization activation */
+	private boolean pNormalize;
+
 	/**
 	 * Configures the outline page
 	 * 
@@ -48,6 +56,47 @@ public class RestContentOutlinePage extends ContentOutlinePage {
 		pDocumentProvider = aDocumentProvider;
 		pParentEditor = aParentEditor;
 		pContentProvider = new SectionContentProvider(this);
+		pNormalize = true;
+	}
+
+	/**
+	 * Collects all nodes with an ID within aFirst and a aLast (included)
+	 * 
+	 * @param aNode
+	 *            Base node to search in
+	 * @param aFirst
+	 *            First ID to collect
+	 * @param aLast
+	 *            Last ID to collect
+	 * @param aCurrentList
+	 *            Growing list containing searched nodes
+	 * @return True on full success (all nodes were found), else false
+	 */
+	private boolean collectNodes(final TreeData aNode, final int aFirst,
+			final int aLast, final List<TreeData> aCurrentList) {
+
+		int nodeId = aNode.getId();
+
+		// Add the current if it is in the selection range
+		if (nodeId >= aFirst && nodeId <= aLast) {
+			aCurrentList.add(aNode);
+		}
+
+		// Stop the recursion if we found the last one
+		if (nodeId == aLast) {
+			return true;
+		}
+
+		// Continue to children...
+		for (TreeData child : aNode.getChildrenArray()) {
+
+			// Stop on the first child who stopped
+			if (collectNodes(child, aFirst, aLast, aCurrentList)) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/*
@@ -114,6 +163,42 @@ public class RestContentOutlinePage extends ContentOutlinePage {
 		return super.getTreeViewer();
 	}
 
+	@SuppressWarnings("unchecked")
+	private void normalizeSelection(
+			final IStructuredSelection aStructuredSelection) {
+
+		List<TreeData> oldSelection = aStructuredSelection.toList();
+
+		// Be sure we have the good order...
+		Collections.sort(oldSelection);
+
+		TreeData firstNode = oldSelection.get(0);
+		TreeData lastNode = oldSelection.get(oldSelection.size() - 1);
+
+		int distance = lastNode.getId() - firstNode.getId();
+
+		// Selection complete, no work to do
+		if (distance == oldSelection.size() - 1) {
+			return;
+		}
+
+		// List all nodes between those two ones
+		List<TreeData> newSelectionContent = new ArrayList<TreeData>(distance);
+
+		if (!collectNodes(pContentProvider.getRoot(), firstNode.getId(),
+				lastNode.getId(), newSelectionContent)) {
+			// Not all nodes were found
+			return;
+		}
+
+		if (newSelectionContent.size() > oldSelection.size()) {
+
+			StructuredSelection newSelection = new StructuredSelection(
+					newSelectionContent);
+			setSelection(newSelection);
+		}
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -125,7 +210,7 @@ public class RestContentOutlinePage extends ContentOutlinePage {
 	public void selectionChanged(final SelectionChangedEvent aEvent) {
 		super.selectionChanged(aEvent);
 
-		ISelection selection = aEvent.getSelection();
+		ISelection selection = getSelection();
 		if (selection.isEmpty()) {
 			pParentEditor.resetHighlightRange();
 
@@ -140,8 +225,17 @@ public class RestContentOutlinePage extends ContentOutlinePage {
 			pParentEditor.setHighlightRange(sectionRegion.getOffset(),
 					sectionRegion.getLength(), true);
 
-			pParentEditor.selectAndReveal(sectionRegion.getOffset(), 0);
+			pParentEditor.selectAndReveal(selectedElement.getLineOffset(), 0);
+
+			// Make the selection contiguous
+			if (pNormalize) {
+				normalizeSelection(structuredSelection);
+			}
 		}
+	}
+
+	public void setNormalizeSelection(final boolean aNormalize) {
+		pNormalize = aNormalize;
 	}
 
 	/**

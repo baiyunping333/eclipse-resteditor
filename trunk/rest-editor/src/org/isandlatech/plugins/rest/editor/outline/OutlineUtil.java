@@ -120,7 +120,7 @@ public class OutlineUtil {
 	 *            Section to select
 	 * @return The section title block, null on error
 	 */
-	public static IRegion getSectionBlock(final TreeData aSectionNode) {
+	public static IRegion getSectionTitleBlock(final TreeData aSectionNode) {
 
 		IDocument document = aSectionNode.getDocument();
 		if (document == null) {
@@ -216,6 +216,13 @@ public class OutlineUtil {
 
 		int sectionLevel = aSectionNode.getLevel();
 
+		// Treat children
+		TreeData[] subSections = aSectionNode.getChildrenArray();
+
+		for (int i = subSections.length - 1; i >= 0; i--) {
+			normalizeSectionsMarker(subSections[i], aMarkers);
+		}
+
 		// Ignore logical nodes (level <= 0)
 		if (sectionLevel > 0) {
 
@@ -228,13 +235,6 @@ public class OutlineUtil {
 			}
 
 			replaceSectionMarker(aSectionNode, aMarkers[sectionLevel]);
-		}
-
-		// Treat children
-		TreeData[] subSections = aSectionNode.getChildrenArray();
-
-		for (int i = subSections.length - 1; i >= 0; i--) {
-			normalizeSectionsMarker(subSections[i], aMarkers);
 		}
 	}
 
@@ -289,7 +289,7 @@ public class OutlineUtil {
 		}
 
 		// Find old section block bounds
-		IRegion sectionBlock = getSectionBlock(aSectionNode);
+		IRegion sectionBlock = getSectionTitleBlock(aSectionNode);
 		if (sectionBlock == null) {
 			return;
 		}

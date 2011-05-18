@@ -110,6 +110,12 @@ public class RestEditor extends TextEditor {
 		setSourceViewerConfiguration(pConfiguration);
 	}
 
+	/**
+	 * Do on-save operations
+	 * 
+	 * @see org.eclipse.ui.texteditor.AbstractTextEditor#performSave(boolean,
+	 *      org.eclipse.core.runtime.IProgressMonitor)
+	 */
 	@Override
 	protected void performSave(final boolean aOverwrite,
 			final IProgressMonitor aProgressMonitor) {
@@ -118,10 +124,32 @@ public class RestEditor extends TextEditor {
 		super.performSave(aOverwrite, aProgressMonitor);
 	}
 
+	/**
+	 * Do on-save operations
+	 * 
+	 * @see org.eclipse.ui.texteditor.AbstractDecoratedTextEditor#performSaveAs(org.eclipse.core.runtime.IProgressMonitor)
+	 */
 	@Override
 	protected void performSaveAs(final IProgressMonitor aProgressMonitor) {
 
+		// Perform treatments before saving the document...
 		pConfiguration.onEditorPerformSave(getSourceViewer());
+
 		super.performSaveAs(aProgressMonitor);
+	}
+
+	/**
+	 * Updates the content dependent actions and the outline page
+	 * 
+	 * @see org.eclipse.ui.texteditor.AbstractTextEditor#updateContentDependentActions()
+	 */
+	@Override
+	protected void updateContentDependentActions() {
+		super.updateContentDependentActions();
+
+		// Update outline page on content change
+		if (pOutlinePage != null) {
+			pOutlinePage.update();
+		}
 	}
 }
