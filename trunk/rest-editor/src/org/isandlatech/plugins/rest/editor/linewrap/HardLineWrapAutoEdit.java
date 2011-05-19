@@ -108,6 +108,11 @@ public class HardLineWrapAutoEdit implements IAutoEditStrategy {
 		WrapAction action = pWrapper.doLineWrap(aDocument, aCommand);
 		int line = aDocument.getLineOfOffset(aCommand.offset);
 
+		String lineContent = pWrapper.lineBlockToLine(aDocument, line);
+
+		System.out.println("Wrapped : '"
+				+ pWrapper.wrapLine(aDocument, lineContent, 20));
+
 		switch (action) {
 		case NEW_LINE:
 			pModifiedLines.add(line);

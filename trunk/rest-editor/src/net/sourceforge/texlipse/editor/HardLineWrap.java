@@ -142,7 +142,7 @@ public class HardLineWrap {
 
 			String newLine = newLineBuf.toString();
 
-			int breakpos = getLineBreakPosition(newLine, maxLineLength);
+			int breakpos = getLineBreakPosition(newLine, 0, maxLineLength);
 			if (breakpos < 0) {
 				return WrapAction.NONE;
 			}
@@ -202,6 +202,11 @@ public class HardLineWrap {
 		return WrapAction.NONE;
 	}
 
+	public WrapAction doParagraphWrap(final IDocument aDocument,
+			final int aLineNumber) {
+		return WrapAction.NONE;
+	}
+
 	/**
 	 * Retrieves the given line delimiter, or the document default one if not
 	 * readable
@@ -256,6 +261,57 @@ public class HardLineWrap {
 	}
 
 	/**
+	 * Retrieves the last line similar to the given one if
+	 * 
+	 * @param aDocument
+	 *            Document to read
+	 * @param aBaseLine
+	 *            Base search line number
+	 * @param aIndent
+	 *            Base line indentation (defines the block)
+	 * @param aDirection
+	 *            +1 or -1 : line iteration
+	 * @return The line number of the last line of the base line's block
+	 * @throws BadLocationException
+	 *             Out of bounds research
+	 */
+	protected int getLastSimilarLine(final IDocument aDocument,
+			final int aBaseLine, final String aIndent, final int aDirection)
+			throws BadLocationException {
+
+		// Block test
+		int indentLen = 0;
+		if (aIndent != null) {
+			indentLen = aIndent.length();
+		}
+
+		// Prepare upper search bound
+		int nbLines = aDocument.getNumberOfLines();
+
+		int searchLine = aBaseLine + aDirection;
+		while (searchLine >= 0 && searchLine < nbLines) {
+
+			String lineContent = getLine(aDocument, searchLine, false);
+			String indent = getIndentation(lineContent);
+
+			// Not the same indentation, stop there
+			if (indent.length() != indentLen) {
+				break;
+			}
+
+			// Line to be ignored : stop there
+			if (ignoreLine(lineContent)) {
+				break;
+			}
+
+			searchLine += aDirection;
+		}
+
+		// +1 : we started at aBaseLine - 1 (and vice-versa)
+		return searchLine - aDirection;
+	}
+
+	/**
 	 * Retrieves the given line content, with or without its end delimiter
 	 * 
 	 * @param aDocument
@@ -300,14 +356,16 @@ public class HardLineWrap {
 	 * 
 	 * @param aLine
 	 *            Line to break
+	 * @param aBaseOffset
+	 *            Search start offset
 	 * @param aMaxLineLength
 	 *            Maximum line length
 	 * @return The best position to break the line
 	 */
-	private int getLineBreakPosition(final String aLine,
+	private int getLineBreakPosition(final String aLine, final int aBaseOffset,
 			final int aMaxLineLength) {
 
-		int offset = 0;
+		int offset = aBaseOffset;
 		// Ignore indentation
 		while (offset < aLine.length()
 				&& Character.isWhitespace(aLine.charAt(offset))) {
@@ -322,6 +380,7 @@ public class HardLineWrap {
 			if (Character.isWhitespace(aLine.charAt(offset))) {
 				breakOffset = offset;
 			}
+
 			offset++;
 		}
 		return breakOffset;
@@ -336,9 +395,11 @@ public class HardLineWrap {
 	 */
 	protected boolean ignoreLine(final String aLine) {
 
-		if (aLine.length() == 0) {
+		if (aLine.trim().isEmpty()) {
 			return true;
 		}
+
+		// TODO: ignore bullets, ...
 
 		// Literal lines are ignored
 		if (aLine.startsWith(".. ")) {
@@ -346,6 +407,49 @@ public class HardLineWrap {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Converts all lines of the same block into a one-line string. Removes
+	 * indentation, line delimiters, ...
+	 * 
+	 * @param aDocument
+	 *            Document to read
+	 * @param aLineNumber
+	 *            Base line number
+	 * @return A one-line string
+	 * @throws BadLocationException
+	 *             Line number out of bounds
+	 */
+	public String lineBlockToLine(final IDocument aDocument,
+			final int aLineNumber) throws BadLocationException {
+
+		// Get base line informations
+		final String baseLineContent = getLine(aDocument, aLineNumber, false);
+		final String baseIndent = getIndentation(baseLineContent);
+
+		// Search the borders of the paragraph
+		int lineBlockBegin = getLastSimilarLine(aDocument, aLineNumber,
+				baseIndent, -1);
+
+		int lineBlockEnd = getLastSimilarLine(aDocument, aLineNumber,
+				baseIndent, +1);
+
+		// Extract line block
+		StringBuffer lineBlock = new StringBuffer();
+
+		// Keep the indentation information
+		lineBlock.append(baseIndent);
+
+		// Append all lines of the block, without the line delimiter
+		for (int i = lineBlockBegin; i <= lineBlockEnd; i++) {
+			String line = getLine(aDocument, i, false);
+			lineBlock.append(line.trim() + ' ');
+		}
+
+		// Remove last space character
+		lineBlock.deleteCharAt(lineBlock.length() - 1);
+		return lineBlock.toString();
 	}
 
 	/**
@@ -368,5 +472,35 @@ public class HardLineWrap {
 	 */
 	public String rtrim(final String aString) {
 		return aString.replaceAll("\\s+$", "");
+	}
+
+	public String wrapLine(final IDocument aDocument, final String aLine,
+			final int aMaxLen) {
+
+		// Store indentation
+		final String indent = getIndentation(aLine);
+
+		// Line delimiter
+		final String delim = TextUtilities.getDefaultLineDelimiter(aDocument);
+
+		StringBuffer wrappedLine = new StringBuffer(
+				(int) (aLine.length() * 1.2));
+
+		int breakPos = 0;
+		int oldBreakPos = 0;
+
+		while ((breakPos = getLineBreakPosition(aLine, breakPos, aMaxLen)) != -1) {
+
+			wrappedLine.append(aLine.substring(oldBreakPos, breakPos).trim());
+			wrappedLine.append(delim);
+			wrappedLine.append(indent);
+
+			oldBreakPos = breakPos;
+		}
+
+		// Append last line segment
+		wrappedLine.append(aLine.substring(oldBreakPos).trim());
+
+		return wrappedLine.toString();
 	}
 }
