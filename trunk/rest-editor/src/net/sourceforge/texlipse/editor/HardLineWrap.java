@@ -30,6 +30,15 @@ import org.isandlatech.plugins.rest.editor.linewrap.LineWrapUtil;
 public class HardLineWrap {
 
 	/**
+	 * Improved information on line wrapping treatment
+	 * 
+	 * @author Thomas Calmant
+	 */
+	public enum WrapAction {
+		LINE_DELETED, NEW_LINE, NONE
+	}
+
+	/**
 	 * New line wrapping strategy. The actual wrapping method. Based on the
 	 * <code>IDocument d</code> and <code>DocumentCommand c</code> the method
 	 * determines how the line must be wrapped.
@@ -46,11 +55,9 @@ public class HardLineWrap {
 	 *            Modified document
 	 * @param aCommand
 	 *            Applied modification
-	 * @param aPositionCategory
-	 *            Category to be used for forced new lines information
 	 */
-	public boolean doLineWrap(final IDocument aDocument,
-			final DocumentCommand aCommand, final String aPositionCategory) {
+	public WrapAction doLineWrap(final IDocument aDocument,
+			final DocumentCommand aCommand) {
 
 		final int maxLineLength = LineWrapUtil.getInstance().getMaxLineLength();
 		final int suppressionLength = aCommand.length;
@@ -65,7 +72,7 @@ public class HardLineWrap {
 			if (isInsertion
 					&& (commandRegion.getLength() + aCommand.text.length() <= maxLineLength || LineWrapUtil
 							.getInstance().containsLineDelimiter(aCommand.text))) {
-				return false;
+				return WrapAction.NONE;
 			}
 
 			// Get modified document line informations
@@ -81,10 +88,10 @@ public class HardLineWrap {
 					- commandRegion.getOffset();
 
 			// Special case : we are deleting the end of line
+			boolean movingLineUp = false;
 			if (offsetOnLine + suppressionLength >= docLine.length()
 					&& !isInsertion) {
-				// TODO forget line
-				return false;
+				movingLineUp = true;
 			}
 
 			// Create the newLine, we rewrite the whole current line
@@ -92,7 +99,7 @@ public class HardLineWrap {
 
 			newLineBuf.append(docLine.substring(0, offsetOnLine));
 
-			if (isInsertion) {
+			if (isInsertion || movingLineUp) {
 				// Insert new text at given offset
 				newLineBuf.append(aCommand.text);
 				newLineBuf.append(rtrim(docLine.substring(offsetOnLine)));
@@ -106,7 +113,7 @@ public class HardLineWrap {
 			// Special case if there are white spaces at the end of the line
 			if (isInsertion
 					&& rtrim(newLineBuf.toString()).length() <= maxLineLength) {
-				return false;
+				return WrapAction.NONE;
 			}
 
 			String delim = generateLineDelimiter(aDocument, docLineNumber);
@@ -137,7 +144,7 @@ public class HardLineWrap {
 
 			int breakpos = getLineBreakPosition(newLine, maxLineLength);
 			if (breakpos < 0) {
-				return false;
+				return WrapAction.NONE;
 			}
 
 			aCommand.length = docLineLength;
@@ -181,13 +188,18 @@ public class HardLineWrap {
 			}
 
 			aCommand.text = buf.toString();
-			return true;
+
+			if (movingLineUp && nextline.isEmpty()) {
+				return WrapAction.LINE_DELETED;
+			}
+
+			return WrapAction.NEW_LINE;
 
 		} catch (BadLocationException e) {
 			DebugPlugin.logMessage("Problem with hard line wrap", e);
 		}
 
-		return false;
+		return WrapAction.NONE;
 	}
 
 	/**

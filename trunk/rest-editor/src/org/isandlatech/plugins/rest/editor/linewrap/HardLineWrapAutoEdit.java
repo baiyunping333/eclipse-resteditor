@@ -5,12 +5,13 @@
  */
 package org.isandlatech.plugins.rest.editor.linewrap;
 
-import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 import net.sourceforge.texlipse.editor.HardLineWrap;
+import net.sourceforge.texlipse.editor.HardLineWrap.WrapAction;
 
 import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.BadPositionCategoryException;
 import org.eclipse.jface.text.DefaultPositionUpdater;
 import org.eclipse.jface.text.DocumentCommand;
 import org.eclipse.jface.text.IAutoEditStrategy;
@@ -27,6 +28,8 @@ public class HardLineWrapAutoEdit implements IAutoEditStrategy {
 	/** Category of the positions that indicates hard wrapped lines */
 	public static final String WRAP_POSITION_CATEGORY = "ReST_Editor_line_wrap_";
 
+	private final Set<Integer> pModifiedLines;
+
 	/** Document position updater */
 	private final IPositionUpdater pPositionUpdater;
 
@@ -39,6 +42,7 @@ public class HardLineWrapAutoEdit implements IAutoEditStrategy {
 	public HardLineWrapAutoEdit() {
 		pWrapper = new HardLineWrap();
 		pPositionUpdater = new DefaultPositionUpdater(WRAP_POSITION_CATEGORY);
+		pModifiedLines = new HashSet<Integer>();
 	}
 
 	/*
@@ -101,14 +105,17 @@ public class HardLineWrapAutoEdit implements IAutoEditStrategy {
 	private void wrapLine(final IDocument aDocument,
 			final DocumentCommand aCommand) throws BadLocationException {
 
-		pWrapper.doLineWrap(aDocument, aCommand, WRAP_POSITION_CATEGORY);
+		WrapAction action = pWrapper.doLineWrap(aDocument, aCommand);
+		int line = aDocument.getLineOfOffset(aCommand.offset);
 
-		try {
-			System.out.println("Positions : "
-					+ Arrays.toString(aDocument
-							.getPositions(WRAP_POSITION_CATEGORY)));
-		} catch (BadPositionCategoryException e) {
-			e.printStackTrace();
+		switch (action) {
+		case NEW_LINE:
+			pModifiedLines.add(line);
+			break;
+
+		case LINE_DELETED:
+			pModifiedLines.remove(line);
+			break;
 		}
 	}
 }
