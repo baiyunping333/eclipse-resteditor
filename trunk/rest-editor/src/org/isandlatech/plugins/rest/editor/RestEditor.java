@@ -12,6 +12,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.texteditor.ContentAssistAction;
@@ -28,8 +29,17 @@ import org.isandlatech.plugins.rest.i18n.Messages;
  */
 public class RestEditor extends TextEditor {
 
+	/** Inactivity time to wait before updating the outline */
+	public static final int ACTION_UPDATE_TIMEOUT = 500;
+
+	/** Object called by the action update timer */
+	private Runnable pActionUpdater;
+
 	/** Source viewer configuration */
 	private RestViewerConfiguration pConfiguration;
+
+	/** Dummy display to access timers */
+	private Display pDummyDisplay;
 
 	/** Outline page */
 	private RestContentOutlinePage pOutlinePage;
@@ -39,6 +49,17 @@ public class RestEditor extends TextEditor {
 	 */
 	public RestEditor() {
 		super();
+		pDummyDisplay = Display.getDefault();
+
+		// Prepare the updater
+		pActionUpdater = new Runnable() {
+
+			@Override
+			public void run() {
+				// Call the object one
+				runnableUpdateContentDependentActions();
+			}
+		};
 	}
 
 	@Override
@@ -155,6 +176,14 @@ public class RestEditor extends TextEditor {
 		super.performSaveAs(aProgressMonitor);
 	}
 
+	private void runnableUpdateContentDependentActions() {
+
+		// Update outline page on content change
+		if (pOutlinePage != null) {
+			pOutlinePage.update();
+		}
+	}
+
 	/**
 	 * Updates the document instance in the configuration, if needed.
 	 */
@@ -178,9 +207,9 @@ public class RestEditor extends TextEditor {
 	protected void updateContentDependentActions() {
 		super.updateContentDependentActions();
 
-		// Update outline page on content change
-		if (pOutlinePage != null) {
-			pOutlinePage.update();
-		}
+		// Cancel the current timer
+		pDummyDisplay.timerExec(-1, pActionUpdater);
+		// Set the "new" one
+		pDummyDisplay.timerExec(ACTION_UPDATE_TIMEOUT, pActionUpdater);
 	}
 }

@@ -124,7 +124,11 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 
 		List<IAutoEditStrategy> strategies = new ArrayList<IAutoEditStrategy>(3);
 		strategies.add(pAutoEditIndent);
-		strategies.add(pAutoEditLineWrap);
+
+		// Only enable line wrapping in "default text"
+		if (IDocument.DEFAULT_CONTENT_TYPE.equals(aContentType)) {
+			strategies.add(pAutoEditLineWrap);
+		}
 
 		if (pPreferenceStore
 				.getBoolean(IEditorPreferenceConstants.EDITOR_TABS_TO_SPACES)) {
