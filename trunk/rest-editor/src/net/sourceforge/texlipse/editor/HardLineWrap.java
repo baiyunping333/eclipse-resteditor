@@ -9,6 +9,9 @@
  */
 package net.sourceforge.texlipse.editor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentCommand;
@@ -30,12 +33,107 @@ import org.isandlatech.plugins.rest.editor.linewrap.LineWrapUtil;
 public class HardLineWrap {
 
 	/**
+	 * Document block information storage
+	 * 
+	 * @author Thomas Calmant
+	 */
+	public class BlockInformation {
+
+		/** Offset of the base line in this block */
+		private int pBaseLineOffset;
+
+		/** Block begin line number */
+		private int pBeginLine;
+
+		/** Block content */
+		private String pContent;
+
+		/** Block end line number */
+		private int pEndLine;
+
+		/** List of the offsets of found lines */
+		private List<Integer> pLinesOffsets;
+
+		/**
+		 * Lists up the read-only structure
+		 * 
+		 * @param aBeginLine
+		 *            First line of the block
+		 * @param aEndLine
+		 *            Last line of the block
+		 * @param aContent
+		 *            Block content
+		 * @param aBaseLineOffset
+		 *            Offset of the base line in this block
+		 */
+		public BlockInformation(final int aBeginLine, final int aEndLine,
+				final String aContent, final int aBaseLineOffset) {
+
+			pBeginLine = aBeginLine;
+			pEndLine = aEndLine;
+			pContent = aContent;
+			pBaseLineOffset = aBaseLineOffset;
+			pLinesOffsets = new ArrayList<Integer>();
+		}
+
+		/**
+		 * Retrieves the base line offset
+		 * 
+		 * @return the base line offset
+		 */
+		public int getBaseLineOffset() {
+			return pBaseLineOffset;
+		}
+
+		/**
+		 * Retrieves the block begin line
+		 * 
+		 * @return the block begin line
+		 */
+		public int getBeginLine() {
+			return pBeginLine;
+		}
+
+		/**
+		 * Retrieves the block content
+		 * 
+		 * @return the block content
+		 */
+		public String getContent() {
+			return pContent;
+		}
+
+		/**
+		 * Retrieves the block end line
+		 * 
+		 * @return the block end line
+		 */
+		public int getEndLine() {
+			return pEndLine;
+		}
+
+		/**
+		 * Retrieves the lines offsets
+		 * 
+		 * @return the lines offsets
+		 */
+		public List<Integer> getLinesOffsets() {
+			return pLinesOffsets;
+		}
+	}
+
+	/**
 	 * Improved information on line wrapping treatment
 	 * 
 	 * @author Thomas Calmant
 	 */
 	public enum WrapAction {
 		LINE_DELETED, NEW_LINE, NONE
+	}
+
+	public class WrapResult {
+		public StringBuilder content;
+		public int storedOffset;
 	}
 
 	/**
@@ -93,7 +191,7 @@ public class HardLineWrap {
 			}
 
 			// Create the newLine, we rewrite the whole current line
-			StringBuffer newLineBuf = new StringBuffer();
+			StringBuilder newLineBuf = new StringBuilder();
 
 			newLineBuf.append(docLine.substring(0, offsetOnLine));
 
@@ -160,7 +258,7 @@ public class HardLineWrap {
 
 			aCommand.offset = commandRegion.getOffset();
 
-			StringBuffer buf = new StringBuffer();
+			StringBuilder buf = new StringBuilder();
 			buf.append(newLine.substring(0, breakpos));
 			buf.append(delim);
 			buf.append(indent);
@@ -350,6 +448,66 @@ public class HardLineWrap {
 	}
 
 	/**
+	 * Converts all lines of the same block into a one-line string. Removes
+	 * indentation, line delimiters, ...
+	 * 
+	 * @param aDocument
+	 *            Document to read
+	 * @param aLineNumber
+	 *            Base line number
+	 * @return A one-line string
+	 * @throws BadLocationException
+	 *             Line number out of bounds
+	 */
+	public BlockInformation getLineBlockInformation(final IDocument aDocument,
+			final int aLineNumber) throws BadLocationException {
+
+		// Get base line informations
+		final String baseLineContent = getLine(aDocument, aLineNumber, false);
+		final String baseIndent = getIndentation(baseLineContent);
+
+		// Search the borders of the paragraph
+		int lineBlockBegin = getLastSimilarLine(aDocument, aLineNumber,
+				baseIndent, -1);
+
+		int lineBlockEnd = getLastSimilarLine(aDocument, aLineNumber,
+				baseIndent, +1);
+
+		// Extract line block
+		StringBuilder lineBlock = new StringBuilder();
+
+		// Keep the indentation information
+		lineBlock.append(baseIndent);
+
+		// Keep lines offsets information
+		int baseLineOffset = 0;
+		List<Integer> linesOffsets = new ArrayList<Integer>(lineBlockEnd
+				- lineBlockBegin + 1);
+
+		// Append all lines of the block, without the line delimiter
+		for (int i = lineBlockBegin; i <= lineBlockEnd; i++) {
+			String line = getLine(aDocument, i, false);
+
+			linesOffsets.add(lineBlock.length());
+			if (i == aLineNumber) {
+				baseLineOffset = lineBlock.length();
+			}
+
+			lineBlock.append(line.trim() + ' ');
+		}
+
+		// Remove last space character
+		lineBlock.deleteCharAt(lineBlock.length() - 1);
+
+		// Store data
+		BlockInformation blockInfo = new BlockInformation(lineBlockBegin,
+				lineBlockEnd, lineBlock.toString(), baseLineOffset);
+		blockInfo.pLinesOffsets = linesOffsets;
+
+		return blockInfo;
+	}
+
+	/**
 	 * Finds the best position in the given String to make a line break
 	 * 
 	 * @param aLine
@@ -408,49 +566,6 @@ public class HardLineWrap {
 	}
 
 	/**
-	 * Converts all lines of the same block into a one-line string. Removes
-	 * indentation, line delimiters, ...
-	 * 
-	 * @param aDocument
-	 *            Document to read
-	 * @param aLineNumber
-	 *            Base line number
-	 * @return A one-line string
-	 * @throws BadLocationException
-	 *             Line number out of bounds
-	 */
-	public String lineBlockToLine(final IDocument aDocument,
-			final int aLineNumber) throws BadLocationException {
-
-		// Get base line informations
-		final String baseLineContent = getLine(aDocument, aLineNumber, false);
-		final String baseIndent = getIndentation(baseLineContent);
-
-		// Search the borders of the paragraph
-		int lineBlockBegin = getLastSimilarLine(aDocument, aLineNumber,
-				baseIndent, -1);
-
-		int lineBlockEnd = getLastSimilarLine(aDocument, aLineNumber,
-				baseIndent, +1);
-
-		// Extract line block
-		StringBuffer lineBlock = new StringBuffer();
-
-		// Keep the indentation information
-		lineBlock.append(baseIndent);
-
-		// Append all lines of the block, without the line delimiter
-		for (int i = lineBlockBegin; i <= lineBlockEnd; i++) {
-			String line = getLine(aDocument, i, false);
-			lineBlock.append(line.trim() + ' ');
-		}
-
-		// Remove last space character
-		lineBlock.deleteCharAt(lineBlock.length() - 1);
-		return lineBlock.toString();
-	}
-
-	/**
 	 * Removes all white spaces from the beginning of the String
 	 * 
 	 * @param aString
@@ -482,10 +597,16 @@ public class HardLineWrap {
 	 *            Line to wrap
 	 * @param aMaxLen
 	 *            Maximum length of a line
+	 * @param aOffsetInLine
+	 *            An offset in the entry line that will be updated, visible in
+	 *            the result offset field
 	 * @return The wrapped line
 	 */
-	public String wrapLine(final IDocument aDocument, final String aLine,
-			final int aMaxLen) {
+	public WrapResult wrapLine(final IDocument aDocument, final String aLine,
+			final int aMaxLen, final int aOffsetInLine) {
+
+		// Result preparation
+		WrapResult result = new WrapResult();
 
 		// Store indentation
 		final String indent = getIndentation(aLine);
@@ -493,17 +614,23 @@ public class HardLineWrap {
 		// Line delimiter
 		final String delim = TextUtilities.getDefaultLineDelimiter(aDocument);
 
-		StringBuffer wrappedLine = new StringBuffer(
+		StringBuilder wrappedLine = new StringBuilder(
 				(int) (aLine.length() * 1.2));
 
 		int breakPos = 0;
 		int oldBreakPos = 0;
 
+		result.storedOffset = aOffsetInLine;
 		while ((breakPos = getLineBreakPosition(aLine, breakPos, aMaxLen)) != -1) {
 
 			wrappedLine.append(aLine.substring(oldBreakPos, breakPos).trim());
 			wrappedLine.append(delim);
 			wrappedLine.append(indent);
+
+			// Shift offset as needed
+			if (aOffsetInLine < breakPos) {
+				result.storedOffset += delim.length() + indent.length();
+			}
 
 			oldBreakPos = breakPos;
 		}
@@ -511,6 +638,101 @@ public class HardLineWrap {
 		// Append last line segment
 		wrappedLine.append(aLine.substring(oldBreakPos).trim());
 
-		return wrappedLine.toString();
+		result.content = wrappedLine;
+		return result;
+	}
+
+	public WrapAction wrapRegion(final IDocument aDocument,
+			final DocumentCommand aCommand, final int aMaxLen)
+			throws BadLocationException {
+
+		// Store some information
+		final boolean isInsertion = (aCommand.length == 0);
+		final int baseDocLineNr = aDocument.getLineOfOffset(aCommand.offset);
+		final int baseDocLineOffset = aDocument.getLineOffset(baseDocLineNr);
+		final int baseDoclineLen = aDocument.getLineLength(baseDocLineNr);
+
+		// Convert modified paragraph to a single line
+		final BlockInformation blockInfo = getLineBlockInformation(aDocument,
+				baseDocLineNr);
+
+		final String indentation = getIndentation(blockInfo.pContent);
+
+		// Find the line offset in the block
+		final int lineOffsetInBlock = blockInfo.pBaseLineOffset;
+
+		// Offset of modification in the line
+		final int offsetInDocLine = aCommand.offset - baseDocLineOffset;
+		int offsetInBlockLine = lineOffsetInBlock + offsetInDocLine;
+
+		// Prepare the new block content
+		StringBuilder newBlockContent = new StringBuilder(
+				blockInfo.pContent.length());
+
+		// Insert the unmodified part
+		newBlockContent.append(blockInfo.pContent.substring(0,
+				offsetInBlockLine));
+
+		// Insert the new text (may be empty on deletion)
+		newBlockContent.append(aCommand.text);
+
+		// Handle deletion...
+		int deletedLength = aCommand.length;
+		if (!isInsertion) {
+			// TODO handle deletion...
+
+			if (offsetInBlockLine == baseDoclineLen) {
+				// Deletion of a delimiter : do nothing
+				deletedLength = 0;
+
+			} else {
+				// Deletion in a line
+
+				// Prepare end of deletion offset
+				final int endOfDeletionLineNr = aDocument
+						.getLineOfOffset(aCommand.offset + aCommand.length);
+				final int endOfDeletionLineOffset = aDocument
+						.getLineOffset(endOfDeletionLineNr);
+				final int endOfDeletionInDocLine = aCommand.offset
+						+ aCommand.length - endOfDeletionLineOffset;
+
+				// Consider the indentation untouched
+				if (endOfDeletionInDocLine < indentation.length()) {
+					deletedLength -= endOfDeletionInDocLine;
+				}
+			}
+		}
+
+		// Append the following text
+		newBlockContent.append(blockInfo.pContent.substring(lineOffsetInBlock
+				+ offsetInDocLine + deletedLength));
+
+		// Wrap the result
+		if (!isInsertion) {
+			offsetInBlockLine--;
+		}
+
+		WrapResult wrapResult = wrapLine(aDocument, newBlockContent.toString(),
+				aMaxLen, offsetInBlockLine);
+
+		final StringBuilder wrappedBlock = wrapResult.content;
+
+		// Append the line delimiter
+		wrappedBlock.append(TextUtilities.getDefaultLineDelimiter(aDocument));
+
+		// TODO only indicate modified area
+
+		// Update the document command
+		aCommand.offset = aDocument.getLineOffset(blockInfo.pBeginLine);
+		aCommand.shiftsCaret = false;
+		aCommand.caretOffset = aCommand.offset + wrapResult.storedOffset;
+
+		aCommand.text = wrappedBlock.toString();
+		aCommand.length = 0;
+		for (int i = blockInfo.pBeginLine; i <= blockInfo.pEndLine; i++) {
+			aCommand.length += aDocument.getLineLength(i);
+		}
+
+		return WrapAction.NONE;
 	}
 }

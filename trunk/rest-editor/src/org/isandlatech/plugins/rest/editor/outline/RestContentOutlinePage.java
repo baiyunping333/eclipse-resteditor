@@ -247,7 +247,7 @@ public class RestContentOutlinePage extends ContentOutlinePage {
 
 		if (tree != null) {
 			Control control = tree.getControl();
-			if (control != null) {
+			if (control != null && !control.isDisposed()) {
 				control.setRedraw(false);
 				tree.setInput(pParentEditor.getEditorInput());
 				tree.expandAll();
