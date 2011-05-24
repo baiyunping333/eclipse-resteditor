@@ -41,12 +41,10 @@ public class HardLineWrap {
 	/**
 	 * New line wrapping strategy. The actual wrapping method. Based on the
 	 * <code>IDocument d</code> and <code>DocumentCommand c</code> the method
-	 * determines how the line must be wrapped.
-	 * <p>
-	 * If there is more than <code>MAX_LENGTH</code> characters at the line, the
-	 * method tries to detect the last white space before
-	 * <code> MAX_LENGTH</code>. In case there is none, the method finds the
-	 * first white space after <code>
+	 * determines how the line must be wrapped. <p> If there is more than
+	 * <code>MAX_LENGTH</code> characters at the line, the method tries to
+	 * detect the last white space before <code> MAX_LENGTH</code>. In case
+	 * there is none, the method finds the first white space after <code>
 	 * MAX_LENGTH</code>. Normally it adds the rest of the currentline to the
 	 * next line. Exceptions are empty lines, commandlines, commentlines, and
 	 * special lines like \\ or \[.
@@ -374,7 +372,7 @@ public class HardLineWrap {
 
 		int breakOffset = -1;
 		while (offset < aLine.length()) {
-			if (offset > aMaxLineLength && breakOffset != -1) {
+			if (offset - aBaseOffset > aMaxLineLength && breakOffset != -1) {
 				break;
 			}
 			if (Character.isWhitespace(aLine.charAt(offset))) {
@@ -474,6 +472,18 @@ public class HardLineWrap {
 		return aString.replaceAll("\\s+$", "");
 	}
 
+	/**
+	 * Wraps the given line adding document line delimiter where necessary and
+	 * keeping the base indentation.
+	 * 
+	 * @param aDocument
+	 *            Modified document
+	 * @param aLine
+	 *            Line to wrap
+	 * @param aMaxLen
+	 *            Maximum length of a line
+	 * @return The wrapped line
+	 */
 	public String wrapLine(final IDocument aDocument, final String aLine,
 			final int aMaxLen) {
 
