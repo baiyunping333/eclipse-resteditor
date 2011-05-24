@@ -9,7 +9,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import net.sourceforge.texlipse.editor.HardLineWrap;
-import net.sourceforge.texlipse.editor.HardLineWrap.WrapAction;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DefaultPositionUpdater;
@@ -105,19 +104,19 @@ public class HardLineWrapAutoEdit implements IAutoEditStrategy {
 	private void wrapLine(final IDocument aDocument,
 			final DocumentCommand aCommand) throws BadLocationException {
 
-		WrapAction action = pWrapper.doLineWrap(aDocument, aCommand);
+		// WrapAction action = pWrapper.doLineWrap(aDocument, aCommand);
 		int line = aDocument.getLineOfOffset(aCommand.offset);
 
 		pWrapper.wrapRegion(aDocument, aCommand, 80);
-
-		switch (action) {
-		case NEW_LINE:
-			pModifiedLines.add(line);
-			break;
-
-		case LINE_DELETED:
-			pModifiedLines.remove(line);
-			break;
-		}
+		//
+		// switch (action) {
+		// case NEW_LINE:
+		// pModifiedLines.add(line);
+		// break;
+		//
+		// case LINE_DELETED:
+		// pModifiedLines.remove(line);
+		// break;
+		// }
 	}
 }
