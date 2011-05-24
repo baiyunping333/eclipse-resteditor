@@ -54,6 +54,9 @@ public class HardLineWrap {
 		/** List of the offsets of found lines */
 		private List<Integer> pLinesOffsets;
 
+		/** Re-based offset */
+		private int pOffset;
+
 		/**
 		 * Lists up the read-only structure
 		 * 
@@ -455,12 +458,16 @@ public class HardLineWrap {
 	 *            Document to read
 	 * @param aLineNumber
 	 *            Base line number
+	 * @param aDocumentOffset
+	 *            An offset that will be stored in a block content relative
+	 *            value
 	 * @return A one-line string
 	 * @throws BadLocationException
 	 *             Line number out of bounds
 	 */
-	public BlockInformation getLineBlockInformation(final IDocument aDocument,
-			final int aLineNumber) throws BadLocationException {
+	public BlockInformation getLineBlock(final IDocument aDocument,
+			final int aLineNumber, final int aDocumentOffset)
+			throws BadLocationException {
 
 		// Get base line informations
 		final String baseLineContent = getLine(aDocument, aLineNumber, false);
@@ -483,6 +490,7 @@ public class HardLineWrap {
 		int baseLineOffset = 0;
 		List<Integer> linesOffsets = new ArrayList<Integer>(lineBlockEnd
 				- lineBlockBegin + 1);
+		int rebasedOffset = 0;
 
 		// Append all lines of the block, without the line delimiter
 		for (int i = lineBlockBegin; i <= lineBlockEnd; i++) {
@@ -491,6 +499,25 @@ public class HardLineWrap {
 			linesOffsets.add(lineBlock.length());
 			if (i == aLineNumber) {
 				baseLineOffset = lineBlock.length();
+			}
+
+			// Update offset
+			IRegion region = aDocument.getLineInformation(i);
+
+			if (region.getOffset() < aDocumentOffset
+					&& aDocumentOffset < region.getOffset()
+							+ region.getLength()) {
+
+				int offsetInLine = aDocumentOffset - region.getOffset();
+				String ltrimmedLine = ltrim(line);
+				int removedLen = line.length() - ltrimmedLine.length();
+
+				rebasedOffset = lineBlock.length();
+				if (offsetInLine < removedLen) {
+					rebasedOffset -= 1;
+				} else {
+					rebasedOffset += offsetInLine - removedLen;
+				}
 			}
 
 			lineBlock.append(line.trim() + ' ');
@@ -503,6 +530,7 @@ public class HardLineWrap {
 		BlockInformation blockInfo = new BlockInformation(lineBlockBegin,
 				lineBlockEnd, lineBlock.toString(), baseLineOffset);
 		blockInfo.pLinesOffsets = linesOffsets;
+		blockInfo.pOffset = rebasedOffset;
 
 		return blockInfo;
 	}
@@ -520,6 +548,10 @@ public class HardLineWrap {
 	 */
 	private int getLineBreakPosition(final String aLine, final int aBaseOffset,
 			final int aMaxLineLength) {
+
+		if (aLine.length() < aMaxLineLength) {
+			return -1;
+		}
 
 		int offset = aBaseOffset;
 		// Ignore indentation
@@ -584,7 +616,8 @@ public class HardLineWrap {
 	 * @param aCommand
 	 *            Command to be printed
 	 */
-	private void printCommand(final DocumentCommand aCommand) {
+	protected void printCommand(final DocumentCommand aCommand) {
+
 		System.out.println("==== Doc Command ====");
 		System.out.println("\t caretOffset = " + aCommand.caretOffset);
 		System.out.println("\t length      = " + aCommand.length);
@@ -634,7 +667,10 @@ public class HardLineWrap {
 
 		int breakPos = 0;
 		int oldBreakPos = 0;
-		int deltaOffset = 0;
+
+		int delta = 0;
+		int currentOffset = 0;
+		int newOffset = 0;
 
 		while ((breakPos = getLineBreakPosition(aLine, breakPos, aMaxLen)) != -1) {
 
@@ -645,17 +681,18 @@ public class HardLineWrap {
 			wrappedLine.append(delim);
 			wrappedLine.append(indent);
 
+			currentOffset += subLine.length();
+			delta += (subLine.length() - trimmedSubline.length())
+					+ delim.length() + indent.length();
+
 			// Shift offset as needed
-
-			System.out.println(aOffsetInLine + " / " + breakPos);
-			if (aOffsetInLine > breakPos) {
-				System.out.println("Shifting / "
-						+ (subLine.length() - trimmedSubline.length()) + " + "
-						+ (delim.length() + indent.length()));
-
-				deltaOffset += delim.length() + indent.length();
-				deltaOffset -= (subLine.length() - trimmedSubline.length());
+			if (currentOffset < aOffsetInLine) {
+				newOffset += trimmedSubline.length() + delim.length()
+						+ indent.length();
 			}
+
+			// TODO le 1er else suivant doit effectuer le déplacement de
+			// l'offset dans la ligne
 
 			oldBreakPos = breakPos;
 		}
@@ -666,10 +703,10 @@ public class HardLineWrap {
 		// Result preparation
 		WrapResult result = new WrapResult();
 		result.content = wrappedLine;
-		result.storedOffset = aOffsetInLine + deltaOffset;
+		result.storedOffset = newOffset;
 
-		System.out.println("=> " + aOffsetInLine + " + " + deltaOffset + " = "
-				+ result.storedOffset);
+		System.out.println("=> " + aOffsetInLine + " / " + delta + " / "
+				+ newOffset + " == " + result.storedOffset);
 
 		return result;
 	}
@@ -691,8 +728,6 @@ public class HardLineWrap {
 			return WrapAction.NONE;
 		}
 
-		printCommand(aCommand);
-
 		// Store some information
 		final boolean isInsertion = (aCommand.length == 0);
 		final int insertedTextLen = aCommand.text.length();
@@ -702,8 +737,8 @@ public class HardLineWrap {
 		final int baseDoclineLen = aDocument.getLineLength(baseDocLineNr);
 
 		// Convert modified paragraph to a single line
-		final BlockInformation blockInfo = getLineBlockInformation(aDocument,
-				baseDocLineNr);
+		final BlockInformation blockInfo = getLineBlock(aDocument,
+				baseDocLineNr, aCommand.offset);
 
 		final String indentation = getIndentation(blockInfo.pContent);
 
@@ -712,7 +747,7 @@ public class HardLineWrap {
 
 		// Offset of modification in the line
 		final int offsetInDocLine = aCommand.offset - baseDocLineOffset;
-		final int offsetInBlockLine = lineOffsetInBlock + offsetInDocLine;
+		final int offsetInBlockLine = blockInfo.pOffset;
 
 		// Prepare the new block content
 		StringBuilder newBlockContent = new StringBuilder(
@@ -760,19 +795,18 @@ public class HardLineWrap {
 					.substring(offsetAfterDeletion));
 		}
 
-		// Wrap the result
-		int caretOffsetInBlockLine = offsetInBlockLine;
-
+		// Compute the current caret position, in the block line
+		int caretOffsetInBlockLine = offsetInBlockLine + 1;
 		if (insertedTextLen > 0) {
 			caretOffsetInBlockLine += insertedTextLen - aCommand.length;
 		}
 
+		// Wrap paragraph (and update caret position)
 		WrapResult wrapResult = wrapLine(aDocument, newBlockContent.toString(),
 				aMaxLen, caretOffsetInBlockLine);
 
-		final StringBuilder wrappedBlock = wrapResult.content;
-
 		// Append the line delimiter
+		final StringBuilder wrappedBlock = wrapResult.content;
 		wrappedBlock.append(TextUtilities.getDefaultLineDelimiter(aDocument));
 
 		// TODO only indicate modified area

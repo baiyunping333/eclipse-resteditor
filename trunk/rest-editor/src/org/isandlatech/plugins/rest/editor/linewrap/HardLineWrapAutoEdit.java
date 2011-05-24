@@ -5,9 +5,6 @@
  */
 package org.isandlatech.plugins.rest.editor.linewrap;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import net.sourceforge.texlipse.editor.HardLineWrap;
 
 import org.eclipse.jface.text.BadLocationException;
@@ -27,7 +24,7 @@ public class HardLineWrapAutoEdit implements IAutoEditStrategy {
 	/** Category of the positions that indicates hard wrapped lines */
 	public static final String WRAP_POSITION_CATEGORY = "ReST_Editor_line_wrap_";
 
-	private final Set<Integer> pModifiedLines;
+	// private final Set<Integer> pModifiedLines;
 
 	/** Document position updater */
 	private final IPositionUpdater pPositionUpdater;
@@ -41,7 +38,7 @@ public class HardLineWrapAutoEdit implements IAutoEditStrategy {
 	public HardLineWrapAutoEdit() {
 		pWrapper = new HardLineWrap();
 		pPositionUpdater = new DefaultPositionUpdater(WRAP_POSITION_CATEGORY);
-		pModifiedLines = new HashSet<Integer>();
+		// pModifiedLines = new HashSet<Integer>();
 	}
 
 	/*
@@ -105,7 +102,7 @@ public class HardLineWrapAutoEdit implements IAutoEditStrategy {
 			final DocumentCommand aCommand) throws BadLocationException {
 
 		// WrapAction action = pWrapper.doLineWrap(aDocument, aCommand);
-		int line = aDocument.getLineOfOffset(aCommand.offset);
+		// int line = aDocument.getLineOfOffset(aCommand.offset);
 
 		pWrapper.wrapRegion(aDocument, aCommand, 80);
 		//
