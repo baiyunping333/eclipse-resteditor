@@ -101,19 +101,6 @@ public class HardLineWrapAutoEdit implements IAutoEditStrategy {
 	private void wrapLine(final IDocument aDocument,
 			final DocumentCommand aCommand) throws BadLocationException {
 
-		// WrapAction action = pWrapper.doLineWrap(aDocument, aCommand);
-		// int line = aDocument.getLineOfOffset(aCommand.offset);
-
 		pWrapper.wrapRegion(aDocument, aCommand, 80);
-		//
-		// switch (action) {
-		// case NEW_LINE:
-		// pModifiedLines.add(line);
-		// break;
-		//
-		// case LINE_DELETED:
-		// pModifiedLines.remove(line);
-		// break;
-		// }
 	}
 }
