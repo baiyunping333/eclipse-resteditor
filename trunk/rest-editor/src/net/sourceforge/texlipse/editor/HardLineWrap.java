@@ -301,7 +301,7 @@ public class HardLineWrap {
 		// Loop until we found the first non white space character
 		for (char character : aText.toCharArray()) {
 
-			if (!Character.isWhitespace(character)) {
+			if (!isSpace(character)) {
 				break;
 			}
 
@@ -507,20 +507,22 @@ public class HardLineWrap {
 
 		int offset = aBaseOffset;
 		// Ignore indentation
-		while (offset < aLine.length()
-				&& Character.isWhitespace(aLine.charAt(offset))) {
+		while (offset < aLine.length() && isSpace(aLine.charAt(offset))) {
 			offset++;
 		}
 
+		int lastSpaceOffset = -1;
 		int breakOffset = -1;
 
 		while (offset < aLine.length()) {
 
-			if (offset - aBaseOffset > aMaxLineLength && breakOffset != -1) {
+			if (offset - aBaseOffset > aMaxLineLength && lastSpaceOffset != -1) {
+				breakOffset = lastSpaceOffset;
 				break;
 			}
+
 			if (Character.isWhitespace(aLine.charAt(offset))) {
-				breakOffset = offset;
+				lastSpaceOffset = offset;
 			}
 
 			offset++;
@@ -696,6 +698,12 @@ public class HardLineWrap {
 			String subLine = aLine.substring(oldBreakPos, breakPos);
 			String trimmedSubline = ltrim(subLine);
 
+			System.out.println("Trimmed : '" + trimmedSubline + "'");
+
+			wrappedLine.append(indent);
+			wrappedLine.append(trimmedSubline);
+			wrappedLine.append(delim);
+
 			// If the offset is in the currently modified block...
 			if (aOffsetInLine > oldBreakPos && aOffsetInLine < breakPos) {
 
@@ -703,12 +711,8 @@ public class HardLineWrap {
 				newOffset = aOffsetInLine - oldBreakPos;
 
 				// Make it relative to the block
-				newOffset += currentOffsetInResult - 1;
+				newOffset += currentOffsetInResult;
 			}
-
-			wrappedLine.append(trimmedSubline);
-			wrappedLine.append(delim);
-			wrappedLine.append(indent);
 
 			currentOffsetInOrigin += subLine.length();
 			currentOffsetInResult += trimmedSubline.length() + delimLen
@@ -740,9 +744,6 @@ public class HardLineWrap {
 		BlockModificationResult result = new BlockModificationResult();
 		result.content = wrappedLine;
 		result.storedOffset = newOffset;
-
-		System.out.println("=> " + aOffsetInLine + " / " + newOffset);
-
 		return result;
 	}
 
