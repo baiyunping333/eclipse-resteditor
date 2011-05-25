@@ -788,8 +788,8 @@ public class HardLineWrap {
 				rawBlockInfo.getContent());
 
 		// Update the offset : put it after the modification
-		aCommand.caretOffset = aCommand.offset + aCommand.text.length()
-				- aCommand.length;
+		aCommand.caretOffset = aCommand.offset
+				+ Math.max(aCommand.text.length() - aCommand.length, 0);
 
 		// Convert the block into a single line
 		BlockModificationResult inlineBlockInfo = convertBlockInLine(
