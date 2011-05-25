@@ -16,6 +16,7 @@ import org.eclipse.jface.text.DocumentCommand;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.TextUtilities;
+import org.isandlatech.plugins.rest.parser.RestLanguage;
 
 /**
  * This class handles the line wrapping. Inspired from Texclipse hard line wrap
@@ -329,7 +330,7 @@ public class HardLineWrap {
 		}
 
 		// Prepare upper search bound
-		int nbLines = aDocument.getNumberOfLines();
+		final int nbLines = aDocument.getNumberOfLines();
 
 		int searchLine = aBaseLine + aDirection;
 		while (searchLine >= 0 && searchLine < nbLines) {
@@ -408,12 +409,12 @@ public class HardLineWrap {
 	protected int getLineBreakPosition(final String aLine,
 			final int aBaseOffset, final int aMaxLineLength) {
 
-		if (aLine.length() < aMaxLineLength) {
+		if (aBaseOffset >= aLine.length()) {
 			return -1;
 		}
 
-		if (aBaseOffset >= aLine.length()) {
-			return -1;
+		if (aLine.length() < aMaxLineLength) {
+			return aLine.length();
 		}
 
 		int offset = aBaseOffset;
@@ -510,7 +511,12 @@ public class HardLineWrap {
 			return true;
 		}
 
-		// TODO: ignore bullets, ...
+		String trimmedLine = aLine.trim();
+
+		// Ignore list bullets
+		if (TextUtilities.startsWith(RestLanguage.LIST_MARKERS, trimmedLine) != -1) {
+			return true;
+		}
 
 		// Literal lines are ignored
 		if (aLine.startsWith(".. ")) {
@@ -636,8 +642,10 @@ public class HardLineWrap {
 		}
 
 		// Remove the last delimiter
-		wrappedLine.delete(wrappedLine.length() - delimLen,
-				wrappedLine.length());
+		int wrappedLineLen = wrappedLine.length();
+		if (wrappedLineLen - delimLen > 0) {
+			wrappedLine.delete(wrappedLineLen - delimLen, wrappedLineLen);
+		}
 
 		// Result preparation
 		BlockModificationResult result = new BlockModificationResult();
