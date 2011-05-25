@@ -5,7 +5,6 @@
  */
 package org.isandlatech.plugins.rest.editor.linewrap;
 
-import net.sourceforge.texlipse.editor.HardLineWrap;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DefaultPositionUpdater;

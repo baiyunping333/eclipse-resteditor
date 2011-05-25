@@ -1,13 +1,9 @@
-/*
- * $Id: HardLineWrap.java,v 1.11 2009/05/28 17:18:00 borisvl Exp $
- *
- * Copyright (c) 2004-2005 by the TeXlapse Team.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+/**
+ * File:   HardLineWrap.java
+ * Author: Thomas Calmant
+ * Date:   17 mai 2011
  */
-package net.sourceforge.texlipse.editor;
+package org.isandlatech.plugins.rest.editor.linewrap;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -22,12 +18,8 @@ import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.TextUtilities;
 
 /**
- * This class handles the line wrapping. Modified version of the Texclipse hard
- * line wrap class.
- * 
- * @author Antti Pirinen
- * @author Oskar Ojala
- * @author Boris von Loesch
+ * This class handles the line wrapping. Inspired from Texclipse hard line wrap
+ * class (by Antti Pirinen, Oskar Ojala, Boris von Loesch).
  * 
  * @author Thomas Calmant
  */
@@ -400,91 +392,6 @@ public class HardLineWrap {
 		}
 
 		return line;
-	}
-
-	/**
-	 * Converts all lines of the same block into a one-line string. Removes
-	 * indentation, line delimiters, ...
-	 * 
-	 * @param aDocument
-	 *            Document to read
-	 * @param aLineNumber
-	 *            Base line number
-	 * @param aDocumentOffset
-	 *            An offset that will be stored in a block content relative
-	 *            value
-	 * @return A one-line string
-	 * @throws BadLocationException
-	 *             Line number out of bounds
-	 */
-	public BlockInformation getLineBlock(final IDocument aDocument,
-			final int aLineNumber, final int aDocumentOffset)
-			throws BadLocationException {
-
-		// Get base line informations
-		final String baseLineContent = getLine(aDocument, aLineNumber, false);
-		final String baseIndent = getIndentation(baseLineContent);
-
-		// Search the borders of the paragraph
-		int lineBlockBegin = getLastSimilarLine(aDocument, aLineNumber,
-				baseIndent, -1);
-
-		int lineBlockEnd = getLastSimilarLine(aDocument, aLineNumber,
-				baseIndent, +1);
-
-		// Extract line block
-		StringBuilder lineBlock = new StringBuilder();
-
-		// Keep the indentation information
-		lineBlock.append(baseIndent);
-
-		// Keep lines offsets information
-		int baseLineOffset = 0;
-		List<Integer> linesOffsets = new ArrayList<Integer>(lineBlockEnd
-				- lineBlockBegin + 1);
-		int rebasedOffset = 0;
-
-		// Append all lines of the block, without the line delimiter
-		for (int i = lineBlockBegin; i <= lineBlockEnd; i++) {
-			String line = getLine(aDocument, i, false);
-
-			linesOffsets.add(lineBlock.length());
-			if (i == aLineNumber) {
-				baseLineOffset = lineBlock.length();
-			}
-
-			// Update offset
-			IRegion region = aDocument.getLineInformation(i);
-
-			if (region.getOffset() < aDocumentOffset
-					&& aDocumentOffset < region.getOffset()
-							+ region.getLength()) {
-
-				int offsetInLine = aDocumentOffset - region.getOffset();
-				String ltrimmedLine = ltrim(line);
-				int removedLen = line.length() - ltrimmedLine.length();
-
-				rebasedOffset = lineBlock.length();
-				if (offsetInLine < removedLen) {
-					rebasedOffset -= 1;
-				} else {
-					rebasedOffset += offsetInLine - removedLen;
-				}
-			}
-
-			lineBlock.append(line.trim() + ' ');
-		}
-
-		// Remove last space character
-		lineBlock.deleteCharAt(lineBlock.length() - 1);
-
-		// Store data
-		BlockInformation blockInfo = new BlockInformation(lineBlockBegin,
-				lineBlockEnd, lineBlock.toString(), baseLineOffset);
-		blockInfo.pLinesOffsets = linesOffsets;
-		blockInfo.pOffset = rebasedOffset;
-
-		return blockInfo;
 	}
 
 	/**
