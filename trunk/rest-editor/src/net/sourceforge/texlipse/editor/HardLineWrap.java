@@ -619,7 +619,7 @@ public class HardLineWrap {
 	 * @return True if the offset is contained by the region, else false
 	 */
 	public boolean isInRegion(final IRegion aRegion, final int aOffset) {
-		return aOffset > aRegion.getOffset()
+		return aOffset >= aRegion.getOffset()
 				&& aOffset < (aRegion.getOffset() + aRegion.getLength());
 	}
 
@@ -698,14 +698,12 @@ public class HardLineWrap {
 			String subLine = aLine.substring(oldBreakPos, breakPos);
 			String trimmedSubline = ltrim(subLine);
 
-			System.out.println("Trimmed : '" + trimmedSubline + "'");
-
 			wrappedLine.append(indent);
 			wrappedLine.append(trimmedSubline);
 			wrappedLine.append(delim);
 
 			// If the offset is in the currently modified block...
-			if (aOffsetInLine > oldBreakPos && aOffsetInLine < breakPos) {
+			if (aOffsetInLine >= oldBreakPos && aOffsetInLine < breakPos) {
 
 				// Set it to be relative to the new line
 				newOffset = aOffsetInLine - oldBreakPos;
@@ -715,8 +713,12 @@ public class HardLineWrap {
 			}
 
 			currentOffsetInOrigin += subLine.length();
-			currentOffsetInResult += trimmedSubline.length() + delimLen
-					+ indentLen;
+			currentOffsetInResult += trimmedSubline.length() + indentLen;
+
+			// Don't add the delimiter length for the first line
+			if (oldBreakPos > 0) {
+				currentOffsetInResult += delimLen;
+			}
 
 			oldBreakPos = breakPos;
 		}
@@ -727,7 +729,7 @@ public class HardLineWrap {
 		if (newOffset == -1) {
 
 			// If the offset is in the last segment...
-			if (aOffsetInLine > oldBreakPos) {
+			if (aOffsetInLine >= oldBreakPos) {
 
 				// Set it to be relative to the new line
 				newOffset = aOffsetInLine - oldBreakPos;
@@ -736,7 +738,8 @@ public class HardLineWrap {
 				newOffset += currentOffsetInResult;
 
 			} else {
-				newOffset = -oldBreakPos;
+				// I don't know why sometimes we get here...
+				newOffset = wrappedLine.length() - 1;
 			}
 		}
 
@@ -797,13 +800,6 @@ public class HardLineWrap {
 		BlockModificationResult wrapResult = wrapLine(aDocument,
 				inlineBlockInfo.content.toString(), aMaxLen,
 				aCommand.caretOffset);
-
-		// Special case : we were on the last line, so we couldn't have a
-		// complete information...
-		if (wrapResult.storedOffset < 0) {
-			wrapResult.storedOffset = -wrapResult.storedOffset
-					+ aCommand.text.length() - aCommand.length;
-		}
 
 		// Set up the result
 		aCommand.caretOffset = blockOffset + wrapResult.storedOffset;
