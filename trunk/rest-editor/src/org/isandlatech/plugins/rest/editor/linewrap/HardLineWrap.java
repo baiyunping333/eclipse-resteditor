@@ -412,6 +412,10 @@ public class HardLineWrap {
 			return -1;
 		}
 
+		if (aBaseOffset >= aLine.length()) {
+			return -1;
+		}
+
 		int offset = aBaseOffset;
 		// Ignore indentation
 		while (offset < aLine.length() && isSpace(aLine.charAt(offset))) {
@@ -419,7 +423,7 @@ public class HardLineWrap {
 		}
 
 		int lastSpaceOffset = -1;
-		int breakOffset = -1;
+		int breakOffset = aLine.length();
 
 		while (offset < aLine.length()) {
 
@@ -596,11 +600,11 @@ public class HardLineWrap {
 		int breakPos = 0;
 		int oldBreakPos = 0;
 
-		int currentOffsetInOrigin = 0;
 		int currentOffsetInResult = 0;
 		int newOffset = -1;
 
-		while ((breakPos = getLineBreakPosition(aLine, breakPos, aMaxLen)) != -1) {
+		while ((breakPos = getLineBreakPosition(aLine, breakPos, aMaxLen
+				- indentLen)) != -1) {
 
 			String subLine = aLine.substring(oldBreakPos, breakPos);
 			String trimmedSubline = ltrim(subLine);
@@ -615,40 +619,25 @@ public class HardLineWrap {
 				// Set it to be relative to the new line
 				newOffset = aOffsetInLine - oldBreakPos;
 
-				// Make it relative to the block
+				// Correct getLineBreakPosition indentation forgiveness
+				if (oldBreakPos > 0) {
+					newOffset -= (subLine.length() - trimmedSubline.length());
+					newOffset += indentLen;
+				}
+
+				// Make it relative to the current block state
 				newOffset += currentOffsetInResult;
 			}
 
-			currentOffsetInOrigin += subLine.length();
-			currentOffsetInResult += trimmedSubline.length() + indentLen;
-
-			// Don't add the delimiter length for the first line
-			if (oldBreakPos > 0) {
-				currentOffsetInResult += delimLen;
-			}
+			currentOffsetInResult += indentLen + trimmedSubline.length()
+					+ delimLen;
 
 			oldBreakPos = breakPos;
 		}
 
-		// Append last line segment
-		wrappedLine.append(ltrim(aLine.substring(oldBreakPos)));
-
-		if (newOffset == -1) {
-
-			// If the offset is in the last segment...
-			if (aOffsetInLine >= oldBreakPos) {
-
-				// Set it to be relative to the new line
-				newOffset = aOffsetInLine - oldBreakPos;
-
-				// Make it relative to the block
-				newOffset += currentOffsetInResult;
-
-			} else {
-				// I don't know why sometimes we get here...
-				newOffset = wrappedLine.length() - 1;
-			}
-		}
+		// Remove the last delimiter
+		wrappedLine.delete(wrappedLine.length() - delimLen,
+				wrappedLine.length());
 
 		// Result preparation
 		BlockModificationResult result = new BlockModificationResult();
