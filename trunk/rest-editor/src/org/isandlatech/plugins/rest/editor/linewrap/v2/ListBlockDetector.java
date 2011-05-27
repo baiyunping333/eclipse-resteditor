@@ -1,40 +1,19 @@
 /**
- * File:   DefaultBlockDetector.java
+ * File:   ListBlockDetector.java
  * Author: Thomas Calmant
  * Date:   27 mai 2011
  */
 package org.isandlatech.plugins.rest.editor.linewrap.v2;
 
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.TextUtilities;
+import org.isandlatech.plugins.rest.parser.RestLanguage;
 
 /**
- * Detects a block that is separated by an empty line or by elements that have a
- * different indentation.
- * 
- * 
  * @author Thomas Calmant
+ * 
  */
-public class DefaultBlockDetector extends AbstractBlockDetector {
-
-	/** Partitioning used by the document scanner */
-	private String pPartitioning;
-
-	/**
-	 * Default constructor
-	 */
-	public DefaultBlockDetector() {
-		this(null);
-	}
-
-	/**
-	 * Sets up the partitioning test
-	 * 
-	 * @param aPartitioning
-	 *            The partitioning to be tested (can be null)
-	 */
-	public DefaultBlockDetector(final String aPartitioning) {
-		pPartitioning = aPartitioning;
-	}
+public class ListBlockDetector extends AbstractBlockDetector {
 
 	/*
 	 * (non-Javadoc)
@@ -54,35 +33,51 @@ public class DefaultBlockDetector extends AbstractBlockDetector {
 			return -1;
 		}
 
-		final String baseLineContentType = pLineUtil.getContentType(aDocument,
-				aBaseLine, pPartitioning);
-
 		final String baseLineIndent = pLineUtil.getIndentation(baseLineContent);
 		final int baseLineIndentLen = baseLineIndent.length();
 
 		// Search for first line
 		final int nbLines = aDocument.getNumberOfLines();
+		boolean bulletFound = false;
 		int searchLine = aBaseLine;
+
 		for (int i = aBaseLine; i >= 0 && i < nbLines; i += aDirection) {
 
 			String line = pLineUtil.getLine(aDocument, i, false);
-			if (line.trim().isEmpty()) {
+			String trimmedLine = line.trim();
+			if (trimmedLine.isEmpty()) {
 				break;
 			}
 
 			String lineIndent = pLineUtil.getIndentation(line);
-			if (lineIndent.length() != baseLineIndentLen) {
+			if (lineIndent.length() > baseLineIndentLen && aDirection < 0) {
+				// Indented block found while moving up
 				break;
 			}
 
-			String lineContentType = pLineUtil.getContentType(aDocument, i,
-					pPartitioning);
-			if (baseLineContentType != null
-					&& !baseLineContentType.equals(lineContentType)) {
+			if (lineIndent.length() < baseLineIndentLen && aDirection > 0) {
+				// Un-indented block found while moving down
+			}
+
+			if (TextUtilities
+					.startsWith(RestLanguage.LIST_MARKERS, trimmedLine) != -1) {
+				// We found the beginning of a list item
+
+				if (aDirection < 0) {
+					// If we are moving up, we must include this line
+					searchLine = i;
+				}
+
+				bulletFound = true;
 				break;
 			}
 
 			searchLine = i;
+		}
+
+		if (!bulletFound && aDirection < 0) {
+			// No bullet found while moving up : we're not in a list
+			return -1;
 		}
 
 		return searchLine;
@@ -97,7 +92,7 @@ public class DefaultBlockDetector extends AbstractBlockDetector {
 	 */
 	@Override
 	public String getHandlerType() {
-		return IBlockWrappingHandler.DEFAULT_HANDLER;
+		return ListBlockWrappingHandler.HANDLER_TYPE;
 	}
 
 	/*
@@ -109,6 +104,7 @@ public class DefaultBlockDetector extends AbstractBlockDetector {
 	 */
 	@Override
 	public int getPriority() {
-		return Integer.MAX_VALUE - 1;
+		return 0;
 	}
+
 }

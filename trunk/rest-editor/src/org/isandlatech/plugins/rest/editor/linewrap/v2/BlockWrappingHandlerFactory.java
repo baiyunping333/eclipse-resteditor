@@ -5,6 +5,7 @@
  */
 package org.isandlatech.plugins.rest.editor.linewrap.v2;
 
+
 /**
  * @author Thomas Calmant
  * 
@@ -29,8 +30,12 @@ public class BlockWrappingHandlerFactory {
 	 */
 	public static IBlockWrappingHandler getHandler(final String type) {
 
-		if (IBlockWrappingHandler.DEFAULT_HANDLER.equals(type)) {
+		if (type == null || IBlockWrappingHandler.DEFAULT_HANDLER.equals(type)) {
 			return getDefault();
+		}
+
+		if (type.equals(ListBlockWrappingHandler.HANDLER_TYPE)) {
+			return new ListBlockWrappingHandler();
 		}
 
 		return null;

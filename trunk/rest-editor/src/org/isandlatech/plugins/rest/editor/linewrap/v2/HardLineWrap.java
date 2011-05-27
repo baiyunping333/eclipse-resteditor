@@ -57,7 +57,8 @@ public class HardLineWrap {
 				+ aCommand.length);
 
 		IBlockWrappingHandler blockHandler = null;
-		IBlockDetector[] detectors = new IBlockDetector[] { new DefaultBlockDetector() };
+		IBlockDetector[] detectors = new IBlockDetector[] {
+				new DefaultBlockDetector(), new ListBlockDetector() };
 		int bestDetectorPriority = Integer.MAX_VALUE;
 		IBlockDetector bestDetector = null;
 		BlockInformation baseDocBlock = null;
@@ -88,10 +89,27 @@ public class HardLineWrap {
 		blockHandler = BlockWrappingHandlerFactory.getHandler(bestDetector
 				.getHandlerType());
 
-		blockHandler.setUp(aDocument, baseDocBlock);
-		blockHandler.setReferenceOffset(aCommand.offset);
-		blockHandler.applyCommand(aCommand);
-		String result = blockHandler.wrap(aMaxLen);
+		// Handler not found
+		if (blockHandler == null) {
+			System.err.println("No handler available for : "
+					+ bestDetector.getHandlerType());
+			return -1;
+		}
+
+		String result = null;
+
+		synchronized (blockHandler) {
+			// Just in case Eclipse gets a multi-threaded UI...
+
+			blockHandler.setUp(aDocument, baseDocBlock);
+			blockHandler.setReferenceOffset(aCommand.offset);
+			blockHandler.applyCommand(aCommand);
+			result = blockHandler.wrap(aMaxLen);
+		}
+
+		if (result == null) {
+			return -1;
+		}
 
 		aCommand.offset = baseDocBlock.getOffset();
 		aCommand.length = baseDocBlock.getLength();

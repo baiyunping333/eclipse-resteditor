@@ -62,11 +62,12 @@ public abstract class AbstractBlockWrappingHandler implements
 				blockRelativeCommandOffset));
 
 		// Insert the new text
+		String addedText = aCommand.text;
 		if (TextUtilities.startsWith(TextUtilities.DELIMITERS, aCommand.text) != -1) {
 			aCommand.text = INTERNAL_LINE_FEED;
 		}
 
-		modifiedString.append(aCommand.text);
+		modifiedString.append(addedText);
 
 		// Insert the rest, avoiding deleted parts
 		int postDeletionOffset = blockRelativeCommandOffset + aCommand.length;
@@ -139,6 +140,33 @@ public abstract class AbstractBlockWrappingHandler implements
 		} catch (Exception ex) {
 			System.out.println("[Reference error - " + ex + "]");
 		}
+	}
+
+	/**
+	 * Replaces internal line feed markers by document line delimiters
+	 */
+	protected String replaceInternalLineMarkers() {
+
+		int relativeReference = pReferenceOffset - pDocBlock.getOffset();
+		int delta = pLineDelimiter.length() * 2 - INTERNAL_LINE_FEED.length();
+
+		int index = pBlockContent.indexOf(INTERNAL_LINE_FEED);
+		while (index != -1) {
+
+			if (index <= relativeReference) {
+				relativeReference += delta;
+			}
+
+			index = pBlockContent.indexOf(INTERNAL_LINE_FEED, index + 1);
+		}
+
+		pBlockContent = pBlockContent.replace(INTERNAL_LINE_FEED,
+				pLineDelimiter + pLineDelimiter);
+
+		pReferenceOffset = Math.max(relativeReference, 0)
+				+ pDocBlock.getOffset();
+
+		return pBlockContent;
 	}
 
 	/*

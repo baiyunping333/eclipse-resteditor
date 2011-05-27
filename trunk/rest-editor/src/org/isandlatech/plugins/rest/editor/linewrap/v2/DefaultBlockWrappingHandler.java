@@ -114,33 +114,6 @@ public class DefaultBlockWrappingHandler extends AbstractBlockWrappingHandler {
 		return DEFAULT_HANDLER;
 	}
 
-	/**
-	 * Replaces internal line feed markers by document line delimiters
-	 */
-	protected String replaceInternalLineMarkers() {
-
-		int relativeReference = pReferenceOffset - pDocBlock.getOffset();
-		int delta = pLineDelimiter.length() * 2 - INTERNAL_LINE_FEED.length();
-
-		int index = pBlockContent.indexOf(INTERNAL_LINE_FEED);
-		while (index != -1) {
-
-			if (index <= relativeReference) {
-				relativeReference += delta;
-			}
-
-			index = pBlockContent.indexOf(INTERNAL_LINE_FEED, index + 1);
-		}
-
-		pBlockContent = pBlockContent.replace(INTERNAL_LINE_FEED,
-				pLineDelimiter + pLineDelimiter);
-
-		pReferenceOffset = Math.max(relativeReference, 0)
-				+ pDocBlock.getOffset();
-
-		return pBlockContent;
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * 
