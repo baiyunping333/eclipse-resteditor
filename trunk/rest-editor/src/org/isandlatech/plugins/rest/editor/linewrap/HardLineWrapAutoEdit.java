@@ -5,13 +5,13 @@
  */
 package org.isandlatech.plugins.rest.editor.linewrap;
 
-
 import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.DefaultPositionUpdater;
+import org.eclipse.jface.text.BadPositionCategoryException;
 import org.eclipse.jface.text.DocumentCommand;
 import org.eclipse.jface.text.IAutoEditStrategy;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IPositionUpdater;
+import org.eclipse.jface.text.Position;
 
 /**
  * Modifies the document content to avoid lines above a preferred length
@@ -22,8 +22,6 @@ public class HardLineWrapAutoEdit implements IAutoEditStrategy {
 
 	/** Category of the positions that indicates hard wrapped lines */
 	public static final String WRAP_POSITION_CATEGORY = "ReST_Editor_line_wrap_";
-
-	// private final Set<Integer> pModifiedLines;
 
 	/** Document position updater */
 	private final IPositionUpdater pPositionUpdater;
@@ -36,8 +34,7 @@ public class HardLineWrapAutoEdit implements IAutoEditStrategy {
 	 */
 	public HardLineWrapAutoEdit() {
 		pWrapper = new HardLineWrap();
-		pPositionUpdater = new DefaultPositionUpdater(WRAP_POSITION_CATEGORY);
-		// pModifiedLines = new HashSet<Integer>();
+		pPositionUpdater = new LinePositionUpdater(WRAP_POSITION_CATEGORY);
 	}
 
 	/*
@@ -58,6 +55,8 @@ public class HardLineWrapAutoEdit implements IAutoEditStrategy {
 		try {
 			wrapLine(aDocument, aCommand);
 		} catch (BadLocationException e) {
+			e.printStackTrace();
+		} catch (BadPositionCategoryException e) {
 			e.printStackTrace();
 		}
 	}
@@ -96,10 +95,20 @@ public class HardLineWrapAutoEdit implements IAutoEditStrategy {
 	 *            Document customization command
 	 * @throws BadLocationException
 	 *             Document command gives out of bound values
+	 * @throws BadPositionCategoryException
+	 *             The wrap position couldn't be added
 	 */
 	private void wrapLine(final IDocument aDocument,
-			final DocumentCommand aCommand) throws BadLocationException {
+			final DocumentCommand aCommand) throws BadLocationException,
+			BadPositionCategoryException {
 
-		pWrapper.wrapRegion(aDocument, aCommand, 80);
+		int modifiedBlockBegin = pWrapper.wrapRegion(aDocument, aCommand, 80);
+		if (modifiedBlockBegin >= 0) {
+
+			// On success, store modified block line
+			int beginOffset = aDocument.getLineOffset(modifiedBlockBegin);
+			aDocument.addPosition(WRAP_POSITION_CATEGORY, new Position(
+					beginOffset));
+		}
 	}
 }

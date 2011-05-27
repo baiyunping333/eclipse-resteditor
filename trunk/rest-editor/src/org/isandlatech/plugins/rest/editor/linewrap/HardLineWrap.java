@@ -144,6 +144,7 @@ public class HardLineWrap {
 	 * @author Thomas Calmant
 	 */
 	protected class BlockModificationResult {
+
 		/** New block content */
 		public StringBuilder content;
 
@@ -684,16 +685,16 @@ public class HardLineWrap {
 	 *            Document replace command
 	 * @param aMaxLen
 	 *            Maximum line length
-	 * @return True on modification, else false
+	 * @return The first line of the modified block, -1 on error
 	 * @throws BadLocationException
 	 *             The replace command contains weird data
 	 */
-	public boolean wrapRegion(final IDocument aDocument,
+	public int wrapRegion(final IDocument aDocument,
 			final DocumentCommand aCommand, final int aMaxLen)
 			throws BadLocationException {
 
 		if (!aCommand.doit) {
-			return false;
+			return -1;
 		}
 
 		// Store some information
@@ -731,7 +732,7 @@ public class HardLineWrap {
 				inlineBlockInfo.content.toString(), aMaxLen,
 				aCommand.caretOffset);
 
-		// Set up the result
+		// Set up the result for Eclipse
 		aCommand.caretOffset = blockOffset + wrapResult.storedOffset;
 		aCommand.shiftsCaret = false;
 
@@ -739,6 +740,7 @@ public class HardLineWrap {
 		aCommand.offset = blockOffset;
 		aCommand.text = wrapResult.content.toString();
 
-		return true;
+		// Return the line at the beginning of the block
+		return rawBlockInfo.pBeginLine;
 	}
 }
