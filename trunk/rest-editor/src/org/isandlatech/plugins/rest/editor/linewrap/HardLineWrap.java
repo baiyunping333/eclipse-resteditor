@@ -457,15 +457,36 @@ public class HardLineWrap {
 	public BlockInformation getRawBlock(final IDocument aDocument,
 			final int aLineNumber) throws BadLocationException {
 
+		return getRawBlock(aDocument, aLineNumber, aLineNumber);
+	}
+
+	/**
+	 * Retrieves the complete block (paragraph, ...) containing the given line
+	 * 
+	 * @param aDocument
+	 *            Document containing the block
+	 * @param aBeginLineNumber
+	 *            Reference line in the document for the beginning of the block
+	 * @param aEndLineNumber
+	 *            Reference line in the document for the end of block
+	 * @return Information about the block containing the given line
+	 * @throws BadLocationException
+	 *             The line is outside the document
+	 */
+	public BlockInformation getRawBlock(final IDocument aDocument,
+			final int aBeginLineNumber, final int aEndLineNumber)
+			throws BadLocationException {
+
 		// Get base line informations
-		final String baseLineContent = getLine(aDocument, aLineNumber, false);
+		final String baseLineContent = getLine(aDocument, aBeginLineNumber,
+				false);
 		final String baseIndent = getIndentation(baseLineContent);
 
 		// Search the borders of the paragraph
-		int lineBlockBegin = getLastSimilarLine(aDocument, aLineNumber,
+		int lineBlockBegin = getLastSimilarLine(aDocument, aBeginLineNumber,
 				baseIndent, -1);
 
-		int lineBlockEnd = getLastSimilarLine(aDocument, aLineNumber,
+		int lineBlockEnd = getLastSimilarLine(aDocument, aEndLineNumber,
 				baseIndent, +1);
 
 		// Extract line block
@@ -481,7 +502,7 @@ public class HardLineWrap {
 			String line = getLine(aDocument, i, true);
 
 			linesOffsets.add(lineBlock.length());
-			if (i == aLineNumber) {
+			if (i == aBeginLineNumber) {
 				baseLineOffset = lineBlock.length();
 			}
 
@@ -677,12 +698,17 @@ public class HardLineWrap {
 
 		// Store some information
 		final int initialOffset = aCommand.offset;
-		final int baseDocLineNr = aDocument.getLineOfOffset(aCommand.offset);
+
+		final int baseDocLineNr = aDocument.getLineOfOffset(initialOffset);
+		final int endDocLineNr = aDocument.getLineOfOffset(initialOffset
+				+ aCommand.length);
+
 		final String lineDelimiter = generateLineDelimiter(aDocument,
 				baseDocLineNr);
 
 		// Get the whole paragraph
-		BlockInformation rawBlockInfo = getRawBlock(aDocument, baseDocLineNr);
+		BlockInformation rawBlockInfo = getRawBlock(aDocument, baseDocLineNr,
+				endDocLineNr);
 		final int blockOffset = aDocument.getLineOffset(rawBlockInfo
 				.getBeginLine());
 
