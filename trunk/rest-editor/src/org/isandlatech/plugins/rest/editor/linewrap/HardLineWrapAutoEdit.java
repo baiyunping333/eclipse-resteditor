@@ -24,16 +24,16 @@ public class HardLineWrapAutoEdit implements IAutoEditStrategy {
 	public static final String WRAP_POSITION_CATEGORY = "ReST_Editor_line_wrap_";
 
 	/** Document position updater */
-	private final IPositionUpdater pPositionUpdater;
+	private IPositionUpdater pPositionUpdater;
 
 	/** Modified Texlipse line wrapper */
-	private final HardLineWrap pWrapper;
+	private final org.isandlatech.plugins.rest.editor.linewrap.v2.HardLineWrap pWrapper;
 
 	/**
 	 * Prepares members : line wrapper and position updater
 	 */
 	public HardLineWrapAutoEdit() {
-		pWrapper = new HardLineWrap();
+		pWrapper = new org.isandlatech.plugins.rest.editor.linewrap.v2.HardLineWrap();
 		pPositionUpdater = new LinePositionUpdater(WRAP_POSITION_CATEGORY);
 	}
 
@@ -81,7 +81,7 @@ public class HardLineWrapAutoEdit implements IAutoEditStrategy {
 			}
 		}
 
-		aDocument.addPositionUpdater(pPositionUpdater);
+		// aDocument.addPositionUpdater(pPositionUpdater);
 	}
 
 	/**
