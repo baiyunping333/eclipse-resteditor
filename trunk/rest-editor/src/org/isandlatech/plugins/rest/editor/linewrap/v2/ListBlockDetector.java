@@ -41,31 +41,47 @@ public class ListBlockDetector extends AbstractBlockDetector {
 		boolean bulletFound = false;
 		int searchLine = aBaseLine;
 
-		for (int i = aBaseLine; i >= 0 && i < nbLines; i += aDirection) {
+		// Line where to start the research
+		int searchStartLine = aBaseLine;
+		if (aDirection > 0) {
+			// Don't stop at the current line if we are looking down
+			searchStartLine++;
+		}
+
+		for (int i = searchStartLine; i >= 0 && i < nbLines; i += aDirection) {
 
 			String line = pLineUtil.getLine(aDocument, i, false);
 			String trimmedLine = line.trim();
 			if (trimmedLine.isEmpty()) {
+				System.out.println("Empty line " + i);
 				break;
 			}
 
 			String lineIndent = pLineUtil.getIndentation(line);
 			if (lineIndent.length() > baseLineIndentLen && aDirection < 0) {
 				// Indented block found while moving up
+				System.out.println("Line too indented '" + line + "'");
 				break;
 			}
 
 			if (lineIndent.length() < baseLineIndentLen && aDirection > 0) {
 				// Un-indented block found while moving down
+				System.out.println("Line too unindented '" + line + "'");
+				break;
 			}
 
 			if (TextUtilities
 					.startsWith(RestLanguage.LIST_MARKERS, trimmedLine) != -1) {
 				// We found the beginning of a list item
 
+				System.out.println("Marker found @" + i + "...");
+
 				if (aDirection < 0) {
 					// If we are moving up, we must include this line
 					searchLine = i;
+					System.out.println("\tMoving up");
+				} else {
+					System.out.println("\tMoving down");
 				}
 
 				bulletFound = true;

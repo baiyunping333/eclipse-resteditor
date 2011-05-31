@@ -70,12 +70,12 @@ public interface IBlockWrappingHandler {
 
 	/**
 	 * Wraps the text block according to internal rules. Computes the new
-	 * reference offset in the wrapped text block.
+	 * reference offset in the wrapped text block. Returns null on error
 	 * 
 	 * @param aMaxLen
 	 *            Maximum line length to aim
 	 * 
-	 * @return The new block content
+	 * @return The new block content, null on error
 	 */
 	String wrap(int aMaxLen);
 }

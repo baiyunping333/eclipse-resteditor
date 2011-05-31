@@ -5,6 +5,10 @@
  */
 package org.isandlatech.plugins.rest.editor.linewrap.v2;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.StringReader;
+
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentCommand;
 import org.eclipse.jface.text.IDocument;
@@ -21,13 +25,13 @@ public abstract class AbstractBlockWrappingHandler implements
 	public static final String INTERNAL_LINE_FEED = "\b";
 
 	/** Working block content */
-	protected String pBlockContent;
+	private String pBlockContent;
 
 	/** Modified block */
-	protected BlockInformation pDocBlock;
+	private BlockInformation pDocBlock;
 
 	/** Handled document */
-	protected IDocument pDocument;
+	private IDocument pDocument;
 
 	/** Line delimiter for the current document */
 	protected String pLineDelimiter;
@@ -50,9 +54,9 @@ public abstract class AbstractBlockWrappingHandler implements
 
 		// Make offsets relative to the block
 		final int blockRelativeCommandOffset = aCommand.offset
-				- pDocBlock.getOffset();
+				- getDocBlock().getOffset();
 		int blockRelativeReferenceOffset = pReferenceOffset
-				- pDocBlock.getOffset();
+				- getDocBlock().getOffset();
 
 		StringBuilder modifiedString = new StringBuilder(pBlockContent.length()
 				+ aCommand.text.length());
@@ -88,11 +92,113 @@ public abstract class AbstractBlockWrappingHandler implements
 	}
 
 	/**
+	 * Converts the given text block into a single line. Conserves the
+	 * indentation of the first line only.
+	 * 
+	 * After that point, {@link #getReferenceOffset()} is relative to the
+	 * beginning of the result line.
+	 * 
+	 * Should be called only once per wrapping operation.
+	 * 
+	 * @param aText
+	 *            Text block to be converted
+	 * @param aLineDelimiter
+	 *            Line delimiter used by the document
+	 * @param aBlockOffset
+	 *            An offset in the block that will be made relative to the line
+	 *            and stored in the result
+	 * @return The block in one line
+	 */
+	protected StringBuilder convertBlockInLine(final String aText) {
+
+		final int delimLen = pLineDelimiter.length();
+
+		// The result builder
+		StringBuilder resultLine = new StringBuilder(aText.length());
+
+		// Offset treatment variables
+		int previousOffsetInOrigin = 0;
+		int currentOffsetInOrigin = 0;
+		int currentOffsetInResult = 0;
+		int newOffset = 0;
+		int blockRelativeReferenceOffset = pReferenceOffset
+				- getDocBlock().getOffset();
+
+		// Read the block
+		BufferedReader reader = new BufferedReader(new StringReader(aText));
+		String currentLine;
+
+		// Insert indentation first (and update currentOffsetInResult)
+		String indent = pLineUtil.getIndentation(aText);
+		resultLine.append(indent);
+		currentOffsetInResult += indent.length();
+
+		try {
+			while ((currentLine = reader.readLine()) != null) {
+
+				String trimmedLine = pLineUtil.ltrim(currentLine);
+				if (trimmedLine.isEmpty()) {
+					continue;
+				}
+
+				resultLine.append(trimmedLine);
+				currentOffsetInResult += trimmedLine.length();
+
+				// Add trailing space, if needed
+				if (!pLineUtil
+						.isSpace(trimmedLine.charAt(trimmedLine.length() - 1))) {
+
+					resultLine.append(' ');
+					currentOffsetInResult++;
+				}
+
+				currentOffsetInOrigin += currentLine.length() + delimLen;
+
+				if (blockRelativeReferenceOffset >= previousOffsetInOrigin
+						&& blockRelativeReferenceOffset < currentOffsetInOrigin) {
+
+					newOffset = blockRelativeReferenceOffset
+							- currentOffsetInOrigin;
+					newOffset += currentOffsetInResult;
+				}
+
+				previousOffsetInOrigin = currentOffsetInOrigin;
+			}
+
+		} catch (IOException e) {
+			// Really ?
+			e.printStackTrace();
+		}
+
+		// Remove the last added trailing space
+		if (resultLine.length() > 0) {
+			resultLine.deleteCharAt(resultLine.length() - 1);
+		}
+
+		pReferenceOffset = newOffset;
+		return resultLine;
+	}
+
+	/**
+	 * @return the working block content
+	 */
+	public String getBlockContent() {
+		return pBlockContent;
+	}
+
+	/**
 	 * Retrieves the current block information
 	 * 
 	 * @return the current block information
 	 */
 	public BlockInformation getBlockInformation() {
+		return getDocBlock();
+	}
+
+	/**
+	 * @return the working document block information
+	 */
+	protected BlockInformation getDocBlock() {
 		return pDocBlock;
 	}
 
@@ -123,19 +229,24 @@ public abstract class AbstractBlockWrappingHandler implements
 	 */
 	protected void printOffset() {
 
-		System.out.println("Insert @"
-				+ (pReferenceOffset - pDocBlock.getOffset()));
+		int docReference = pReferenceOffset - getDocBlock().getOffset();
+		int usedReference = docReference;
+
+		if (usedReference < 0) {
+			usedReference = pReferenceOffset;
+		}
+
+		System.out.println("Insert @" + usedReference + " / "
+				+ (pReferenceOffset - getDocBlock().getOffset()));
 
 		try {
 			StringBuilder modifiedString = new StringBuilder(pBlockContent);
 
-			modifiedString
-					.insert(pReferenceOffset - pDocBlock.getOffset(), '|');
+			modifiedString.insert(usedReference, '|');
 
-			System.out.println("String : '" + modifiedString + "'");
+			System.out.println("BlockContent : '" + modifiedString + "'");
 
-			modifiedString.deleteCharAt(pReferenceOffset
-					- pDocBlock.getOffset());
+			modifiedString.deleteCharAt(usedReference);
 
 		} catch (Exception ex) {
 			System.out.println("[Reference error - " + ex + "]");
@@ -143,11 +254,14 @@ public abstract class AbstractBlockWrappingHandler implements
 	}
 
 	/**
-	 * Replaces internal line feed markers by document line delimiters
+	 * Replaces internal line feed markers by document line delimiters.
+	 * 
+	 * Don't forget to call {@link #setBlockContent(String)} before calling this
+	 * method
 	 */
 	protected String replaceInternalLineMarkers() {
 
-		int relativeReference = pReferenceOffset - pDocBlock.getOffset();
+		int relativeReference = pReferenceOffset - getDocBlock().getOffset();
 		int delta = pLineDelimiter.length() * 2 - INTERNAL_LINE_FEED.length();
 
 		int index = pBlockContent.indexOf(INTERNAL_LINE_FEED);
@@ -164,9 +278,17 @@ public abstract class AbstractBlockWrappingHandler implements
 				pLineDelimiter + pLineDelimiter);
 
 		pReferenceOffset = Math.max(relativeReference, 0)
-				+ pDocBlock.getOffset();
+				+ getDocBlock().getOffset();
 
 		return pBlockContent;
+	}
+
+	/**
+	 * @param aBlockContent
+	 *            the working block content
+	 */
+	public void setBlockContent(final String aBlockContent) {
+		pBlockContent = aBlockContent;
 	}
 
 	/*
@@ -198,14 +320,14 @@ public abstract class AbstractBlockWrappingHandler implements
 		pBlockContent = null;
 		pLineDelimiter = TextUtilities.getDefaultLineDelimiter(aDocument);
 
-		if (!pDocBlock.computeOffsets(aDocument)) {
+		if (!getDocBlock().computeOffsets(aDocument)) {
 			return false;
 		}
 
 		// Store the block content
 		try {
-			pBlockContent = aDocument.get(pDocBlock.getOffset(),
-					pDocBlock.getLength());
+			pBlockContent = aDocument.get(getDocBlock().getOffset(),
+					getDocBlock().getLength());
 
 		} catch (BadLocationException e) {
 			e.printStackTrace();
@@ -213,5 +335,81 @@ public abstract class AbstractBlockWrappingHandler implements
 		}
 
 		return true;
+	}
+
+	/**
+	 * Wraps the given line adding document line delimiter where necessary and
+	 * keeping the base indentation.
+	 * 
+	 * After that point, {@link #getReferenceOffset()} is relative to the
+	 * document.
+	 * 
+	 * @param aLine
+	 *            Line to wrap
+	 * @param aMaxLen
+	 *            Maximum length of a line
+	 * @param aOffsetInLine
+	 *            An offset in the entry line that will be updated, visible in
+	 *            the result offset field
+	 * @return The wrapped line
+	 */
+	protected StringBuilder wrapLine(final String aLine, final int aMaxLen) {
+
+		// Store indentation
+		final String indent = pLineUtil.getIndentation(aLine);
+		final int indentLen = indent.length();
+
+		// Line delimiter
+		final int delimLen = pLineDelimiter.length();
+
+		StringBuilder wrappedLine = new StringBuilder(
+				(int) (aLine.length() * 1.2));
+
+		int breakPos = 0;
+		int oldBreakPos = 0;
+
+		int currentOffsetInResult = 0;
+		int newOffset = -1;
+
+		while ((breakPos = pLineUtil.getLineBreakPosition(aLine, breakPos,
+				aMaxLen - indentLen)) != -1) {
+
+			String subLine = aLine.substring(oldBreakPos, breakPos);
+			String trimmedSubline = pLineUtil.ltrim(subLine);
+
+			wrappedLine.append(indent);
+			wrappedLine.append(trimmedSubline);
+			wrappedLine.append(pLineDelimiter);
+
+			// If the offset is in the currently modified block...
+			if (pReferenceOffset >= oldBreakPos && pReferenceOffset < breakPos) {
+
+				// Set it to be relative to the new line
+				newOffset = pReferenceOffset - oldBreakPos;
+
+				// Correct getLineBreakPosition indentation forgiveness
+				if (oldBreakPos > 0) {
+					newOffset -= (subLine.length() - trimmedSubline.length());
+					newOffset += indentLen;
+				}
+
+				// Make it relative to the current block state
+				newOffset += currentOffsetInResult;
+			}
+
+			currentOffsetInResult += indentLen + trimmedSubline.length()
+					+ delimLen;
+
+			oldBreakPos = breakPos;
+		}
+
+		// Remove the last delimiter
+		int wrappedLineLen = wrappedLine.length();
+		if (wrappedLineLen - delimLen > 0) {
+			wrappedLine.delete(wrappedLineLen - delimLen, wrappedLineLen);
+		}
+
+		pReferenceOffset = newOffset + getDocBlock().getOffset();
+		return wrappedLine;
 	}
 }

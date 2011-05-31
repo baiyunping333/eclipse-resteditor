@@ -17,7 +17,13 @@ import org.eclipse.jface.text.IDocument;
  */
 public class HardLineWrap {
 
-	private void printCommand(final DocumentCommand aCommand) {
+	/**
+	 * Debug function : prints out the given document command attributes
+	 * 
+	 * @param aCommand
+	 *            Command to be displayed
+	 */
+	public static void printCommand(final DocumentCommand aCommand) {
 		System.out.println("--- Command ---");
 		System.out.println("\toffset = " + aCommand.offset);
 		System.out.println("\tlength = " + aCommand.length);
@@ -47,7 +53,7 @@ public class HardLineWrap {
 			return -1;
 		}
 
-		printCommand(aCommand);
+		System.out.println(" ------ ");
 
 		// Store some information
 		final int initialOffset = aCommand.offset;
@@ -86,6 +92,8 @@ public class HardLineWrap {
 			return -1;
 		}
 
+		System.out.println("Found block : " + baseDocBlock);
+
 		blockHandler = BlockWrappingHandlerFactory.getHandler(bestDetector
 				.getHandlerType());
 
@@ -108,6 +116,7 @@ public class HardLineWrap {
 		}
 
 		if (result == null) {
+			aCommand.doit = false;
 			return -1;
 		}
 

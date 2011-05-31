@@ -101,7 +101,8 @@ public class LineUtil {
 	}
 
 	/**
-	 * Retrieves the given line content, with or without its end delimiter
+	 * Retrieves the given line content, with or without its end delimiter.
+	 * Returns null if the line is out of the document.
 	 * 
 	 * @param aDocument
 	 *            Document to use
@@ -149,7 +150,7 @@ public class LineUtil {
 	 *            Search start offset
 	 * @param aMaxLineLength
 	 *            Maximum line length
-	 * @return The best position to break the line
+	 * @return The best position to break the line, -1 on error / on stop
 	 */
 	public int getLineBreakPosition(final String aLine, final int aBaseOffset,
 			final int aMaxLineLength) {
