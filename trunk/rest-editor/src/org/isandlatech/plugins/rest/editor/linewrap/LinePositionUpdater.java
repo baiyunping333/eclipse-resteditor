@@ -11,12 +11,14 @@
 
 package org.isandlatech.plugins.rest.editor.linewrap;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.BadPositionCategoryException;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IPositionUpdater;
-import org.eclipse.jface.text.Position;
 
 /**
  * Updates all document positions of the given category to store the offset of
@@ -26,17 +28,34 @@ import org.eclipse.jface.text.Position;
  */
 public class LinePositionUpdater implements IPositionUpdater {
 
-	/** Position category to be used */
-	private String pCategory;
+	/** Lines to update */
+	private Set<Integer> pWatchedLines;
 
 	/**
 	 * Stores the category of positions to update
-	 * 
-	 * @param aCategory
-	 *            Category of positions to update
 	 */
-	public LinePositionUpdater(final String aCategory) {
-		pCategory = aCategory;
+	public LinePositionUpdater() {
+		pWatchedLines = new HashSet<Integer>();
+	}
+
+	/**
+	 * Adds a line to the watched ones
+	 * 
+	 * @param aLine
+	 *            Line to be added
+	 */
+	public void addLine(final int aLine) {
+		pWatchedLines.add(aLine);
+	}
+
+	/**
+	 * Removes a line from the watched ones
+	 * 
+	 * @param aLine
+	 *            Line to be removed
+	 */
+	public void removeLine(final int aLine) {
+		pWatchedLines.remove(aLine);
 	}
 
 	/*
@@ -53,60 +72,59 @@ public class LinePositionUpdater implements IPositionUpdater {
 		final IDocument document = aEvent.getDocument();
 		final int modificationOffset = aEvent.getOffset();
 
-		// Compute the difference between the old and the new offset
-		final int delta = aEvent.getText().length() - aEvent.getLength();
+		int modificationBegin;
+		int modificationNewEnd;
+		int modificationOldEnd;
 
-		if (delta == 0) {
-			return;
-		}
-
-		// Retrieve all needed positions
-		Position[] positions;
 		try {
-			positions = document.getPositions(pCategory);
-		} catch (BadPositionCategoryException e) {
-			e.printStackTrace();
-			// No need to go further...
+			modificationBegin = document.getLineOfOffset(modificationOffset);
+
+			modificationNewEnd = document.getLineOfOffset(modificationOffset
+					+ aEvent.getText().length());
+
+			modificationOldEnd = document.getLineOfOffset(modificationOffset
+					+ aEvent.getLength());
+
+		} catch (BadLocationException e1) {
+			e1.printStackTrace();
 			return;
 		}
 
-		// Update positions
-		for (Position position : positions) {
+		System.out.println("-----\nModifs : " + modificationBegin + " -> "
+				+ modificationOldEnd + " <- " + modificationNewEnd);
 
-			// Ignore positions before the modification
-			if (position.offset < modificationOffset) {
-				continue;
-			}
+		int delta = modificationNewEnd - modificationOldEnd;
+		Integer[] currentLines = pWatchedLines.toArray(new Integer[0]);
+		Set<Integer> newLinesSet = new HashSet<Integer>();
 
-			try {
-				final int oldLine = document.getLineOfOffset(position
-						.getOffset());
+		for (int i = 0; i < currentLines.length; i++) {
+			int line = currentLines[i];
 
-				System.out.println("Old offset : " + position.getOffset());
+			if (line >= modificationOldEnd) {
+				// Updates lines after the modification
+				newLinesSet.add(line + delta);
+				System.out.println("Update " + line + " -> " + (line + delta));
 
-				final int newLine = document.getLineOfOffset(position
-						.getOffset() + delta);
+			} else if (line >= modificationBegin && line < modificationNewEnd) {
+				// Aggregate block lines
+				newLinesSet.add(modificationBegin);
+				System.out.println("Aggregating " + line + " btw "
+						+ modificationBegin + " - " + modificationNewEnd);
 
-				position.setOffset(document.getLineOffset(newLine));
-				position.setLength(0);
+			} else if (line > modificationNewEnd && line < modificationOldEnd) {
+				// To be deleted
+				System.out.println("Remove " + line + " btw "
+						+ modificationNewEnd + " and " + modificationOldEnd);
 
-				System.out.println("New offset : " + position.getOffset());
-
-				System.out
-						.println("Pos update : " + oldLine + " -> " + newLine);
-
-			} catch (BadLocationException ex) {
-				ex.printStackTrace();
-
-				// Bad position : remove it from document
-				try {
-					document.removePosition(pCategory, position);
-				} catch (BadPositionCategoryException e) {
-					e.printStackTrace();
-				}
+			} else {
+				// Non-updated lines
+				newLinesSet.add(line);
 			}
 		}
 
+		pWatchedLines = newLinesSet;
+
+		System.out.println(Arrays.toString(pWatchedLines.toArray()));
 		System.out.println("\n");
 	}
 }

@@ -43,6 +43,9 @@ public class HardLineWrap {
 		/** Handler used for wrapping */
 		private String pHandlerType;
 
+		/** Last line of the detected block */
+		private int pLastBlockLine;
+
 		/**
 		 * Prepares a read-only wrapping result
 		 * 
@@ -50,15 +53,18 @@ public class HardLineWrap {
 		 *            detector used to detect the block
 		 * @param aHandler
 		 *            handler used for wrapping
-		 * @param aLine
+		 * @param aFirstLine
 		 *            first line of the detected block
+		 * @param aLastLine
+		 *            last line of the detected block
 		 */
 		public WrapResult(final String aDetector, final String aHandler,
-				final int aLine) {
+				final int aFirstLine, final int aLastLine) {
 
 			pDetectorType = aDetector;
 			pHandlerType = aHandler;
-			pFirstBlockLine = aLine;
+			pFirstBlockLine = aFirstLine;
+			pLastBlockLine = aLastLine;
 		}
 
 		/**
@@ -87,6 +93,15 @@ public class HardLineWrap {
 		 */
 		public String getHandlerType() {
 			return pHandlerType;
+		}
+
+		/**
+		 * Retrieves the number of the last line of the block in the document
+		 * 
+		 * @return the number of the last line of the block
+		 */
+		public int getLastBlockLine() {
+			return pLastBlockLine;
 		}
 	}
 
@@ -220,7 +235,9 @@ public class HardLineWrap {
 
 		// Return the line at the beginning of the block
 		WrapResult wrapResult = new WrapResult(bestDetector.getType(),
-				blockHandler.getType(), baseDocBlock.getFirstLine());
+				blockHandler.getType(), baseDocBlock.getFirstLine(),
+				baseDocBlock.getLastLine());
+
 		return wrapResult;
 	}
 }

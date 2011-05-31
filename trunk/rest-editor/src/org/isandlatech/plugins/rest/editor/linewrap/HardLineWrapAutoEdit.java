@@ -17,7 +17,6 @@ import org.eclipse.jface.text.DocumentCommand;
 import org.eclipse.jface.text.IAutoEditStrategy;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IPositionUpdater;
-import org.eclipse.jface.text.Position;
 import org.isandlatech.plugins.rest.editor.linewrap.HardLineWrap.WrapResult;
 
 /**
@@ -27,11 +26,8 @@ import org.isandlatech.plugins.rest.editor.linewrap.HardLineWrap.WrapResult;
  */
 public class HardLineWrapAutoEdit implements IAutoEditStrategy {
 
-	/** Category of the positions that indicates hard wrapped lines */
-	public static final String WRAP_POSITION_CATEGORY = "ReST_Editor_line_wrap_";
-
 	/** Document position updater */
-	private IPositionUpdater pPositionUpdater;
+	private LinePositionUpdater pPositionUpdater;
 
 	/** Line wrapper */
 	private final HardLineWrap pWrapper;
@@ -41,7 +37,7 @@ public class HardLineWrapAutoEdit implements IAutoEditStrategy {
 	 */
 	public HardLineWrapAutoEdit() {
 		pWrapper = new org.isandlatech.plugins.rest.editor.linewrap.HardLineWrap();
-		pPositionUpdater = new LinePositionUpdater(WRAP_POSITION_CATEGORY);
+		pPositionUpdater = new LinePositionUpdater();
 	}
 
 	/*
@@ -76,11 +72,6 @@ public class HardLineWrapAutoEdit implements IAutoEditStrategy {
 	 */
 	public void setupPositionCategory(final IDocument aDocument) {
 
-		// Adds the position category
-		if (!aDocument.containsPositionCategory(WRAP_POSITION_CATEGORY)) {
-			aDocument.addPositionCategory(WRAP_POSITION_CATEGORY);
-		}
-
 		// Set the position updater, if needed
 		for (IPositionUpdater updater : aDocument.getPositionUpdaters()) {
 			if (pPositionUpdater.equals(updater)) {
@@ -88,7 +79,7 @@ public class HardLineWrapAutoEdit implements IAutoEditStrategy {
 			}
 		}
 
-		// aDocument.addPositionUpdater(pPositionUpdater);
+		aDocument.addPositionUpdater(pPositionUpdater);
 	}
 
 	/**
@@ -111,13 +102,19 @@ public class HardLineWrapAutoEdit implements IAutoEditStrategy {
 
 		WrapResult result = pWrapper.wrapRegion(aDocument, aCommand, 80);
 
-		int modifiedBlockBegin = result.getFirstBlockLine();
-		if (modifiedBlockBegin >= 0) {
+		int firstLine = result.getFirstBlockLine();
+		int lastLine = result.getLastBlockLine();
 
-			// On success, store modified block line
-			int beginOffset = aDocument.getLineOffset(modifiedBlockBegin);
-			aDocument.addPosition(WRAP_POSITION_CATEGORY, new Position(
-					beginOffset));
+		if (firstLine >= 0) {
+
+			if (lastLine - firstLine == 0) {
+				// Remove line if the block is only 1 line long
+				pPositionUpdater.removeLine(firstLine);
+
+			} else {
+				// Watch the block if its length is more than 1 line
+				pPositionUpdater.addLine(firstLine);
+			}
 		}
 	}
 }
