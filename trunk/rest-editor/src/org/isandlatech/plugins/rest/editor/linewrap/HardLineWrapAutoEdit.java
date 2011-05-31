@@ -33,13 +33,13 @@ public class HardLineWrapAutoEdit implements IAutoEditStrategy {
 	private IPositionUpdater pPositionUpdater;
 
 	/** Modified Texlipse line wrapper */
-	private final org.isandlatech.plugins.rest.editor.linewrap.v2.HardLineWrap pWrapper;
+	private final org.isandlatech.plugins.rest.editor.linewrap.HardLineWrap pWrapper;
 
 	/**
 	 * Prepares members : line wrapper and position updater
 	 */
 	public HardLineWrapAutoEdit() {
-		pWrapper = new org.isandlatech.plugins.rest.editor.linewrap.v2.HardLineWrap();
+		pWrapper = new org.isandlatech.plugins.rest.editor.linewrap.HardLineWrap();
 		pPositionUpdater = new LinePositionUpdater(WRAP_POSITION_CATEGORY);
 	}
 

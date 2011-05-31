@@ -9,7 +9,7 @@
  *    Thomas Calmant (isandlaTech) - initial API and implementation
  *******************************************************************************/
 
-package org.isandlatech.plugins.rest.editor.linewrap.v2;
+package org.isandlatech.plugins.rest.editor.linewrap;
 
 /**
  * Default block wrapper : tries to conserve the indentation
