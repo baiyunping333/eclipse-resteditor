@@ -239,14 +239,26 @@ public abstract class AbstractBlockWrappingHandler implements
 		System.out.println("Insert @" + usedReference + " / "
 				+ (pReferenceOffset - getDocBlock().getOffset()));
 
+		printStringOffset("BlockContent", pBlockContent, usedReference);
+	}
+
+	/**
+	 * Prints the given string with an offset indicator
+	 * 
+	 * @param aLabel
+	 *            Line label (':' not needed)
+	 * @param aString
+	 *            String to display
+	 * @param aOffset
+	 *            Offset to display in the string
+	 */
+	protected void printStringOffset(final CharSequence aLabel,
+			final CharSequence aString, final int aOffset) {
+
 		try {
-			StringBuilder modifiedString = new StringBuilder(pBlockContent);
-
-			modifiedString.insert(usedReference, '|');
-
-			System.out.println("BlockContent : '" + modifiedString + "'");
-
-			modifiedString.deleteCharAt(usedReference);
+			StringBuilder modifiedString = new StringBuilder(aString);
+			modifiedString.insert(aOffset, '|');
+			System.out.println(aLabel + " : '" + modifiedString + "'\n");
 
 		} catch (Exception ex) {
 			System.out.println("[Reference error - " + ex + "]");

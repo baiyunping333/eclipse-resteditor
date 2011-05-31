@@ -89,8 +89,8 @@ public class ListBlockWrappingHandler extends AbstractBlockWrappingHandler {
 
 		try {
 			while ((line = strReader.readLine()) != null) {
-				builder.append(pLineUtil.ltrim(line));
-				builder.append(' ');
+				builder.append(line);
+				builder.append(pLineDelimiter);
 			}
 
 		} catch (IOException e) {
@@ -150,8 +150,6 @@ public class ListBlockWrappingHandler extends AbstractBlockWrappingHandler {
 	@Override
 	public String wrap(final int aMaxLen) {
 
-		final int blockOffset = getBlockInformation().getOffset();
-
 		// Extract block lines
 		if (!extractBlock()) {
 			return null;
@@ -160,69 +158,29 @@ public class ListBlockWrappingHandler extends AbstractBlockWrappingHandler {
 		// Compute indentations to be used
 		computeIndentations();
 
+		final int prefixLen = pFirstLineIndent.length() + pBullet.length();
+
 		StringBuilder completeBlock = new StringBuilder();
-		completeBlock.append(pFirstLineContent);
+		completeBlock.append(pBlockIndent);
+		completeBlock.append(pFirstLineContent.substring(prefixLen));
 		completeBlock.append(pLineDelimiter);
 		completeBlock.append(pListBlockContent);
+
+		// Update the reference offset as needed
+		pReferenceOffset = pReferenceOffset - prefixLen + pBlockIndent.length();
 
 		StringBuilder completeBlockInLine = convertBlockInLine(completeBlock
 				.toString());
 
-		// Wrap the first line
-		int firstBreakPos = wrapFirstLine(completeBlockInLine.toString(),
-				aMaxLen);
+		StringBuilder result = wrapLine(completeBlockInLine.toString(), aMaxLen);
 
-		StringBuilder result = new StringBuilder();
-		result.append(pFirstLineContent);
+		result.delete(0, pBlockIndent.length());
+		result.insert(0, pFirstLineIndent + pBullet);
 
-		if (firstBreakPos > 0) {
-
-			int localReferenceOffset = pReferenceOffset;
-
-			// Re-calculate the in-line block
-			StringBuilder nextBlockInLine = new StringBuilder();
-			nextBlockInLine.append(pBlockIndent);
-			nextBlockInLine.append(completeBlockInLine
-					.substring(firstBreakPos + 1));
-
-			result.append(pLineDelimiter);
-			result.append(wrapLine(nextBlockInLine.toString(), aMaxLen));
-
-			if (localReferenceOffset < pFirstLineContent.length()) {
-				pReferenceOffset = localReferenceOffset + blockOffset;
-			}
-
-		} else {
-			// The reference offset must be relative to the document now
-			pReferenceOffset += blockOffset;
-		}
-
+		pReferenceOffset = pReferenceOffset + prefixLen - pBlockIndent.length();
 		setBlockContent(result.toString());
-		printOffset();
 
 		// Don't forget to replace markers
 		return replaceInternalLineMarkers();
-	}
-
-	/**
-	 * Wraps the first line and returns the break position. Returns -1 if the
-	 * block didn't need to be wrapped
-	 * 
-	 * @param aBlock
-	 *            Block to be wrapped
-	 * @param aMaxLineLength
-	 *            Maximum line length
-	 * @return The break position, -1 if break isn't needed
-	 */
-	private int wrapFirstLine(final String aBlock, final int aMaxLineLength) {
-
-		int breakPos = pLineUtil
-				.getLineBreakPosition(aBlock, 0, aMaxLineLength);
-		if (breakPos < 0 || breakPos == aBlock.length()) {
-			return -1;
-		}
-
-		pFirstLineContent = aBlock.substring(0, breakPos);
-		return breakPos;
 	}
 }
