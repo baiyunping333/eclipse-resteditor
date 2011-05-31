@@ -53,20 +53,17 @@ public class ListBlockDetector extends AbstractBlockDetector {
 			String line = pLineUtil.getLine(aDocument, i, false);
 			String trimmedLine = line.trim();
 			if (trimmedLine.isEmpty()) {
-				System.out.println("Empty line " + i);
 				break;
 			}
 
 			String lineIndent = pLineUtil.getIndentation(line);
 			if (lineIndent.length() > baseLineIndentLen && aDirection < 0) {
 				// Indented block found while moving up
-				System.out.println("Line too indented '" + line + "'");
 				break;
 			}
 
 			if (lineIndent.length() < baseLineIndentLen && aDirection > 0) {
 				// Un-indented block found while moving down
-				System.out.println("Line too unindented '" + line + "'");
 				break;
 			}
 
@@ -74,14 +71,9 @@ public class ListBlockDetector extends AbstractBlockDetector {
 					.startsWith(RestLanguage.LIST_MARKERS, trimmedLine) != -1) {
 				// We found the beginning of a list item
 
-				System.out.println("Marker found @" + i + "...");
-
 				if (aDirection < 0) {
 					// If we are moving up, we must include this line
 					searchLine = i;
-					System.out.println("\tMoving up");
-				} else {
-					System.out.println("\tMoving down");
 				}
 
 				bulletFound = true;

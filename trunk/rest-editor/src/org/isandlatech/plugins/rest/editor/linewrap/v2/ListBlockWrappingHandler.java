@@ -99,7 +99,9 @@ public class ListBlockWrappingHandler extends AbstractBlockWrappingHandler {
 		}
 
 		// Don't forget to remove the last added space
-		builder.deleteCharAt(builder.length() - 1);
+		if (builder.length() > 0) {
+			builder.deleteCharAt(builder.length() - 1);
+		}
 
 		pListBlockContent = builder.toString();
 		return true;
@@ -158,33 +160,42 @@ public class ListBlockWrappingHandler extends AbstractBlockWrappingHandler {
 		// Compute indentations to be used
 		computeIndentations();
 
+		StringBuilder completeBlock = new StringBuilder();
+		completeBlock.append(pFirstLineContent);
+		completeBlock.append(pLineDelimiter);
+		completeBlock.append(pListBlockContent);
+
+		StringBuilder completeBlockInLine = convertBlockInLine(completeBlock
+				.toString());
+
 		// Wrap the first line
-		wrapFirstLine(aMaxLen);
+		int firstBreakPos = wrapFirstLine(completeBlockInLine.toString(),
+				aMaxLen);
 
-		StringBuilder blockResult = new StringBuilder();
+		StringBuilder result = new StringBuilder();
+		result.append(pFirstLineContent);
 
-		if (!pListBlockContent.isEmpty()) {
-			// Wrap the list block
+		if (firstBreakPos > 0) {
 
-			int localReferenceOffset = pReferenceOffset - blockOffset;
+			int localReferenceOffset = pReferenceOffset;
 
-			StringBuilder listBlockInLine = new StringBuilder();
+			// Re-calculate the in-line block
+			StringBuilder nextBlockInLine = new StringBuilder();
+			nextBlockInLine.append(pBlockIndent);
+			nextBlockInLine.append(completeBlockInLine
+					.substring(firstBreakPos + 1));
 
-			// Set the indentation to be used
-			listBlockInLine.append(pBlockIndent);
-			listBlockInLine.append(convertBlockInLine(pListBlockContent));
-
-			blockResult.append(pLineDelimiter);
-			blockResult.append(wrapLine(listBlockInLine.toString(), aMaxLen));
+			result.append(pLineDelimiter);
+			result.append(wrapLine(nextBlockInLine.toString(), aMaxLen));
 
 			if (localReferenceOffset < pFirstLineContent.length()) {
 				pReferenceOffset = localReferenceOffset + blockOffset;
 			}
-		}
 
-		StringBuilder result = new StringBuilder();
-		result.append(pFirstLineContent);
-		result.append(blockResult);
+		} else {
+			// The reference offset must be relative to the document now
+			pReferenceOffset += blockOffset;
+		}
 
 		setBlockContent(result.toString());
 		printOffset();
@@ -194,57 +205,24 @@ public class ListBlockWrappingHandler extends AbstractBlockWrappingHandler {
 	}
 
 	/**
-	 * Wraps the first to have the right length. Moves the end of the line in
-	 * the beginning of the block
+	 * Wraps the first line and returns the break position. Returns -1 if the
+	 * block didn't need to be wrapped
 	 * 
-	 * @param aMaxLen
+	 * @param aBlock
+	 *            Block to be wrapped
+	 * @param aMaxLineLength
 	 *            Maximum line length
-	 * 
-	 * @return True if the list block has been modified, else false
+	 * @return The break position, -1 if break isn't needed
 	 */
-	private boolean wrapFirstLine(final int aMaxLen) {
+	private int wrapFirstLine(final String aBlock, final int aMaxLineLength) {
 
-		// Use a left trimmed line, to be sure that the break position is not in
-		// the indentation nor just after the bullet
-		int delta = pFirstLineIndent.length() + pBullet.length();
-		String trimmedLine = pFirstLineContent.substring(delta);
-
-		int breakPos = pLineUtil.getLineBreakPosition(trimmedLine, 0, aMaxLen
-				- delta);
-
-		// On error / on stop, do nothing
-		if (breakPos < 0) {
-			return false;
+		int breakPos = pLineUtil
+				.getLineBreakPosition(aBlock, 0, aMaxLineLength);
+		if (breakPos < 0 || breakPos == aBlock.length()) {
+			return -1;
 		}
 
-		// If the break pos equals the length of the string, stop here
-		if (breakPos == trimmedLine.length()) {
-			return false;
-		}
-
-		// Do the wrapping
-		breakPos += delta;
-
-		String wrappedFirstLine = pFirstLineContent.substring(0, breakPos);
-		String movedPart = pFirstLineContent.substring(breakPos + 1);
-
-		pFirstLineContent = wrappedFirstLine;
-
-		// Move the end of the line to the beginning of the block, if needed
-		if (movedPart.trim().isEmpty()) {
-			return false;
-		}
-
-		StringBuilder newListBlock = new StringBuilder(
-				pListBlockContent.length() + movedPart.length());
-
-		newListBlock.append(pLineUtil.rtrim(movedPart));
-		newListBlock.append(' ');
-		newListBlock.append(pListBlockContent);
-
-		// Apply block wrapping
-		pListBlockContent = newListBlock.toString();
-
-		return true;
+		pFirstLineContent = aBlock.substring(0, breakPos);
+		return breakPos;
 	}
 }

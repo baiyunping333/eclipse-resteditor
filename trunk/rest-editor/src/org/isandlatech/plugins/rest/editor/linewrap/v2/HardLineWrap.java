@@ -92,8 +92,6 @@ public class HardLineWrap {
 			return -1;
 		}
 
-		System.out.println("Found block : " + baseDocBlock);
-
 		blockHandler = BlockWrappingHandlerFactory.getHandler(bestDetector
 				.getHandlerType());
 
