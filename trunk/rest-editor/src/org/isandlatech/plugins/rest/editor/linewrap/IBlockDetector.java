@@ -53,4 +53,11 @@ public interface IBlockDetector {
 	 * @return The detector priority (the less value, the more priority).
 	 */
 	int getPriority();
+
+	/**
+	 * Retrieves the type of this detector (should be unique)
+	 * 
+	 * @return The type of this detector
+	 */
+	String getType();
 }

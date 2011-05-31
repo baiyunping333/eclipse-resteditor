@@ -28,6 +28,69 @@ import org.isandlatech.plugins.rest.editor.scanners.RestPartitionScanner;
 public class HardLineWrap {
 
 	/**
+	 * Stores wrapping result
+	 * 
+	 * @author Thomas Calmant
+	 */
+	public class WrapResult {
+
+		/** The detector used to detect the block */
+		private String pDetectorType;
+
+		/** First line of the detected block */
+		private int pFirstBlockLine;
+
+		/** Handler used for wrapping */
+		private String pHandlerType;
+
+		/**
+		 * Prepares a read-only wrapping result
+		 * 
+		 * @param aDetector
+		 *            detector used to detect the block
+		 * @param aHandler
+		 *            handler used for wrapping
+		 * @param aLine
+		 *            first line of the detected block
+		 */
+		public WrapResult(final String aDetector, final String aHandler,
+				final int aLine) {
+
+			pDetectorType = aDetector;
+			pHandlerType = aHandler;
+			pFirstBlockLine = aLine;
+		}
+
+		/**
+		 * Retrieves the name of the detector that has been selected to find the
+		 * wrapped block
+		 * 
+		 * @return the detector type
+		 */
+		public String getDetectorType() {
+			return pDetectorType;
+		}
+
+		/**
+		 * Retrieves the number of the first line of the block in the document
+		 * 
+		 * @return the number of the first line of the block
+		 */
+		public int getFirstBlockLine() {
+			return pFirstBlockLine;
+		}
+
+		/**
+		 * Retrieves the type of the handler used for block wrapping
+		 * 
+		 * @return the handler type
+		 */
+		public String getHandlerType() {
+			return pHandlerType;
+		}
+	}
+
+	/**
 	 * Debug function : prints out the given document command attributes
 	 * 
 	 * @param aCommand
@@ -74,12 +137,12 @@ public class HardLineWrap {
 	 * @throws BadLocationException
 	 *             The replace command contains weird data
 	 */
-	public int wrapRegion(final IDocument aDocument,
+	public WrapResult wrapRegion(final IDocument aDocument,
 			final DocumentCommand aCommand, final int aMaxLen)
 			throws BadLocationException {
 
 		if (!aCommand.doit) {
-			return -1;
+			return null;
 		}
 
 		// Store some information
@@ -114,7 +177,7 @@ public class HardLineWrap {
 
 		if (baseDocBlock == null || bestDetector == null) {
 			System.err.println("No block detected...");
-			return -1;
+			return null;
 		}
 
 		blockHandler = BlockWrappingHandlerStore.get().getHandler(
@@ -124,7 +187,7 @@ public class HardLineWrap {
 		if (blockHandler == null) {
 			System.err.println("No handler available for : "
 					+ bestDetector.getHandlerType());
-			return -1;
+			return null;
 		}
 
 		String result = null;
@@ -147,7 +210,7 @@ public class HardLineWrap {
 
 		if (result == null) {
 			aCommand.doit = false;
-			return -1;
+			return null;
 		}
 
 		aCommand.offset = baseDocBlock.getOffset();
@@ -156,6 +219,8 @@ public class HardLineWrap {
 		aCommand.text = result;
 
 		// Return the line at the beginning of the block
-		return baseDocLineNr;
+		WrapResult wrapResult = new WrapResult(bestDetector.getType(),
+				blockHandler.getType(), baseDocBlock.getFirstLine());
+		return wrapResult;
 	}
 }

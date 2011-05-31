@@ -22,6 +22,9 @@ import org.eclipse.jface.text.IDocument;
  */
 public class DefaultBlockDetector extends AbstractBlockDetector {
 
+	/** Default detector type */
+	public static final String DETECTOR_TYPE = "__default_detector__";
+
 	/** Partitioning used by the document scanner */
 	private String pPartitioning;
 
@@ -116,5 +119,16 @@ public class DefaultBlockDetector extends AbstractBlockDetector {
 	@Override
 	public int getPriority() {
 		return Integer.MAX_VALUE - 1;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.isandlatech.plugins.rest.editor.linewrap.IBlockDetector#getType()
+	 */
+	@Override
+	public String getType() {
+		return DETECTOR_TYPE;
 	}
 }

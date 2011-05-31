@@ -16,10 +16,14 @@ import org.eclipse.jface.text.TextUtilities;
 import org.isandlatech.plugins.rest.parser.RestLanguage;
 
 /**
- * @author Thomas Calmant
+ * Detects list blocks (separated by empty lines, other list entries, ...)
  * 
+ * @author Thomas Calmant
  */
 public class ListBlockDetector extends AbstractBlockDetector {
+
+	/** Detector type */
+	public static final String DETECTOR_TYPE = "__list_block_detector__";
 
 	/*
 	 * (non-Javadoc)
@@ -119,6 +123,17 @@ public class ListBlockDetector extends AbstractBlockDetector {
 	@Override
 	public int getPriority() {
 		return 0;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.isandlatech.plugins.rest.editor.linewrap.IBlockDetector#getType()
+	 */
+	@Override
+	public String getType() {
+		return DETECTOR_TYPE;
 	}
 
 }

@@ -18,6 +18,7 @@ import org.eclipse.jface.text.IAutoEditStrategy;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IPositionUpdater;
 import org.eclipse.jface.text.Position;
+import org.isandlatech.plugins.rest.editor.linewrap.HardLineWrap.WrapResult;
 
 /**
  * Modifies the document content to avoid lines above a preferred length
@@ -32,8 +33,8 @@ public class HardLineWrapAutoEdit implements IAutoEditStrategy {
 	/** Document position updater */
 	private IPositionUpdater pPositionUpdater;
 
-	/** Modified Texlipse line wrapper */
-	private final org.isandlatech.plugins.rest.editor.linewrap.HardLineWrap pWrapper;
+	/** Line wrapper */
+	private final HardLineWrap pWrapper;
 
 	/**
 	 * Prepares members : line wrapper and position updater
@@ -108,7 +109,9 @@ public class HardLineWrapAutoEdit implements IAutoEditStrategy {
 			final DocumentCommand aCommand) throws BadLocationException,
 			BadPositionCategoryException {
 
-		int modifiedBlockBegin = pWrapper.wrapRegion(aDocument, aCommand, 80);
+		WrapResult result = pWrapper.wrapRegion(aDocument, aCommand, 80);
+
+		int modifiedBlockBegin = result.getFirstBlockLine();
 		if (modifiedBlockBegin >= 0) {
 
 			// On success, store modified block line
