@@ -53,8 +53,6 @@ public class HardLineWrap {
 			return -1;
 		}
 
-		System.out.println(" ------ ");
-
 		// Store some information
 		final int initialOffset = aCommand.offset;
 
@@ -104,11 +102,18 @@ public class HardLineWrap {
 
 		String result = null;
 
+		// Compute the new offset
+		int newOffset = aCommand.offset;
+		if (aCommand.length > 0) {
+			// Special case : paste / replace
+			newOffset += aCommand.text.length();
+		}
+
 		synchronized (blockHandler) {
 			// Just in case Eclipse gets a multi-threaded UI...
 
 			blockHandler.setUp(aDocument, baseDocBlock);
-			blockHandler.setReferenceOffset(aCommand.offset);
+			blockHandler.setReferenceOffset(newOffset);
 			blockHandler.applyCommand(aCommand);
 			result = blockHandler.wrap(aMaxLen);
 		}

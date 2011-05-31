@@ -22,7 +22,7 @@ public abstract class AbstractBlockWrappingHandler implements
 		IBlockWrappingHandler {
 
 	/** Internal end-of-line representation */
-	public static final String INTERNAL_LINE_FEED = "\b";
+	public static final String INTERNAL_LINE_FEED = "\u00B6";
 
 	/** Working block content */
 	private String pBlockContent;
@@ -68,7 +68,7 @@ public abstract class AbstractBlockWrappingHandler implements
 		// Insert the new text
 		String addedText = aCommand.text;
 		if (TextUtilities.startsWith(TextUtilities.DELIMITERS, aCommand.text) != -1) {
-			aCommand.text = INTERNAL_LINE_FEED;
+			addedText = INTERNAL_LINE_FEED;
 		}
 
 		modifiedString.append(addedText);
@@ -276,11 +276,15 @@ public abstract class AbstractBlockWrappingHandler implements
 		int relativeReference = pReferenceOffset - getDocBlock().getOffset();
 		int delta = pLineDelimiter.length() * 2 - INTERNAL_LINE_FEED.length();
 
+		// Find internal line feeds and increment reference as needed
 		int index = pBlockContent.indexOf(INTERNAL_LINE_FEED);
 		while (index != -1) {
 
 			if (index <= relativeReference) {
 				relativeReference += delta;
+			} else {
+				// Don't need to go further
+				break;
 			}
 
 			index = pBlockContent.indexOf(INTERNAL_LINE_FEED, index + 1);
