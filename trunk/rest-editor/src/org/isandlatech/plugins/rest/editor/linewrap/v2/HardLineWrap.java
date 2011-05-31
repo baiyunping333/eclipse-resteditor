@@ -5,9 +5,13 @@
  */
 package org.isandlatech.plugins.rest.editor.linewrap.v2;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentCommand;
 import org.eclipse.jface.text.IDocument;
+import org.isandlatech.plugins.rest.editor.scanners.RestPartitionScanner;
 
 /**
  * This class handles the line wrapping. Inspired from Texclipse hard line wrap
@@ -28,6 +32,25 @@ public class HardLineWrap {
 		System.out.println("\toffset = " + aCommand.offset);
 		System.out.println("\tlength = " + aCommand.length);
 		System.out.println("\ttext   = '" + aCommand.text + "'");
+	}
+
+	/** Block detectors list */
+	private List<IBlockDetector> pDetectors;
+
+	/**
+	 * Registers detectors and handlers
+	 */
+	public HardLineWrap() {
+
+		// Register detectors
+		pDetectors = new ArrayList<IBlockDetector>();
+		pDetectors.add(new DefaultBlockDetector(
+				RestPartitionScanner.PARTITIONNING));
+		pDetectors.add(new ListBlockDetector());
+
+		// Register handlers
+		BlockWrappingHandlerStore.get().registerHandler(
+				new ListBlockWrappingHandler());
 	}
 
 	/**
@@ -61,14 +84,12 @@ public class HardLineWrap {
 				+ aCommand.length);
 
 		IBlockWrappingHandler blockHandler = null;
-		IBlockDetector[] detectors = new IBlockDetector[] {
-				new DefaultBlockDetector(), new ListBlockDetector() };
 		int bestDetectorPriority = Integer.MAX_VALUE;
 		IBlockDetector bestDetector = null;
 		BlockInformation baseDocBlock = null;
 
 		// Look for the "best" detector available
-		for (IBlockDetector detector : detectors) {
+		for (IBlockDetector detector : pDetectors) {
 
 			BlockInformation blockInfo = detector.getBlock(aDocument,
 					baseDocLineNr, endDocLineNr);
@@ -90,8 +111,8 @@ public class HardLineWrap {
 			return -1;
 		}
 
-		blockHandler = BlockWrappingHandlerFactory.getHandler(bestDetector
-				.getHandlerType());
+		blockHandler = BlockWrappingHandlerStore.get().getHandler(
+				bestDetector.getHandlerType());
 
 		// Handler not found
 		if (blockHandler == null) {
