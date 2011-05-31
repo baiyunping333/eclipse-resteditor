@@ -1,10 +1,15 @@
-/**
- * File:   IInternalBrowserListener.java
- * Author: Thomas Calmant
- * Date:   4 mai 2011
- */
-package org.isandlatech.plugins.rest.editor.userassist;
+/*******************************************************************************
+ * Copyright (c) 2011 isandlaTech, Thomas Calmant
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *    Thomas Calmant (isandlaTech) - initial API and implementation
+ *******************************************************************************/
 
+package org.isandlatech.plugins.rest.editor.userassist;
 
 /**
  * Interface to be implemented by hover handlers to receive internal links

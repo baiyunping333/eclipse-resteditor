@@ -1,3 +1,14 @@
+/*******************************************************************************
+ * Copyright (c) 2011 isandlaTech, Thomas Calmant
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *    Thomas Calmant (isandlaTech) - initial API and implementation
+ *******************************************************************************/
+
 package org.isandlatech.plugins.rest;
 
 import java.io.BufferedReader;
@@ -50,6 +61,43 @@ public class RestPlugin extends AbstractUIPlugin {
 	 */
 	public static ImageDescriptor getImageDescriptor(final String path) {
 		return imageDescriptorFromPlugin(PLUGIN_ID, path);
+	}
+
+	/**
+	 * Makes a new image which is a 45° counter-clockwise rotation of the given
+	 * one
+	 * 
+	 * @param aImage
+	 *            Base image
+	 * @return A rotated image
+	 */
+	public static ImageDescriptor rotateImage(final Image aImage) {
+
+		ImageData srcData = aImage.getImageData();
+		if (srcData == null) {
+			return null;
+		}
+
+		ImageData destData = new ImageData(srcData.height, srcData.width,
+				srcData.depth, srcData.palette);
+
+		/* rotate by rearranging the pixels */
+		for (int i = 0; i < srcData.width; i++) {
+
+			for (int j = 0; j < srcData.height; j++) {
+
+				// Color
+				int pixel = srcData.getPixel(i, j);
+				destData.setPixel(j, srcData.width - 1 - i, pixel);
+
+				// Transparency
+				int alpha = srcData.getAlpha(i, j);
+				destData.setAlpha(j, srcData.width - 1 - i, alpha);
+
+			}
+		}
+
+		return ImageDescriptor.createFromImageData(destData);
 	}
 
 	/** The partition scanner */
@@ -149,42 +197,5 @@ public class RestPlugin extends AbstractUIPlugin {
 	public void stop(final BundleContext context) throws Exception {
 		plugin = null;
 		super.stop(context);
-	}
-
-	/**
-	 * Makes a new image which is a 45° counter-clockwise rotation of the given
-	 * one
-	 * 
-	 * @param aImage
-	 *            Base image
-	 * @return A rotated image
-	 */
-	public static ImageDescriptor rotateImage(final Image aImage) {
-	
-		ImageData srcData = aImage.getImageData();
-		if (srcData == null) {
-			return null;
-		}
-	
-		ImageData destData = new ImageData(srcData.height, srcData.width,
-				srcData.depth, srcData.palette);
-	
-		/* rotate by rearranging the pixels */
-		for (int i = 0; i < srcData.width; i++) {
-	
-			for (int j = 0; j < srcData.height; j++) {
-	
-				// Color
-				int pixel = srcData.getPixel(i, j);
-				destData.setPixel(j, srcData.width - 1 - i, pixel);
-	
-				// Transparency
-				int alpha = srcData.getAlpha(i, j);
-				destData.setAlpha(j, srcData.width - 1 - i, alpha);
-	
-			}
-		}
-	
-		return ImageDescriptor.createFromImageData(destData);
 	}
 }

@@ -1,8 +1,14 @@
-/**
- * File:   AbstractBlockWrappingHandler.java
- * Author: Thomas Calmant
- * Date:   27 mai 2011
- */
+/*******************************************************************************
+ * Copyright (c) 2011 isandlaTech, Thomas Calmant
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *    Thomas Calmant (isandlaTech) - initial API and implementation
+ *******************************************************************************/
+
 package org.isandlatech.plugins.rest.editor.linewrap.v2;
 
 import java.io.BufferedReader;
@@ -32,6 +38,9 @@ public abstract class AbstractBlockWrappingHandler implements
 
 	/** Handled document */
 	private IDocument pDocument;
+
+	/** Applied command */
+	private DocumentCommand pAppliedCommand;
 
 	/** Line delimiter for the current document */
 	protected String pLineDelimiter;
@@ -87,6 +96,7 @@ public abstract class AbstractBlockWrappingHandler implements
 					- aCommand.length, 0);
 		}
 
+		pAppliedCommand = aCommand;
 		pBlockContent = modifiedString.toString();
 		return pBlockContent;
 	}
@@ -177,6 +187,15 @@ public abstract class AbstractBlockWrappingHandler implements
 
 		pReferenceOffset = newOffset;
 		return resultLine;
+	}
+
+	/**
+	 * Retrieves the last applied command
+	 * 
+	 * @return the last applied command
+	 */
+	public DocumentCommand getAppliedCommand() {
+		return pAppliedCommand;
 	}
 
 	/**

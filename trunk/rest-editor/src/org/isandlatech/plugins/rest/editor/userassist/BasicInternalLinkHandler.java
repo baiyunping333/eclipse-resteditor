@@ -1,8 +1,14 @@
-/**
- * File:   BasicInternalLinkHandler.java
- * Author: Thomas Calmant
- * Date:   5 mai 2011
- */
+/*******************************************************************************
+ * Copyright (c) 2011 isandlaTech, Thomas Calmant
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *    Thomas Calmant (isandlaTech) - initial API and implementation
+ *******************************************************************************/
+
 package org.isandlatech.plugins.rest.editor.userassist;
 
 import org.eclipse.jface.text.BadLocationException;
@@ -56,7 +62,8 @@ public class BasicInternalLinkHandler implements IInternalBrowserListener {
 
 			return spellAction(aAssociatedData, replacementWord);
 
-		} else if (aInternalLink.startsWith(IAssistanceConstants.SAMPLE_LINK_PREFIX)) {
+		} else if (aInternalLink
+				.startsWith(IAssistanceConstants.SAMPLE_LINK_PREFIX)) {
 
 			// Insert sample link
 			String directive = aInternalLink

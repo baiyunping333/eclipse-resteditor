@@ -1,8 +1,14 @@
-/**
- * File:   HoverCompletionProposal.java
- * Author: Thomas Calmant
- * Date:   5 mai 2011
- */
+/*******************************************************************************
+ * Copyright (c) 2011 isandlaTech, Thomas Calmant
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *    Thomas Calmant (isandlaTech) - initial API and implementation
+ *******************************************************************************/
+
 package org.isandlatech.plugins.rest.editor.userassist.contentassist;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -16,10 +22,10 @@ import org.eclipse.jface.text.contentassist.ICompletionProposalExtension5;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
-import org.isandlatech.plugins.rest.editor.userassist.InternalBrowserData;
-import org.isandlatech.plugins.rest.editor.userassist.InternalBrowserInformationControl;
 import org.isandlatech.plugins.rest.editor.userassist.BasicInternalLinkHandler;
 import org.isandlatech.plugins.rest.editor.userassist.IInternalBrowserListener;
+import org.isandlatech.plugins.rest.editor.userassist.InternalBrowserData;
+import org.isandlatech.plugins.rest.editor.userassist.InternalBrowserInformationControl;
 
 /**
  * Completion proposal with an internal link handler registration
