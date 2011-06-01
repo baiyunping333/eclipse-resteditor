@@ -28,18 +28,26 @@ import org.isandlatech.plugins.rest.editor.linewrap.HardLineWrap.WrapResult;
  */
 public class HardLineWrapAutoEdit implements IAutoEditStrategy {
 
+	/**
+	 * Just provides access to the DocumentCommand constructor
+	 * 
+	 * @author Thomas Calmant
+	 */
 	protected class InternalDocumentCommand extends DocumentCommand {
-		// Just provides DocumentCommand access
+		// Just provides access to DocumentCommand constructor
 	}
 
 	/** Associated document */
 	private IDocument pDocument;
 
+	/** Document position updater */
+	private LinePositionUpdater pLineUpdater;
+
 	/** Maximum line length */
 	private int pMaxLineLength;
 
-	/** Document position updater */
-	private LinePositionUpdater pLineUpdater;
+	/** Partitioning used by the document */
+	private String pPartitioning;
 
 	/** Indicates if the line updater is registered to a document */
 	private boolean pRegistered;
@@ -53,12 +61,14 @@ public class HardLineWrapAutoEdit implements IAutoEditStrategy {
 	 * @param aMaxLineLength
 	 *            Maximum line length
 	 */
-	public HardLineWrapAutoEdit(final int aMaxLineLength) {
+	public HardLineWrapAutoEdit(final String aPartitioning,
+			final int aMaxLineLength) {
 
 		pWrapper = new HardLineWrap();
 		pLineUpdater = new LinePositionUpdater();
 		pRegistered = false;
 		pMaxLineLength = aMaxLineLength;
+		pPartitioning = aPartitioning;
 	}
 
 	/*
@@ -271,12 +281,11 @@ public class HardLineWrapAutoEdit implements IAutoEditStrategy {
 		final String docSave = pDocument.get();
 
 		// Start the infernal loop
-		final int nbLines = pDocument.getNumberOfLines();
 		int line = 0;
 		final DocumentCommand command = new InternalDocumentCommand();
 
 		try {
-			while (line < nbLines) {
+			while (line < pDocument.getNumberOfLines()) {
 
 				command.offset = pDocument.getLineOffset(line);
 				command.length = 0;
@@ -284,15 +293,29 @@ public class HardLineWrapAutoEdit implements IAutoEditStrategy {
 				command.caretOffset = -1;
 				command.doit = true;
 
-				final String lineContentType = pDocument
-						.getContentType(command.offset);
+				final String lineContentType = LineUtil.get().getContentType(
+						pDocument, line, pPartitioning);
 
 				if (IDocument.DEFAULT_CONTENT_TYPE.equals(lineContentType)) {
 					// Only work in default content type
 					WrapResult result = wrapLine(command);
 
 					if (result != null && command.doit) {
-						line = result.getNewLastLine() + 1;
+
+						int newLine = pDocument.getLineOfOffset(command.offset
+								+ command.text.length());
+
+						newLine = Math
+								.max(newLine, result.getNewLastLine() + 1);
+
+						if (newLine <= line) {
+							line++;
+						} else {
+							line = newLine;
+						}
+
+						pDocument.replace(command.offset, command.length,
+								command.text);
 
 					} else {
 						line++;

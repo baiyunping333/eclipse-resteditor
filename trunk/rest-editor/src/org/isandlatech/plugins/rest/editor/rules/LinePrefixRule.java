@@ -102,8 +102,10 @@ public class LinePrefixRule extends AbstractRule {
 		// Test block begin
 		if (pBlockPrefix != null) {
 
+			int column = aScanner.getColumn();
+
 			if (pMaxBlockPrefixColumn >= 0
-					&& aScanner.getColumn() > pMaxBlockPrefixColumn) {
+					&& (column < 0 || column > pMaxBlockPrefixColumn)) {
 				return Token.UNDEFINED;
 			}
 

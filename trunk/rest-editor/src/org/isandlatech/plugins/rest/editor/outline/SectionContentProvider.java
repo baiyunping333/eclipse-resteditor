@@ -249,7 +249,7 @@ public class SectionContentProvider implements ITreePathContentProvider {
 			try {
 				allPartitions = ((IDocumentExtension3) document)
 						.computePartitioning(
-								RestPartitionScanner.PARTITIONNING, 0,
+								RestPartitionScanner.PARTITIONING, 0,
 								document.getLength(), false);
 
 			} catch (BadLocationException e) {

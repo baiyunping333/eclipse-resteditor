@@ -40,7 +40,7 @@ public class RestPartitionScanner extends RuleBasedPartitionScanner {
 	public static final String LITERAL_BLOCK = "__literal_block";
 
 	/** Scanner identifier */
-	public static final String PARTITIONNING = "reStructuredText";
+	public static final String PARTITIONING = "reStructuredText";
 
 	/** ReST section */
 	public static final String SECTION_BLOCK = "__section_block";

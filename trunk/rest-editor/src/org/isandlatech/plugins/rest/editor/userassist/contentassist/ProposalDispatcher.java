@@ -55,7 +55,7 @@ public class ProposalDispatcher extends AbstractProposalProcessor {
 		if (document instanceof IDocumentExtension3) {
 			IDocumentExtension3 doc3 = (IDocumentExtension3) document;
 			partitioner = doc3
-					.getDocumentPartitioner(RestPartitionScanner.PARTITIONNING);
+					.getDocumentPartitioner(RestPartitionScanner.PARTITIONING);
 		} else {
 			partitioner = document.getDocumentPartitioner();
 		}

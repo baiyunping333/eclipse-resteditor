@@ -116,6 +116,9 @@ public class RestEditor extends TextEditor {
 
 		// Save actions...
 		super.editorSaved();
+
+		// Perform treatments after saving the document...
+		pConfiguration.postEditorPerformSave(getSourceViewer());
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -170,9 +173,6 @@ public class RestEditor extends TextEditor {
 		pConfiguration.onEditorPerformSave(sourceViewer);
 
 		super.performSave(aOverwrite, aProgressMonitor);
-
-		// Perform treatments after saving the document...
-		pConfiguration.postEditorPerformSave(sourceViewer);
 	}
 
 	/**
@@ -189,9 +189,6 @@ public class RestEditor extends TextEditor {
 		pConfiguration.onEditorPerformSave(sourceViewer);
 
 		super.performSaveAs(aProgressMonitor);
-
-		// Perform treatments after saving the document...
-		pConfiguration.postEditorPerformSave(sourceViewer);
 	}
 
 	private void runnableUpdateContentDependentActions() {

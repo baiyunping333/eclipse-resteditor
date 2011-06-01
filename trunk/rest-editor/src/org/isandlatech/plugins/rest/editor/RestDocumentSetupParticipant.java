@@ -44,7 +44,7 @@ public class RestDocumentSetupParticipant implements IDocumentSetupParticipant {
 					RestPartitionScanner.PARTITION_TYPES);
 
 			IDocumentExtension3 docExt3 = (IDocumentExtension3) aDocument;
-			docExt3.setDocumentPartitioner(RestPartitionScanner.PARTITIONNING,
+			docExt3.setDocumentPartitioner(RestPartitionScanner.PARTITIONING,
 					partitioner);
 
 			partitioner.connect(aDocument);

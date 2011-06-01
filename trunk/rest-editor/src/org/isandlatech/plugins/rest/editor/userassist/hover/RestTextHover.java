@@ -92,7 +92,7 @@ public class RestTextHover implements ITextHover, ITextHoverExtension,
 		if (aDocument instanceof IDocumentExtension3) {
 			IDocumentExtension3 doc3 = (IDocumentExtension3) aDocument;
 			partitioner = doc3
-					.getDocumentPartitioner(RestPartitionScanner.PARTITIONNING);
+					.getDocumentPartitioner(RestPartitionScanner.PARTITIONING);
 		} else {
 			partitioner = aDocument.getDocumentPartitioner();
 		}

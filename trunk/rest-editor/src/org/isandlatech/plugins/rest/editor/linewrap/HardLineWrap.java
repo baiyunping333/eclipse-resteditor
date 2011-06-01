@@ -144,7 +144,7 @@ public class HardLineWrap {
 		// Register detectors
 		pDetectors = new ArrayList<IBlockDetector>();
 		pDetectors.add(new DefaultBlockDetector(
-				RestPartitionScanner.PARTITIONNING));
+				RestPartitionScanner.PARTITIONING));
 		pDetectors.add(new ListBlockDetector());
 
 		// Register handlers

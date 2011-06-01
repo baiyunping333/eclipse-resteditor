@@ -128,7 +128,8 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 
 		if (pAutoEditLineWrap == null) {
 			int maxLineLength = LineWrapUtil.get().getMaxLineLength();
-			pAutoEditLineWrap = new HardLineWrapAutoEdit(maxLineLength);
+			pAutoEditLineWrap = new HardLineWrapAutoEdit(
+					RestPartitionScanner.PARTITIONING, maxLineLength);
 		}
 
 		List<IAutoEditStrategy> strategies = new ArrayList<IAutoEditStrategy>(3);
@@ -165,7 +166,7 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 	@Override
 	public String getConfiguredDocumentPartitioning(
 			final ISourceViewer sourceViewer) {
-		return RestPartitionScanner.PARTITIONNING;
+		return RestPartitionScanner.PARTITIONING;
 	}
 
 	@Override
@@ -209,7 +210,7 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 			pDocFormatter = new ContentFormatter();
 			pDocFormatter.enablePartitionAwareFormatting(true);
 			pDocFormatter
-					.setDocumentPartitioning(RestPartitionScanner.PARTITIONNING);
+					.setDocumentPartitioning(RestPartitionScanner.PARTITIONING);
 
 			// Sections formatter
 			pDocFormatter.setFormattingStrategy(
@@ -483,6 +484,7 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 
 		if (pAutoEditLineWrap != null) {
 			pAutoEditLineWrap.registerListener(aDocument);
+			pAutoEditLineWrap.wrapWholeDocument();
 		}
 	}
 }
