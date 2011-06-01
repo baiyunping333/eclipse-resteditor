@@ -17,6 +17,7 @@ import java.util.List;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentCommand;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.TextUtilities;
 import org.isandlatech.plugins.rest.editor.scanners.RestPartitionScanner;
 
 /**
@@ -38,13 +39,16 @@ public class HardLineWrap {
 		private String pDetectorType;
 
 		/** First line of the detected block */
-		private int pFirstBlockLine;
+		private int pFirstLine;
 
 		/** Handler used for wrapping */
 		private String pHandlerType;
 
+		/** The new block last line */
+		private int pNewLastLine;
+
 		/** Last line of the detected block */
-		private int pLastBlockLine;
+		private int pOldLastLine;
 
 		/**
 		 * Prepares a read-only wrapping result
@@ -55,16 +59,20 @@ public class HardLineWrap {
 		 *            handler used for wrapping
 		 * @param aFirstLine
 		 *            first line of the detected block
-		 * @param aLastLine
+		 * @param aOldLastLine
 		 *            last line of the detected block
+		 * @param aNewLastLine
+		 *            new block last line
 		 */
 		public WrapResult(final String aDetector, final String aHandler,
-				final int aFirstLine, final int aLastLine) {
+				final int aFirstLine, final int aOldLastLine,
+				final int aNewLastLine) {
 
 			pDetectorType = aDetector;
 			pHandlerType = aHandler;
-			pFirstBlockLine = aFirstLine;
-			pLastBlockLine = aLastLine;
+			pFirstLine = aFirstLine;
+			pOldLastLine = aOldLastLine;
+			pNewLastLine = aNewLastLine;
 		}
 
 		/**
@@ -82,8 +90,8 @@ public class HardLineWrap {
 		 * 
 		 * @return the number of the first line of the block
 		 */
-		public int getFirstBlockLine() {
-			return pFirstBlockLine;
+		public int getFirstLine() {
+			return pFirstLine;
 		}
 
 		/**
@@ -96,12 +104,19 @@ public class HardLineWrap {
 		}
 
 		/**
+		 * @return the new block last line
+		 */
+		public int getNewLastLine() {
+			return pNewLastLine;
+		}
+
+		/**
 		 * Retrieves the number of the last line of the block in the document
 		 * 
 		 * @return the number of the last line of the block
 		 */
-		public int getLastBlockLine() {
-			return pLastBlockLine;
+		public int getOldLastLine() {
+			return pOldLastLine;
 		}
 	}
 
@@ -138,6 +153,34 @@ public class HardLineWrap {
 	}
 
 	/**
+	 * Counts the number of occurrences of the given string
+	 * 
+	 * @param aText
+	 *            String to read
+	 * @param aSubstring
+	 *            String to count
+	 * @return The number of occurrences of aSubstring in aText
+	 */
+	public int countOccurrences(final String aText, final String aSubstring) {
+
+		int count = 0;
+		int index = 0;
+		int iter = aSubstring.length();
+
+		try {
+			while ((index = aText.indexOf(aSubstring, index)) != -1) {
+				count++;
+				index += iter;
+			}
+
+		} catch (ArrayIndexOutOfBoundsException ex) {
+			ex.printStackTrace();
+		}
+
+		return count;
+	}
+
+	/**
 	 * Wraps a paragraph in the document
 	 * 
 	 * @param aDocument
@@ -166,6 +209,9 @@ public class HardLineWrap {
 		final int baseDocLineNr = aDocument.getLineOfOffset(initialOffset);
 		final int endDocLineNr = aDocument.getLineOfOffset(initialOffset
 				+ aCommand.length);
+
+		final String lineDelimiter = TextUtilities
+				.getDefaultLineDelimiter(aDocument);
 
 		IBlockWrappingHandler blockHandler = null;
 		int bestDetectorPriority = Integer.MAX_VALUE;
@@ -234,9 +280,13 @@ public class HardLineWrap {
 		aCommand.text = result;
 
 		// Return the line at the beginning of the block
+		int baseBlockFirstLine = baseDocBlock.getFirstLine();
+		int baseBlockLastLine = baseDocBlock.getLastLine();
+		int newBlockLines = countOccurrences(result, lineDelimiter);
+
 		WrapResult wrapResult = new WrapResult(bestDetector.getType(),
-				blockHandler.getType(), baseDocBlock.getFirstLine(),
-				baseDocBlock.getLastLine());
+				blockHandler.getType(), baseBlockFirstLine, baseBlockLastLine,
+				baseBlockFirstLine + newBlockLines);
 
 		return wrapResult;
 	}

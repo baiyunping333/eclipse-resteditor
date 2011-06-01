@@ -11,14 +11,13 @@
 
 package org.isandlatech.plugins.rest.editor.linewrap;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.IPositionUpdater;
+import org.eclipse.jface.text.IDocumentListener;
 
 /**
  * Updates all document positions of the given category to store the offset of
@@ -26,28 +25,76 @@ import org.eclipse.jface.text.IPositionUpdater;
  * 
  * @author Thomas Calmant
  */
-public class LinePositionUpdater implements IPositionUpdater {
+public class LinePositionUpdater implements IDocumentListener {
 
 	/** Lines to update */
 	private Set<Integer> pWatchedLines;
+
+	/** Update needed flag */
+	private boolean pAlreadyUpdated;
+
+	/** Number of lines in the document before the update */
+	private int pPreviousLinesCount;
 
 	/**
 	 * Stores the category of positions to update
 	 */
 	public LinePositionUpdater() {
 		pWatchedLines = new HashSet<Integer>();
+		pAlreadyUpdated = false;
 	}
 
-	/**
-	 * Adds a line to the watched ones
+	/*
+	 * (non-Javadoc)
 	 * 
-	 * @param aLine
-	 *            Line to be added
+	 * @see
+	 * org.eclipse.jface.text.IDocumentListener#documentAboutToBeChanged(org
+	 * .eclipse.jface.text.DocumentEvent)
 	 */
-	public void addLine(final int aLine) {
-		pWatchedLines.add(aLine);
+	@Override
+	public void documentAboutToBeChanged(final DocumentEvent aEvent) {
+
+		if (pAlreadyUpdated) {
+			return;
+		}
+
+		pPreviousLinesCount = aEvent.fDocument.getNumberOfLines();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.eclipse.jface.text.IDocumentListener#documentChanged(org.eclipse.
+	 * jface.text.DocumentEvent)
+	 */
+	@Override
+	public void documentChanged(final DocumentEvent aEvent) {
+
+		if (pAlreadyUpdated) {
+			pAlreadyUpdated = false;
+			return;
+		}
+
+		IDocument document = aEvent.getDocument();
+		int currentLinesCount = document.getNumberOfLines();
+		int modificationLine;
+
+		try {
+			modificationLine = document.getLineOfOffset(aEvent.getOffset());
+		} catch (BadLocationException e) {
+			e.printStackTrace();
+			return;
+		}
+
+		updateLine(modificationLine, currentLinesCount - pPreviousLinesCount);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#toString()
+	 */
 	/**
 	 * Removes a line from the watched ones
 	 * 
@@ -61,70 +108,93 @@ public class LinePositionUpdater implements IPositionUpdater {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * org.eclipse.jface.text.IPositionUpdater#update(org.eclipse.jface.text
-	 * .DocumentEvent)
+	 * @see java.lang.Object#toString()
 	 */
 	@Override
-	public void update(final DocumentEvent aEvent) {
+	public String toString() {
 
-		// Get event constants
-		final IDocument document = aEvent.getDocument();
-		final int modificationOffset = aEvent.getOffset();
+		StringBuilder builder = new StringBuilder();
+		builder.append("LinePosition[");
 
-		int modificationBegin;
-		int modificationNewEnd;
-		int modificationOldEnd;
-
-		try {
-			modificationBegin = document.getLineOfOffset(modificationOffset);
-
-			modificationNewEnd = document.getLineOfOffset(modificationOffset
-					+ aEvent.getText().length());
-
-			modificationOldEnd = document.getLineOfOffset(modificationOffset
-					+ aEvent.getLength());
-
-		} catch (BadLocationException e1) {
-			e1.printStackTrace();
-			return;
+		for (int line : pWatchedLines) {
+			builder.append(line);
+			builder.append(',');
 		}
 
-		System.out.println("-----\nModifs : " + modificationBegin + " -> "
-				+ modificationOldEnd + " <- " + modificationNewEnd);
+		builder.append(']');
+		return builder.toString();
+	}
 
-		int delta = modificationNewEnd - modificationOldEnd;
+	/**
+	 * Updates the watched lines value according to the given block size
+	 * modification.
+	 * 
+	 * @param aLine
+	 *            First line of the block
+	 * @param aOldLastLine
+	 *            Last line of the block, before its modification
+	 * @param aNewLastLine
+	 *            Last line of the block, after its modification
+	 */
+	public void updateBlockSize(final int aLine, final int aOldLastLine,
+			final int aNewLastLine) {
+
+		// Add the line to the updated ones
+		pWatchedLines.add(aLine);
+
+		// Update lines
+		final int delta = aNewLastLine - aOldLastLine;
+
 		Integer[] currentLines = pWatchedLines.toArray(new Integer[0]);
 		Set<Integer> newLinesSet = new HashSet<Integer>();
 
-		for (int i = 0; i < currentLines.length; i++) {
-			int line = currentLines[i];
+		for (int line : currentLines) {
 
-			if (line >= modificationOldEnd) {
-				// Updates lines after the modification
-				newLinesSet.add(line + delta);
-				System.out.println("Update " + line + " -> " + (line + delta));
-
-			} else if (line >= modificationBegin && line < modificationNewEnd) {
-				// Aggregate block lines
-				newLinesSet.add(modificationBegin);
-				System.out.println("Aggregating " + line + " btw "
-						+ modificationBegin + " - " + modificationNewEnd);
-
-			} else if (line > modificationNewEnd && line < modificationOldEnd) {
-				// To be deleted
-				System.out.println("Remove " + line + " btw "
-						+ modificationNewEnd + " and " + modificationOldEnd);
+			if (line <= aLine) {
+				// Simple conservation
+				newLinesSet.add(line);
 
 			} else {
-				// Non-updated lines
-				newLinesSet.add(line);
+				if (line > aOldLastLine) {
+					newLinesSet.add(line + delta);
+				}
 			}
 		}
 
 		pWatchedLines = newLinesSet;
+		pAlreadyUpdated = true;
+	}
 
-		System.out.println(Arrays.toString(pWatchedLines.toArray()));
-		System.out.println("\n");
+	/**
+	 * Updates lines according to a simple document modification
+	 * 
+	 * @param aLine
+	 *            Modification first line
+	 * @param aAddedLines
+	 *            Number of lines added by the modification (negative on
+	 *            removal)
+	 */
+	public void updateLine(final int aLine, final int aAddedLines) {
+
+		// Update lines
+		Integer[] currentLines = pWatchedLines.toArray(new Integer[0]);
+		Set<Integer> newLinesSet = new HashSet<Integer>();
+
+		for (int line : currentLines) {
+
+			if (line <= aLine) {
+
+				// Simple conservation
+				newLinesSet.add(line);
+
+			} else if (line + aAddedLines > aLine) {
+				// Forget line that are moving upper than the base line (deleted
+				// ones)
+
+				newLinesSet.add(line + aAddedLines);
+			}
+		}
+
+		pWatchedLines = newLinesSet;
 	}
 }

@@ -16,7 +16,6 @@ import org.eclipse.jface.text.BadPositionCategoryException;
 import org.eclipse.jface.text.DocumentCommand;
 import org.eclipse.jface.text.IAutoEditStrategy;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.IPositionUpdater;
 import org.isandlatech.plugins.rest.editor.linewrap.HardLineWrap.WrapResult;
 
 /**
@@ -27,17 +26,16 @@ import org.isandlatech.plugins.rest.editor.linewrap.HardLineWrap.WrapResult;
 public class HardLineWrapAutoEdit implements IAutoEditStrategy {
 
 	/** Document position updater */
-	private LinePositionUpdater pPositionUpdater;
+	private LinePositionUpdater pLineUpdater;
 
 	/** Line wrapper */
 	private final HardLineWrap pWrapper;
 
 	/**
-	 * Prepares members : line wrapper and position updater
+	 * Prepares members : line wrapper and line position updater
 	 */
 	public HardLineWrapAutoEdit() {
 		pWrapper = new org.isandlatech.plugins.rest.editor.linewrap.HardLineWrap();
-		pPositionUpdater = new LinePositionUpdater();
 	}
 
 	/*
@@ -72,14 +70,11 @@ public class HardLineWrapAutoEdit implements IAutoEditStrategy {
 	 */
 	public void setupPositionCategory(final IDocument aDocument) {
 
-		// Set the position updater, if needed
-		for (IPositionUpdater updater : aDocument.getPositionUpdaters()) {
-			if (pPositionUpdater.equals(updater)) {
-				return;
-			}
+		// Set the line updater, if needed
+		if (pLineUpdater == null) {
+			pLineUpdater = new LinePositionUpdater();
+			aDocument.addDocumentListener(pLineUpdater);
 		}
-
-		aDocument.addPositionUpdater(pPositionUpdater);
 	}
 
 	/**
@@ -102,18 +97,19 @@ public class HardLineWrapAutoEdit implements IAutoEditStrategy {
 
 		WrapResult result = pWrapper.wrapRegion(aDocument, aCommand, 80);
 
-		int firstLine = result.getFirstBlockLine();
-		int lastLine = result.getLastBlockLine();
+		int firstLine = result.getFirstLine();
+		int newLastLine = result.getNewLastLine();
 
-		if (firstLine >= 0) {
+		if (firstLine >= 0 && pLineUpdater != null) {
 
-			if (lastLine - firstLine == 0) {
-				// Remove line if the block is only 1 line long
-				pPositionUpdater.removeLine(firstLine);
+			if (newLastLine - firstLine <= 0) {
+				// Remove line if the block is only 1 line long (or on error...)
+				pLineUpdater.removeLine(firstLine);
 
 			} else {
 				// Watch the block if its length is more than 1 line
-				pPositionUpdater.addLine(firstLine);
+				pLineUpdater.updateBlockSize(firstLine,
+						result.getOldLastLine(), newLastLine);
 			}
 		}
 	}
