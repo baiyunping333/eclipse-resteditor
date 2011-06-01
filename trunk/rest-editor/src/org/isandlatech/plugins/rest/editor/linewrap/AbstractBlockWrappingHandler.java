@@ -372,6 +372,17 @@ public abstract class AbstractBlockWrappingHandler implements
 		return true;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "BlockWrappingHandler(" + getType() + ", "
+				+ getClass().getCanonicalName() + ")";
+	}
+
 	/**
 	 * Wraps the given line adding document line delimiter where necessary and
 	 * keeping the base indentation.

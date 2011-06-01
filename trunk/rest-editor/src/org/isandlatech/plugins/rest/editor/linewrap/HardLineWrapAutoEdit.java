@@ -62,6 +62,10 @@ public class HardLineWrapAutoEdit implements IAutoEditStrategy {
 		}
 	}
 
+	public int[] getVirtualLines() {
+		return null;
+	}
+
 	/**
 	 * Prepares the position category for the given document
 	 * 
@@ -108,7 +112,7 @@ public class HardLineWrapAutoEdit implements IAutoEditStrategy {
 
 			} else {
 				// Watch the block if its length is more than 1 line
-				pLineUpdater.updateBlockSize(firstLine,
+				pLineUpdater.updateBlockSize(firstLine, result.getDetector(),
 						result.getOldLastLine(), newLastLine);
 			}
 		}

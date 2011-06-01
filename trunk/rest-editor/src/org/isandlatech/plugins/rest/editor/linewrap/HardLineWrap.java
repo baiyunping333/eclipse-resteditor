@@ -36,7 +36,7 @@ public class HardLineWrap {
 	public class WrapResult {
 
 		/** The detector used to detect the block */
-		private String pDetectorType;
+		private IBlockDetector pDetector;
 
 		/** First line of the detected block */
 		private int pFirstLine;
@@ -64,11 +64,11 @@ public class HardLineWrap {
 		 * @param aNewLastLine
 		 *            new block last line
 		 */
-		public WrapResult(final String aDetector, final String aHandler,
-				final int aFirstLine, final int aOldLastLine,
-				final int aNewLastLine) {
+		public WrapResult(final IBlockDetector aDetector,
+				final String aHandler, final int aFirstLine,
+				final int aOldLastLine, final int aNewLastLine) {
 
-			pDetectorType = aDetector;
+			pDetector = aDetector;
 			pHandlerType = aHandler;
 			pFirstLine = aFirstLine;
 			pOldLastLine = aOldLastLine;
@@ -76,13 +76,13 @@ public class HardLineWrap {
 		}
 
 		/**
-		 * Retrieves the name of the detector that has been selected to find the
-		 * wrapped block
+		 * Retrieves the instance of the detector that has been selected to find
+		 * the wrapped block
 		 * 
-		 * @return the detector type
+		 * @return the detector
 		 */
-		public String getDetectorType() {
-			return pDetectorType;
+		public IBlockDetector getDetector() {
+			return pDetector;
 		}
 
 		/**
@@ -284,7 +284,7 @@ public class HardLineWrap {
 		int baseBlockLastLine = baseDocBlock.getLastLine();
 		int newBlockLines = countOccurrences(result, lineDelimiter);
 
-		WrapResult wrapResult = new WrapResult(bestDetector.getType(),
+		WrapResult wrapResult = new WrapResult(bestDetector,
 				blockHandler.getType(), baseBlockFirstLine, baseBlockLastLine,
 				baseBlockFirstLine + newBlockLines);
 

@@ -67,4 +67,15 @@ public abstract class AbstractBlockDetector implements IBlockDetector {
 
 		return new BlockInformation(beginLine, lastLine);
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "BlockDectector(" + getType() + ", "
+				+ getClass().getCanonicalName() + ")";
+	}
 }

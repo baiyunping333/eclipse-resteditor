@@ -11,8 +11,9 @@
 
 package org.isandlatech.plugins.rest.editor.linewrap;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.TreeMap;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentEvent;
@@ -28,7 +29,7 @@ import org.eclipse.jface.text.IDocumentListener;
 public class LinePositionUpdater implements IDocumentListener {
 
 	/** Lines to update */
-	private Set<Integer> pWatchedLines;
+	private Map<Integer, IBlockDetector> pWatchedLines;
 
 	/** Update needed flag */
 	private boolean pAlreadyUpdated;
@@ -40,7 +41,7 @@ public class LinePositionUpdater implements IDocumentListener {
 	 * Stores the category of positions to update
 	 */
 	public LinePositionUpdater() {
-		pWatchedLines = new HashSet<Integer>();
+		pWatchedLines = new TreeMap<Integer, IBlockDetector>();
 		pAlreadyUpdated = false;
 	}
 
@@ -116,8 +117,12 @@ public class LinePositionUpdater implements IDocumentListener {
 		StringBuilder builder = new StringBuilder();
 		builder.append("LinePosition[");
 
-		for (int line : pWatchedLines) {
-			builder.append(line);
+		for (Entry<Integer, IBlockDetector> entry : pWatchedLines.entrySet()) {
+			builder.append('(');
+			builder.append(entry.getKey());
+			builder.append(',');
+			builder.append(entry.getValue());
+			builder.append(')');
 			builder.append(',');
 		}
 
@@ -131,37 +136,37 @@ public class LinePositionUpdater implements IDocumentListener {
 	 * 
 	 * @param aLine
 	 *            First line of the block
+	 * @param aDetector
+	 *            The detector used for detecting this block
 	 * @param aOldLastLine
 	 *            Last line of the block, before its modification
 	 * @param aNewLastLine
 	 *            Last line of the block, after its modification
 	 */
-	public void updateBlockSize(final int aLine, final int aOldLastLine,
+	public void updateBlockSize(final int aLine,
+			final IBlockDetector aDetector, final int aOldLastLine,
 			final int aNewLastLine) {
 
 		// Add the line to the updated ones
-		pWatchedLines.add(aLine);
+		pWatchedLines.put(aLine, aDetector);
 
 		// Update lines
 		final int delta = aNewLastLine - aOldLastLine;
+		Map<Integer, IBlockDetector> newMap = new TreeMap<Integer, IBlockDetector>();
 
-		Integer[] currentLines = pWatchedLines.toArray(new Integer[0]);
-		Set<Integer> newLinesSet = new HashSet<Integer>();
+		for (Entry<Integer, IBlockDetector> entry : pWatchedLines.entrySet()) {
 
-		for (int line : currentLines) {
-
+			int line = entry.getKey();
 			if (line <= aLine) {
 				// Simple conservation
-				newLinesSet.add(line);
+				newMap.put(line, entry.getValue());
 
-			} else {
-				if (line > aOldLastLine) {
-					newLinesSet.add(line + delta);
-				}
+			} else if (line > aOldLastLine) {
+				newMap.put(line + delta, entry.getValue());
 			}
 		}
 
-		pWatchedLines = newLinesSet;
+		pWatchedLines = newMap;
 		pAlreadyUpdated = true;
 	}
 
@@ -177,24 +182,23 @@ public class LinePositionUpdater implements IDocumentListener {
 	public void updateLine(final int aLine, final int aAddedLines) {
 
 		// Update lines
-		Integer[] currentLines = pWatchedLines.toArray(new Integer[0]);
-		Set<Integer> newLinesSet = new HashSet<Integer>();
+		Map<Integer, IBlockDetector> newMap = new TreeMap<Integer, IBlockDetector>();
 
-		for (int line : currentLines) {
+		for (Entry<Integer, IBlockDetector> entry : pWatchedLines.entrySet()) {
 
+			int line = entry.getKey();
 			if (line <= aLine) {
-
 				// Simple conservation
-				newLinesSet.add(line);
+				newMap.put(line, entry.getValue());
 
 			} else if (line + aAddedLines > aLine) {
 				// Forget line that are moving upper than the base line (deleted
 				// ones)
 
-				newLinesSet.add(line + aAddedLines);
+				newMap.put(line + aAddedLines, entry.getValue());
 			}
 		}
 
-		pWatchedLines = newLinesSet;
+		pWatchedLines = newMap;
 	}
 }
