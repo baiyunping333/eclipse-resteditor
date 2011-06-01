@@ -164,8 +164,15 @@ public class RestEditor extends TextEditor {
 	protected void performSave(final boolean aOverwrite,
 			final IProgressMonitor aProgressMonitor) {
 
-		pConfiguration.onEditorPerformSave(getSourceViewer());
+		ISourceViewer sourceViewer = getSourceViewer();
+
+		// Perform treatments before saving the document...
+		pConfiguration.onEditorPerformSave(sourceViewer);
+
 		super.performSave(aOverwrite, aProgressMonitor);
+
+		// Perform treatments after saving the document...
+		pConfiguration.postEditorPerformSave(sourceViewer);
 	}
 
 	/**
@@ -176,10 +183,15 @@ public class RestEditor extends TextEditor {
 	@Override
 	protected void performSaveAs(final IProgressMonitor aProgressMonitor) {
 
+		ISourceViewer sourceViewer = getSourceViewer();
+
 		// Perform treatments before saving the document...
-		pConfiguration.onEditorPerformSave(getSourceViewer());
+		pConfiguration.onEditorPerformSave(sourceViewer);
 
 		super.performSaveAs(aProgressMonitor);
+
+		// Perform treatments after saving the document...
+		pConfiguration.postEditorPerformSave(sourceViewer);
 	}
 
 	private void runnableUpdateContentDependentActions() {

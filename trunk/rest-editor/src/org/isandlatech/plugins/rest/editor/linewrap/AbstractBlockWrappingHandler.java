@@ -112,14 +112,10 @@ public abstract class AbstractBlockWrappingHandler implements
 	 * 
 	 * @param aText
 	 *            Text block to be converted
-	 * @param aLineDelimiter
-	 *            Line delimiter used by the document
-	 * @param aBlockOffset
-	 *            An offset in the block that will be made relative to the line
-	 *            and stored in the result
 	 * @return The block in one line
 	 */
-	protected StringBuilder convertBlockInLine(final String aText) {
+	@Override
+	public StringBuilder convertBlockInLine(final String aText) {
 
 		final int delimLen = pLineDelimiter.length();
 

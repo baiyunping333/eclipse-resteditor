@@ -34,6 +34,21 @@ public interface IBlockWrappingHandler {
 	String applyCommand(DocumentCommand aCommand);
 
 	/**
+	 * Converts the given text block into a single line. Conserves the
+	 * indentation of the first line only.
+	 * 
+	 * After that point, {@link #getReferenceOffset()} is relative to the
+	 * beginning of the result line.
+	 * 
+	 * Should be called only once per wrapping operation.
+	 * 
+	 * @param aText
+	 *            Text block to be converted
+	 * @return The block in one line
+	 */
+	StringBuilder convertBlockInLine(final String aText);
+
+	/**
 	 * Retrieves the updated value of the reference offset
 	 * 
 	 * @see #setReferenceOffset(int)

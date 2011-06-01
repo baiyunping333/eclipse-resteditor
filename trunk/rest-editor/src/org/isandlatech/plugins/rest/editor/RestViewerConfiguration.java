@@ -48,6 +48,8 @@ import org.isandlatech.plugins.rest.editor.formatters.DefaultTextFormattingStrat
 import org.isandlatech.plugins.rest.editor.formatters.GridTableFormattingStrategy;
 import org.isandlatech.plugins.rest.editor.formatters.SectionFormattingStrategy;
 import org.isandlatech.plugins.rest.editor.linewrap.HardLineWrapAutoEdit;
+import org.isandlatech.plugins.rest.editor.linewrap.LineWrapUtil;
+import org.isandlatech.plugins.rest.editor.linewrap.LineWrapUtil.LineWrapMode;
 import org.isandlatech.plugins.rest.editor.outline.OutlineUtil;
 import org.isandlatech.plugins.rest.editor.outline.RestContentOutlinePage;
 import org.isandlatech.plugins.rest.editor.providers.RuleProvider;
@@ -125,14 +127,16 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 		}
 
 		if (pAutoEditLineWrap == null) {
-			pAutoEditLineWrap = new HardLineWrapAutoEdit();
+			int maxLineLength = LineWrapUtil.get().getMaxLineLength();
+			pAutoEditLineWrap = new HardLineWrapAutoEdit(maxLineLength);
 		}
 
 		List<IAutoEditStrategy> strategies = new ArrayList<IAutoEditStrategy>(3);
 		strategies.add(pAutoEditIndent);
 
 		// Only enable line wrapping in "default text"
-		if (IDocument.DEFAULT_CONTENT_TYPE.equals(aContentType)) {
+		if (LineWrapUtil.get().isWrappingEnabled()
+				&& IDocument.DEFAULT_CONTENT_TYPE.equals(aContentType)) {
 			strategies.add(pAutoEditLineWrap);
 		}
 
@@ -389,6 +393,8 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 	/**
 	 * On-save operations :
 	 * 
+	 * * Un-wrapping if needed
+	 * 
 	 * * Auto section markers normalization
 	 * 
 	 * * Auto formating when the editor saves the file
@@ -397,6 +403,8 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 	 *            The editor source viewer
 	 */
 	public void onEditorPerformSave(final ISourceViewer aSourceViewer) {
+
+		final IDocument document = aSourceViewer.getDocument();
 
 		if (pPreferenceStore
 				.getBoolean(IEditorPreferenceConstants.EDITOR_SAVE_RESET_MARKERS)) {
@@ -426,7 +434,6 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 			// Text format on save
 
 			// Doc informations
-			IDocument document = aSourceViewer.getDocument();
 			IRegion docRegion = new Region(0, document.getLength());
 
 			// Store current pointer location
@@ -438,6 +445,29 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 			// Reset point location
 			aSourceViewer
 					.setSelectedRange(currentLocation.x, currentLocation.y);
+		}
+
+		if (LineWrapUtil.get().isActiveMode(LineWrapMode.SOFT)) {
+			// Soft wrap mode : remove all added end-of-line
+
+			pAutoEditLineWrap.unregisterListener();
+			pAutoEditLineWrap.removeWrapping();
+		}
+	}
+
+	/**
+	 * Post-save operations : re-wrapping if needed
+	 * 
+	 * @param aSourceViewer
+	 *            The editor source viewer
+	 */
+	public void postEditorPerformSave(final ISourceViewer aSourceViewer) {
+
+		final IDocument document = aSourceViewer.getDocument();
+
+		if (LineWrapUtil.get().isActiveMode(LineWrapMode.SOFT)) {
+			pAutoEditLineWrap.registerListener(document);
+			pAutoEditLineWrap.wrapWholeDocument();
 		}
 	}
 
@@ -452,7 +482,7 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 	public void setDocument(final IDocument aDocument) {
 
 		if (pAutoEditLineWrap != null) {
-			pAutoEditLineWrap.setupPositionCategory(aDocument);
+			pAutoEditLineWrap.registerListener(aDocument);
 		}
 	}
 }

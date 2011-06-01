@@ -45,6 +45,16 @@ public class LinePositionUpdater implements IDocumentListener {
 		pAlreadyUpdated = false;
 	}
 
+	/**
+	 * Resets the updater state
+	 */
+	public void clear() {
+
+		pAlreadyUpdated = false;
+		pPreviousLinesCount = 0;
+		pWatchedLines.clear();
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -89,6 +99,15 @@ public class LinePositionUpdater implements IDocumentListener {
 		}
 
 		updateLine(modificationLine, currentLinesCount - pPreviousLinesCount);
+	}
+
+	/**
+	 * Retrieves the current state of watched lines
+	 * 
+	 * @return the current state of watched lines
+	 */
+	public Map<Integer, IBlockDetector> getWatchedLines() {
+		return pWatchedLines;
 	}
 
 	/*

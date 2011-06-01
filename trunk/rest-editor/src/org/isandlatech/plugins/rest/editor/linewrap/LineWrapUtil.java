@@ -12,9 +12,6 @@
 package org.isandlatech.plugins.rest.editor.linewrap;
 
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.TextUtilities;
 import org.isandlatech.plugins.rest.RestPlugin;
 import org.isandlatech.plugins.rest.prefs.IEditorPreferenceConstants;
@@ -32,16 +29,16 @@ public class LineWrapUtil {
 	 * @author Thomas Calmant
 	 */
 	public enum LineWrapMode {
+		/** Hard wrapping (end of line sequences added) */
+		HARD,
 		/** No wrapping */
 		NONE,
 		/** Virtual wrapping (text view only) */
 		SOFT,
-		/** Hard wrapping (end of line sequences added) */
-		HARD,
 	}
 
 	/** Minimal line length, under which no wrapping may be done */
-	public static final int MINIMAL_LINE_LENGTH = 10;
+	public static final int MINIMAL_LINE_LENGTH = 20;
 
 	/** Lien wrap utility singleton */
 	private static LineWrapUtil sSingleton;
@@ -51,7 +48,7 @@ public class LineWrapUtil {
 	 * 
 	 * @return An instance of LineWrapUtil
 	 */
-	public static LineWrapUtil getInstance() {
+	public static LineWrapUtil get() {
 		if (sSingleton == null) {
 			sSingleton = new LineWrapUtil();
 		}
@@ -109,63 +106,25 @@ public class LineWrapUtil {
 	}
 
 	/**
-	 * Hards wrap the current line if its length goes over the preferred limit.
+	 * Indicates if the given wrapping mode is enabled
 	 * 
-	 * Inspired by Texlipse hard line wrap.
-	 * 
-	 * @param aDocument
-	 *            Currently edited document
-	 * @param aCommand
-	 *            Document customization command
-	 * @return The number of characters added to the document
-	 * 
-	 * @throws BadLocationException
-	 *             Document command gives out of bound values
+	 * @param aMode
+	 *            The wrapping mode to be tested
+	 * @return True if the current wrapping mode is aMode, else false
 	 */
-	public int hardWrapLine(final IDocument aDocument, final int aOffset)
-			throws BadLocationException {
+	public boolean isActiveMode(final LineWrapMode aMode) {
 
-		// Get the line
-		IRegion commandRegion = aDocument.getLineInformationOfOffset(aOffset);
+		return pPreferenceStore.getString(
+				IEditorPreferenceConstants.EDITOR_LINEWRAP_MODE).equals(
+				aMode.toString());
+	}
 
-		System.out.println("Region : " + commandRegion);
-		System.out.println("Region text : '"
-				+ aDocument.get(commandRegion.getOffset(),
-						commandRegion.getLength()) + "'");
-
-		return 0;
-
-		// final String endOfLine = TextUtilities
-		// .getDefaultLineDelimiter(aDocument);
-		//
-		// final int maxLen = getMaxLineLength();
-		//
-		// int nbNewLines = 0;
-		// int line = aDocument.getLineOfOffset(aOffset);
-		// int lineOffset = aDocument.getLineOffset(line);
-		// int lineLen = aDocument.getLineLength(line);
-		//
-		// if (lineLen < maxLen) {
-		// return 0;
-		// }
-		//
-		// String beforeNewEnd;
-		// String afterNewEnd;
-		// do {
-		// final String oldLineContent = aDocument.get(lineOffset, lineLen);
-		// beforeNewEnd = oldLineContent.substring(0, maxLen);
-		// afterNewEnd = oldLineContent.substring(maxLen);
-		//
-		// aDocument.replace(lineOffset, lineLen, beforeNewEnd + endOfLine
-		// + afterNewEnd);
-		//
-		// nbNewLines++;
-		// line++;
-		// lineOffset = aDocument.getLineOffset(line);
-		// lineLen = aDocument.getLineLength(line);
-		//
-		// } while (lineLen > maxLen);
-		//
-		// return nbNewLines * endOfLine.length();
+	/**
+	 * Indicates if line wrapping is activated
+	 * 
+	 * @return True if line wrapping is activated, else false
+	 */
+	public boolean isWrappingEnabled() {
+		return !isActiveMode(LineWrapMode.NONE);
 	}
 }
