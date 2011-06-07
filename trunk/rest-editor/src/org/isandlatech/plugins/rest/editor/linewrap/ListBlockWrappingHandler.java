@@ -176,29 +176,19 @@ public class ListBlockWrappingHandler extends AbstractBlockWrappingHandler {
 		completeBlock.append(pLineDelimiter);
 		completeBlock.append(pListBlockContent);
 
-		System.out.println("Ref 1 = " + pReferenceOffset);
-
 		// Update the reference offset as needed
 		pReferenceOffset = pReferenceOffset - prefixLen + pBlockIndent.length();
-
-		System.out.println("Ref 2 = " + pReferenceOffset);
 
 		StringBuilder completeBlockInLine = convertBlockInLine(completeBlock
 				.toString());
 
-		System.out.println("Ref 3 (rel) = " + pReferenceOffset);
-
 		StringBuilder result = wrapLine(completeBlockInLine.toString(), aMaxLen);
-
-		System.out.println("Ref 4 = " + pReferenceOffset);
 
 		result.delete(0, pBlockIndent.length());
 		result.insert(0, pFirstLineIndent + pBullet);
 
 		pReferenceOffset = pReferenceOffset + prefixLen - pBlockIndent.length();
 		setBlockContent(result.toString());
-
-		System.out.println("Ref 5 = " + pReferenceOffset);
 
 		// Don't forget to replace markers
 		return replaceInternalLineMarkers();

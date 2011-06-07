@@ -449,6 +449,13 @@ public abstract class AbstractBlockWrappingHandler implements
 		int wrappedLineLen = wrappedLine.length();
 		if (wrappedLineLen - delimLen > 0) {
 			wrappedLine.delete(wrappedLineLen - delimLen, wrappedLineLen);
+			wrappedLineLen -= delimLen;
+		}
+
+		// Find a valid offset
+		if (newOffset == -1) {
+			// -1 because length is 1-based while offset is 0-based
+			newOffset = wrappedLineLen - 1;
 		}
 
 		pReferenceOffset = newOffset + getDocBlock().getOffset();
