@@ -11,11 +11,16 @@
 
 package org.isandlatech.plugins.rest.editor.linewrap;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.BadPartitioningException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension3;
 import org.eclipse.jface.text.IRegion;
+import org.eclipse.jface.text.TextUtilities;
+import org.isandlatech.plugins.rest.parser.RestLanguage;
 
 /**
  * @author Thomas Calmant
@@ -177,19 +182,49 @@ public class LineUtil {
 
 		int lastSpaceOffset = -1;
 		int breakOffset = aLine.length();
+		boolean marker = false;
+
+		final Set<String> testedMarkersSet = new HashSet<String>();
+		testedMarkersSet.add(RestLanguage.BOLD_MARKER);
+		testedMarkersSet.add(RestLanguage.EMPHASIS_MARKER);
+		testedMarkersSet.add(RestLanguage.INLINE_LITERAL_MARKER);
+
+		final String[] testedMarkers = testedMarkersSet.toArray(new String[0]);
 
 		while (offset < aLine.length()) {
 
-			if (offset - aBaseOffset > aMaxLineLength && lastSpaceOffset != -1) {
-				breakOffset = lastSpaceOffset;
-				break;
+			if (offset - aBaseOffset > aMaxLineLength) {
+
+				if (lastSpaceOffset != -1) {
+					breakOffset = lastSpaceOffset;
+					break;
+				}
+			}
+
+			// FIXME ReST Specific code : look for an in-line marker
+			int markerIndex = TextUtilities.startsWith(testedMarkers,
+					aLine.substring(offset));
+			if (markerIndex != -1) {
+				marker = !marker;
+
+				// Jump it (avoid confusion between '**' and '*')
+				offset += testedMarkers[markerIndex].length();
+				continue;
 			}
 
 			if (Character.isWhitespace(aLine.charAt(offset))) {
-				lastSpaceOffset = offset;
+
+				if (!marker) {
+					lastSpaceOffset = offset;
+				}
 			}
 
 			offset++;
+		}
+
+		// We could do better, but it would be too complicated...
+		if (marker) {
+			breakOffset = aLine.length();
 		}
 
 		return breakOffset;

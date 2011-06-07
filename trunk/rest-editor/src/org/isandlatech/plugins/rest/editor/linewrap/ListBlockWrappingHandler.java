@@ -52,13 +52,10 @@ public class ListBlockWrappingHandler extends AbstractBlockWrappingHandler {
 
 		// Retrieve its indentation
 		pFirstLineIndent = pLineUtil.getIndentation(pFirstLineContent);
-
-		// Retrieves its marker
-		pBullet = getBulletMarker(pFirstLineContent);
+		int indentationLength = pFirstLineIndent.length() + pBullet.length();
 
 		// Compute the indentation of other lines
-		char[] sublineIndentArray = new char[pFirstLineIndent.length()
-				+ pBullet.length()];
+		char[] sublineIndentArray = new char[indentationLength];
 		Arrays.fill(sublineIndentArray, ' ');
 		pBlockIndent = new String(sublineIndentArray);
 	}
@@ -86,6 +83,13 @@ public class ListBlockWrappingHandler extends AbstractBlockWrappingHandler {
 		}
 
 		if (pFirstLineContent == null) {
+			return false;
+		}
+
+		// Retrieves its marker
+		pBullet = getBulletMarker(pFirstLineContent);
+		if (pBullet == null) {
+			System.out.println("No bullet in '" + pFirstLineContent + "'");
 			return false;
 		}
 
@@ -172,19 +176,29 @@ public class ListBlockWrappingHandler extends AbstractBlockWrappingHandler {
 		completeBlock.append(pLineDelimiter);
 		completeBlock.append(pListBlockContent);
 
+		System.out.println("Ref 1 = " + pReferenceOffset);
+
 		// Update the reference offset as needed
 		pReferenceOffset = pReferenceOffset - prefixLen + pBlockIndent.length();
+
+		System.out.println("Ref 2 = " + pReferenceOffset);
 
 		StringBuilder completeBlockInLine = convertBlockInLine(completeBlock
 				.toString());
 
+		System.out.println("Ref 3 (rel) = " + pReferenceOffset);
+
 		StringBuilder result = wrapLine(completeBlockInLine.toString(), aMaxLen);
+
+		System.out.println("Ref 4 = " + pReferenceOffset);
 
 		result.delete(0, pBlockIndent.length());
 		result.insert(0, pFirstLineIndent + pBullet);
 
 		pReferenceOffset = pReferenceOffset + prefixLen - pBlockIndent.length();
 		setBlockContent(result.toString());
+
+		System.out.println("Ref 5 = " + pReferenceOffset);
 
 		// Don't forget to replace markers
 		return replaceInternalLineMarkers();
