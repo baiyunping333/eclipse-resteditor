@@ -131,6 +131,12 @@ public class EditorPreferencePage extends FieldEditorPreferencePage implements
 				prepareLineWrapEntries(), parent);
 		addField(pLineWrapMode);
 
+		// Only allows this in debug mode
+		if (!System.getProperties().keySet()
+				.contains(IEditorPreferenceConstants.DEBUG_MODE)) {
+			pLineWrapMode.setEnabled(false, parent);
+		}
+
 		pLineWrapLength = new IntegerFieldEditor(
 				IEditorPreferenceConstants.EDITOR_LINEWRAP_LENGTH,
 				Messages.getString("preferences.wrap.length"), parent);

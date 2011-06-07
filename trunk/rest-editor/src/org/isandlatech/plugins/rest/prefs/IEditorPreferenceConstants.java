@@ -18,6 +18,9 @@ package org.isandlatech.plugins.rest.prefs;
  */
 public interface IEditorPreferenceConstants {
 
+	/** ReST Editor debug mode system property */
+	String DEBUG_MODE = "resteditor.debug";
+
 	/** Maximum line length when a line wrapper is turned on */
 	String EDITOR_LINEWRAP_LENGTH = "editor.linewrap.length";
 
