@@ -286,7 +286,7 @@ public class RestTextHover implements ITextHover, ITextHoverExtension,
 			endWord = hoverLine.length() - 1;
 		}
 
-		if (endWord <= 0 || endWord < beginWord) {
+		if (endWord <= 0 || endWord <= beginWord) {
 			// Empty word ?
 			return new Region(aOffset, 0);
 		}
