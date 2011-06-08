@@ -139,6 +139,8 @@ public abstract class AbstractBlockWrappingHandler implements
 		resultLine.append(indent);
 		currentOffsetInResult += indent.length();
 
+		boolean deleteLastSpace = false;
+
 		try {
 			while ((currentLine = reader.readLine()) != null) {
 
@@ -156,6 +158,9 @@ public abstract class AbstractBlockWrappingHandler implements
 
 					resultLine.append(' ');
 					currentOffsetInResult++;
+					deleteLastSpace = true;
+				} else {
+					deleteLastSpace = false;
 				}
 
 				currentOffsetInOrigin += currentLine.length() + delimLen;
@@ -177,7 +182,7 @@ public abstract class AbstractBlockWrappingHandler implements
 		}
 
 		// Remove the last added trailing space
-		if (resultLine.length() > 0) {
+		if (deleteLastSpace && resultLine.length() > 0) {
 			resultLine.deleteCharAt(resultLine.length() - 1);
 		}
 
@@ -252,7 +257,8 @@ public abstract class AbstractBlockWrappingHandler implements
 		}
 
 		System.out.println("Insert @" + usedReference + " / "
-				+ (pReferenceOffset - getDocBlock().getOffset()));
+				+ (pReferenceOffset - getDocBlock().getOffset()) + " / "
+				+ pReferenceOffset);
 
 		printStringOffset("BlockContent", pBlockContent, usedReference);
 	}
@@ -454,8 +460,8 @@ public abstract class AbstractBlockWrappingHandler implements
 
 		// Find a valid offset
 		if (newOffset == -1) {
-			// -1 because length is 1-based while offset is 0-based
-			newOffset = wrappedLineLen - 1;
+			// Put it at the end of the wrapped line
+			newOffset = wrappedLineLen;
 		}
 
 		pReferenceOffset = newOffset + getDocBlock().getOffset();
