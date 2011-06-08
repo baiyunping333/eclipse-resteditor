@@ -51,5 +51,7 @@ Installation
 Like other plugins :
 
 * Go to Help> Install new software
-* Add the isandlaTech forge update site : ``http://forge.isandlatech.com:3080/eclipse``
+* Add the project update site : ``http://resteditor.sourceforge.net/eclipse``
 * Select the ReST Editor plug-in.
+* The Eclipse Color Theme plug-in may not be accessible with default update
+  sites, so you may uncheck it if you don't use this one.
