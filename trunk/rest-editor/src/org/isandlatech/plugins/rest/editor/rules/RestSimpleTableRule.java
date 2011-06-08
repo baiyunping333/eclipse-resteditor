@@ -73,6 +73,10 @@ public class RestSimpleTableRule extends AbstractRule implements RestLanguage {
 			}
 		}
 
+		if (readChar == ICharacterScanner.EOF) {
+			return ELineType.EOF;
+		}
+
 		if (emptyLine) {
 			return ELineType.EMPTY;
 		}

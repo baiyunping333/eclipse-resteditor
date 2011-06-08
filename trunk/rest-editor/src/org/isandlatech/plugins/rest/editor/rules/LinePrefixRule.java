@@ -208,7 +208,7 @@ public class LinePrefixRule extends AbstractRule {
 				column--;
 
 				// Test for prefixes
-				if (column < pMaxPrefixLength) {
+				if (column < pMaxPrefixLength && column >= 0) {
 					for (int i = 0; i < selectedPrefixes.size(); i++) {
 						char[] prefix = selectedPrefixes.get(i);
 

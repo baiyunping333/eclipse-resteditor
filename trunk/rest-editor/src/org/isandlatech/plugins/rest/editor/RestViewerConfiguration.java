@@ -482,7 +482,7 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 	 */
 	public void setDocument(final IDocument aDocument) {
 
-		if (pAutoEditLineWrap != null) {
+		if (pAutoEditLineWrap != null && LineWrapUtil.get().isWrappingEnabled()) {
 			pAutoEditLineWrap.registerListener(aDocument);
 			pAutoEditLineWrap.wrapWholeDocument();
 		}
