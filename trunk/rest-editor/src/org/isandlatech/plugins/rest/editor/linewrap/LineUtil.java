@@ -184,6 +184,7 @@ public class LineUtil {
 		int breakOffset = aLine.length();
 		boolean marker = false;
 
+		// Take care of ReST markers
 		final Set<String> testedMarkersSet = new HashSet<String>();
 		testedMarkersSet.add(RestLanguage.BOLD_MARKER);
 		testedMarkersSet.add(RestLanguage.EMPHASIS_MARKER);
@@ -223,9 +224,9 @@ public class LineUtil {
 		}
 
 		// We could do better, but it would be too complicated...
-		if (marker) {
-			breakOffset = aLine.length();
-		}
+		// if (marker) {
+		// breakOffset = aLine.length();
+		// }
 
 		return breakOffset;
 	}

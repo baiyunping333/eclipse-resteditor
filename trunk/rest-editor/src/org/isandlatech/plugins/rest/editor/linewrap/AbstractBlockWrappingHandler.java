@@ -146,25 +146,33 @@ public abstract class AbstractBlockWrappingHandler implements
 
 				String trimmedLine = pLineUtil.ltrim(currentLine);
 				if (trimmedLine.isEmpty()) {
+					// Ignore blank lines
+					// TODO see if we shouldn't return null here...
 					continue;
 				}
 
 				resultLine.append(trimmedLine);
 				currentOffsetInResult += trimmedLine.length();
 
-				// Add trailing space, if needed
+				// If the line doesn't end with a space, add it
 				if (!pLineUtil
 						.isSpace(trimmedLine.charAt(trimmedLine.length() - 1))) {
 
+					// Add trailing space, if needed
 					resultLine.append(' ');
-					currentOffsetInResult++;
 					deleteLastSpace = true;
+
 				} else {
+					// Keep string as is
 					deleteLastSpace = false;
 				}
 
+				// Take the trailing space into account in all cases...
+				currentOffsetInResult++;
+
 				currentOffsetInOrigin += currentLine.length() + delimLen;
 
+				// Update the reference offset if it is in the current line
 				if (blockRelativeReferenceOffset >= previousOffsetInOrigin
 						&& blockRelativeReferenceOffset < currentOffsetInOrigin) {
 
@@ -282,7 +290,8 @@ public abstract class AbstractBlockWrappingHandler implements
 			System.out.println(aLabel + " : '" + modifiedString + "'\n");
 
 		} catch (Exception ex) {
-			System.out.println("[Reference error - " + ex + "]");
+			System.out.println(aLabel + " : [Reference error - " + ex
+					+ "] - offset = " + aOffset);
 		}
 	}
 
@@ -435,10 +444,19 @@ public abstract class AbstractBlockWrappingHandler implements
 				// Set it to be relative to the new line
 				newOffset = pReferenceOffset - oldBreakPos;
 
+				/*
+				 * FIXME cursor position problems when working at the end of a
+				 * line come from here
+				 */
+
 				// Correct getLineBreakPosition indentation forgiveness
 				if (oldBreakPos > 0) {
 					newOffset -= (subLine.length() - trimmedSubline.length());
-					newOffset += indentLen;
+
+					// If we're not moving inside the indentation, move
+					if (newOffset >= 0) {
+						newOffset += indentLen;
+					}
 				}
 
 				// Make it relative to the current block state
