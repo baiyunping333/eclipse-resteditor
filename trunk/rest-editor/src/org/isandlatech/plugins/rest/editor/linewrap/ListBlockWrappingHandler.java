@@ -15,6 +15,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.Arrays;
+import java.util.Set;
 
 import org.eclipse.jface.text.TextUtilities;
 import org.isandlatech.plugins.rest.parser.RestLanguage;
@@ -42,6 +43,19 @@ public class ListBlockWrappingHandler extends AbstractBlockWrappingHandler {
 
 	/** Block content, without the first line */
 	private String pListBlockContent;
+
+	/**
+	 * Sets up the marker set to take ReST markers into account
+	 */
+	public ListBlockWrappingHandler() {
+
+		// Take care of ReST markers
+		Set<String> markersSet = getMarkersSet();
+		markersSet.add(RestLanguage.BOLD_MARKER);
+		markersSet.add(RestLanguage.EMPHASIS_MARKER);
+		markersSet.add(RestLanguage.INLINE_LITERAL_MARKER);
+		markersSet.add(RestLanguage.LINK_BEGIN);
+	}
 
 	/**
 	 * Computes the first line and sub lines indentation to be used

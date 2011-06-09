@@ -14,6 +14,8 @@ package org.isandlatech.plugins.rest.editor.linewrap;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentCommand;
@@ -50,6 +52,9 @@ public abstract class AbstractBlockWrappingHandler implements
 
 	/** Reference offset */
 	protected int pReferenceOffset;
+
+	/** Markers of ignored areas */
+	private Set<String> pMarkersSet = new HashSet<String>();
 
 	/*
 	 * (non-Javadoc)
@@ -237,6 +242,88 @@ public abstract class AbstractBlockWrappingHandler implements
 	 */
 	public IDocument getDocument() {
 		return pDocument;
+	}
+
+	/**
+	 * Finds the best position in the given String to make a line break
+	 * 
+	 * @param aLine
+	 *            Line to break
+	 * @param aBaseOffset
+	 *            Search start offset
+	 * @param aMaxLineLength
+	 *            Maximum line length
+	 * @return The best position to break the line, -1 on error / on stop
+	 */
+	protected int getLineBreakPosition(final String aLine,
+			final int aBaseOffset, final int aMaxLineLength) {
+
+		if (aBaseOffset >= aLine.length()) {
+			return -1;
+		}
+
+		if (aLine.length() < aMaxLineLength) {
+			return aLine.length();
+		}
+
+		int offset = aBaseOffset;
+		// Ignore indentation
+		while (offset < aLine.length()
+				&& pLineUtil.isSpace(aLine.charAt(offset))) {
+			offset++;
+		}
+
+		int lastSpaceOffset = -1;
+		int breakOffset = aLine.length();
+		boolean marker = false;
+
+		// Take care of ReST markers
+		final String[] testedMarkers = pMarkersSet.toArray(new String[0]);
+
+		while (offset < aLine.length()) {
+
+			if (offset - aBaseOffset > aMaxLineLength) {
+
+				if (lastSpaceOffset != -1) {
+					breakOffset = lastSpaceOffset;
+					break;
+				}
+			}
+
+			// Look for an in-line marker
+			int markerIndex = TextUtilities.startsWith(testedMarkers,
+					aLine.substring(offset));
+			if (markerIndex != -1) {
+				marker = !marker;
+
+				// Jump it (avoid confusion between '**' and '*')
+				offset += testedMarkers[markerIndex].length();
+				continue;
+			}
+
+			if (Character.isWhitespace(aLine.charAt(offset))) {
+
+				if (!marker) {
+					lastSpaceOffset = offset;
+				}
+			}
+
+			offset++;
+		}
+
+		// We could do better, but it would be too complicated...
+		// if (marker) {
+		// breakOffset = aLine.length();
+		// }
+
+		return breakOffset;
+	}
+
+	/**
+	 * Retrieves the markers set. Lines can't be broken between two markers.
+	 */
+	public Set<String> getMarkersSet() {
+		return pMarkersSet;
 	}
 
 	/*
@@ -428,8 +515,8 @@ public abstract class AbstractBlockWrappingHandler implements
 		int currentOffsetInResult = 0;
 		int newOffset = -1;
 
-		while ((breakPos = pLineUtil.getLineBreakPosition(aLine, breakPos,
-				aMaxLen - indentLen)) != -1) {
+		while ((breakPos = getLineBreakPosition(aLine, breakPos, aMaxLen
+				- indentLen)) != -1) {
 
 			String subLine = aLine.substring(oldBreakPos, breakPos);
 			String trimmedSubline = pLineUtil.ltrim(subLine);
