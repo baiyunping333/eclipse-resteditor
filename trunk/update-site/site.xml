@@ -3,7 +3,7 @@
    <description name="ReST Editor Update Site" url="http://resteditor.sourceforge.net/eclipse">
       This update site regroups all Eclipse plugins corresponding to the ReST Editor.
    </description>
-   <feature url="features/org.psem2m.eclipse.rest.editor_1.0.4.qualifier.jar" id="org.psem2m.eclipse.rest.editor" version="1.0.4.qualifier">
+   <feature url="features/org.psem2m.eclipse.rest.editor_1.0.5.qualifier.jar" id="org.psem2m.eclipse.rest.editor" version="1.0.5.qualifier">
       <category name="rest"/>
    </feature>
    <feature url="features/org.isandlatech.theme.mapper_1.0.0.qualifier.jar" id="org.isandlatech.theme.mapper" version="1.0.0.qualifier">

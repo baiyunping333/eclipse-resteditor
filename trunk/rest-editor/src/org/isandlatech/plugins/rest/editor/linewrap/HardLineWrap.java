@@ -128,9 +128,10 @@ public class HardLineWrap {
 	 */
 	public static void printCommand(final DocumentCommand aCommand) {
 		System.out.println("--- Command ---");
-		System.out.println("\toffset = " + aCommand.offset);
-		System.out.println("\tlength = " + aCommand.length);
-		System.out.println("\ttext   = '" + aCommand.text + "'");
+		System.out.println("\toffset   = " + aCommand.offset);
+		System.out.println("\tlength   = " + aCommand.length);
+		System.out.println("\ttext len = " + aCommand.text.length());
+		System.out.println("\ttext     = '" + aCommand.text + "'");
 	}
 
 	/** Block detectors list */
@@ -273,6 +274,14 @@ public class HardLineWrap {
 			aCommand.doit = false;
 			return null;
 		}
+
+		/*
+		 * Do not delete this line ! It removes the bug of the bad caret
+		 * behavior when inserting a character at length - 1, avoiding caret
+		 * movement when the DocumentCommand is executed (forces
+		 * DocumentCommand.updateCaret() to return false)
+		 */
+		aCommand.shiftsCaret = false;
 
 		aCommand.offset = baseDocBlock.getOffset();
 		aCommand.length = baseDocBlock.getLength();

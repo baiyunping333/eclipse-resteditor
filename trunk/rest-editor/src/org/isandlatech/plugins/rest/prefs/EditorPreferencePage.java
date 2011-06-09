@@ -16,6 +16,7 @@ import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.ComboFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.IntegerFieldEditor;
 import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.swt.SWT;
@@ -131,12 +132,6 @@ public class EditorPreferencePage extends FieldEditorPreferencePage implements
 				prepareLineWrapEntries(), parent);
 		addField(pLineWrapMode);
 
-		// Only allows this in debug mode
-		if (!System.getProperties().keySet()
-				.contains(IEditorPreferenceConstants.DEBUG_MODE)) {
-			pLineWrapMode.setEnabled(false, parent);
-		}
-
 		pLineWrapLength = new IntegerFieldEditor(
 				IEditorPreferenceConstants.EDITOR_LINEWRAP_LENGTH,
 				Messages.getString("preferences.wrap.length"), parent);
@@ -179,12 +174,32 @@ public class EditorPreferencePage extends FieldEditorPreferencePage implements
 	/*
 	 * (non-Javadoc)
 	 * 
+	 * @see org.eclipse.jface.preference.PreferencePage#doGetPreferenceStore()
+	 */
+	@Override
+	protected IPreferenceStore doGetPreferenceStore() {
+		return RestPlugin.getDefault().getPreferenceStore();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see
 	 * org.eclipse.ui.IWorkbenchPreferencePage#init(org.eclipse.ui.IWorkbench)
 	 */
 	@Override
 	public void init(final IWorkbench workbench) {
 		// Do nothing
+	}
+
+	/**
+	 * Tests if the IDE is running with the ReST Editor debug mode parameter
+	 * 
+	 * @return True if debug options must be enabled
+	 */
+	public boolean isInDebugMode() {
+		return System.getProperties().keySet()
+				.contains(IEditorPreferenceConstants.DEBUG_MODE);
 	}
 
 	/**
@@ -209,6 +224,12 @@ public class EditorPreferencePage extends FieldEditorPreferencePage implements
 		return descriptorsNames;
 	}
 
+	/**
+	 * Creates a two-dimensional array to set the content of the line wrapping
+	 * mode combo box.
+	 * 
+	 * @return The array to fill the combo box
+	 */
 	private String[][] prepareLineWrapEntries() {
 
 		LineWrapUtil.LineWrapMode[] wrapModes = LineWrapUtil.LineWrapMode

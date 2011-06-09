@@ -14,6 +14,8 @@ package org.isandlatech.plugins.rest.editor.linewrap;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentCommand;
@@ -50,6 +52,9 @@ public abstract class AbstractBlockWrappingHandler implements
 
 	/** Reference offset */
 	protected int pReferenceOffset;
+
+	/** Markers of ignored areas */
+	private Set<String> pMarkersSet = new HashSet<String>();
 
 	/*
 	 * (non-Javadoc)
@@ -139,27 +144,40 @@ public abstract class AbstractBlockWrappingHandler implements
 		resultLine.append(indent);
 		currentOffsetInResult += indent.length();
 
+		boolean deleteLastSpace = false;
+
 		try {
 			while ((currentLine = reader.readLine()) != null) {
 
 				String trimmedLine = pLineUtil.ltrim(currentLine);
 				if (trimmedLine.isEmpty()) {
+					// Ignore blank lines
+					// TODO see if we shouldn't return null here...
 					continue;
 				}
 
 				resultLine.append(trimmedLine);
 				currentOffsetInResult += trimmedLine.length();
 
-				// Add trailing space, if needed
+				// If the line doesn't end with a space, add it
 				if (!pLineUtil
 						.isSpace(trimmedLine.charAt(trimmedLine.length() - 1))) {
 
+					// Add trailing space, if needed
 					resultLine.append(' ');
-					currentOffsetInResult++;
+					deleteLastSpace = true;
+
+				} else {
+					// Keep string as is
+					deleteLastSpace = false;
 				}
+
+				// Take the trailing space into account in all cases...
+				currentOffsetInResult++;
 
 				currentOffsetInOrigin += currentLine.length() + delimLen;
 
+				// Update the reference offset if it is in the current line
 				if (blockRelativeReferenceOffset >= previousOffsetInOrigin
 						&& blockRelativeReferenceOffset < currentOffsetInOrigin) {
 
@@ -177,7 +195,7 @@ public abstract class AbstractBlockWrappingHandler implements
 		}
 
 		// Remove the last added trailing space
-		if (resultLine.length() > 0) {
+		if (deleteLastSpace && resultLine.length() > 0) {
 			resultLine.deleteCharAt(resultLine.length() - 1);
 		}
 
@@ -226,6 +244,88 @@ public abstract class AbstractBlockWrappingHandler implements
 		return pDocument;
 	}
 
+	/**
+	 * Finds the best position in the given String to make a line break
+	 * 
+	 * @param aLine
+	 *            Line to break
+	 * @param aBaseOffset
+	 *            Search start offset
+	 * @param aMaxLineLength
+	 *            Maximum line length
+	 * @return The best position to break the line, -1 on error / on stop
+	 */
+	protected int getLineBreakPosition(final String aLine,
+			final int aBaseOffset, final int aMaxLineLength) {
+
+		if (aBaseOffset >= aLine.length()) {
+			return -1;
+		}
+
+		if (aLine.length() < aMaxLineLength) {
+			return aLine.length();
+		}
+
+		int offset = aBaseOffset;
+		// Ignore indentation
+		while (offset < aLine.length()
+				&& pLineUtil.isSpace(aLine.charAt(offset))) {
+			offset++;
+		}
+
+		int lastSpaceOffset = -1;
+		int breakOffset = aLine.length();
+		boolean marker = false;
+
+		// Take care of ReST markers
+		final String[] testedMarkers = pMarkersSet.toArray(new String[0]);
+
+		while (offset < aLine.length()) {
+
+			if (offset - aBaseOffset > aMaxLineLength) {
+
+				if (lastSpaceOffset != -1) {
+					breakOffset = lastSpaceOffset;
+					break;
+				}
+			}
+
+			// Look for an in-line marker
+			int markerIndex = TextUtilities.startsWith(testedMarkers,
+					aLine.substring(offset));
+			if (markerIndex != -1) {
+				marker = !marker;
+
+				// Jump it (avoid confusion between '**' and '*')
+				offset += testedMarkers[markerIndex].length();
+				continue;
+			}
+
+			if (Character.isWhitespace(aLine.charAt(offset))) {
+
+				if (!marker) {
+					lastSpaceOffset = offset;
+				}
+			}
+
+			offset++;
+		}
+
+		// We could do better, but it would be too complicated...
+		// if (marker) {
+		// breakOffset = aLine.length();
+		// }
+
+		return breakOffset;
+	}
+
+	/**
+	 * Retrieves the markers set. Lines can't be broken between two markers.
+	 */
+	public Set<String> getMarkersSet() {
+		return pMarkersSet;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -252,7 +352,8 @@ public abstract class AbstractBlockWrappingHandler implements
 		}
 
 		System.out.println("Insert @" + usedReference + " / "
-				+ (pReferenceOffset - getDocBlock().getOffset()));
+				+ (pReferenceOffset - getDocBlock().getOffset()) + " / "
+				+ pReferenceOffset);
 
 		printStringOffset("BlockContent", pBlockContent, usedReference);
 	}
@@ -276,7 +377,8 @@ public abstract class AbstractBlockWrappingHandler implements
 			System.out.println(aLabel + " : '" + modifiedString + "'\n");
 
 		} catch (Exception ex) {
-			System.out.println("[Reference error - " + ex + "]");
+			System.out.println(aLabel + " : [Reference error - " + ex
+					+ "] - offset = " + aOffset);
 		}
 	}
 
@@ -413,8 +515,8 @@ public abstract class AbstractBlockWrappingHandler implements
 		int currentOffsetInResult = 0;
 		int newOffset = -1;
 
-		while ((breakPos = pLineUtil.getLineBreakPosition(aLine, breakPos,
-				aMaxLen - indentLen)) != -1) {
+		while ((breakPos = getLineBreakPosition(aLine, breakPos, aMaxLen
+				- indentLen)) != -1) {
 
 			String subLine = aLine.substring(oldBreakPos, breakPos);
 			String trimmedSubline = pLineUtil.ltrim(subLine);
@@ -429,10 +531,19 @@ public abstract class AbstractBlockWrappingHandler implements
 				// Set it to be relative to the new line
 				newOffset = pReferenceOffset - oldBreakPos;
 
+				/*
+				 * FIXME cursor position problems when working at the end of a
+				 * line come from here
+				 */
+
 				// Correct getLineBreakPosition indentation forgiveness
 				if (oldBreakPos > 0) {
 					newOffset -= (subLine.length() - trimmedSubline.length());
-					newOffset += indentLen;
+
+					// If we're not moving inside the indentation, move
+					if (newOffset >= 0) {
+						newOffset += indentLen;
+					}
 				}
 
 				// Make it relative to the current block state
@@ -454,8 +565,8 @@ public abstract class AbstractBlockWrappingHandler implements
 
 		// Find a valid offset
 		if (newOffset == -1) {
-			// -1 because length is 1-based while offset is 0-based
-			newOffset = wrappedLineLen - 1;
+			// Put it at the end of the wrapped line
+			newOffset = wrappedLineLen;
 		}
 
 		pReferenceOffset = newOffset + getDocBlock().getOffset();

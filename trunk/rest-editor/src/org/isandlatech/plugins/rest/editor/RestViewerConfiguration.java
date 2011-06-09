@@ -223,15 +223,20 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 					RestPartitionScanner.GRID_TABLE_BLOCK);
 
 			// TODO RestPartitionScanner.SIMPLE_TABLE_BLOCK
+		}
 
-			if (pPreferenceStore
-					.getBoolean(IEditorPreferenceConstants.EDITOR_SAVE_TRIM)) {
+		if (pPreferenceStore
+				.getBoolean(IEditorPreferenceConstants.EDITOR_SAVE_TRIM)) {
 
-				// Removes trailing spaces
-				pDocFormatter.setFormattingStrategy(
-						new DefaultTextFormattingStrategy(),
-						IDocument.DEFAULT_CONTENT_TYPE);
-			}
+			// Removes trailing spaces
+			pDocFormatter.setFormattingStrategy(
+					new DefaultTextFormattingStrategy(),
+					IDocument.DEFAULT_CONTENT_TYPE);
+		} else {
+
+			// Disable it if not in preferences
+			pDocFormatter.setFormattingStrategy(null,
+					IDocument.DEFAULT_CONTENT_TYPE);
 		}
 
 		return pDocFormatter;
@@ -361,10 +366,10 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 			SpellingService selectedService = new SpellingService(
 					pPreferenceStore);
 
-			ISpellingEngine engine;
 			try {
-				engine = selectedService.getActiveSpellingEngineDescriptor(
-						pPreferenceStore).createEngine();
+				ISpellingEngine engine = selectedService
+						.getActiveSpellingEngineDescriptor(pPreferenceStore)
+						.createEngine();
 
 				pSpellCheckHover = new RestTextHover(engine);
 
@@ -372,6 +377,11 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 				e.printStackTrace();
 			}
 		}
+
+		// Update spell checking state
+		boolean engineEnabled = pPreferenceStore
+				.getBoolean(SpellingService.PREFERENCE_SPELLING_ENABLED);
+		pSpellCheckHover.enableSpellChecking(engineEnabled);
 
 		return pSpellCheckHover;
 	}
