@@ -17,6 +17,9 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.source.ISourceViewer;
+import org.eclipse.jface.text.source.ISourceViewerExtension2;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorInput;
@@ -25,6 +28,7 @@ import org.eclipse.ui.texteditor.ContentAssistAction;
 import org.eclipse.ui.texteditor.ITextEditorActionConstants;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
+import org.isandlatech.plugins.rest.RestPlugin;
 import org.isandlatech.plugins.rest.editor.outline.RestContentOutlinePage;
 import org.isandlatech.plugins.rest.i18n.Messages;
 
@@ -40,6 +44,9 @@ public class RestEditor extends TextEditor {
 
 	/** Object called by the action update timer */
 	private Runnable pActionUpdater;
+
+	/** Complete preferences update runner, called by a timer */
+	private Runnable pPreferencesUpdater;
 
 	/** Source viewer configuration */
 	private RestViewerConfiguration pConfiguration;
@@ -57,7 +64,7 @@ public class RestEditor extends TextEditor {
 		super();
 		pDummyDisplay = Display.getDefault();
 
-		// Prepare the updater
+		// Prepare the content updater
 		pActionUpdater = new Runnable() {
 
 			@Override
@@ -66,6 +73,8 @@ public class RestEditor extends TextEditor {
 				runnableUpdateContentDependentActions();
 			}
 		};
+
+		setupPreferencesHandler();
 	}
 
 	@Override
@@ -191,12 +200,72 @@ public class RestEditor extends TextEditor {
 		super.performSaveAs(aProgressMonitor);
 	}
 
+	/**
+	 * Un-configures then re-configures the source viewer if it implements the
+	 * {@link ISourceViewerExtension2} interface.
+	 * 
+	 * Called by a timer with {@link #pPreferencesUpdater}.
+	 */
+	private void resetViewerConfiguration() {
+
+		// The hard way (we could try to make a soft configuration)
+		ISourceViewer viewer = getSourceViewer();
+
+		if (viewer instanceof ISourceViewerExtension2) {
+			((ISourceViewerExtension2) viewer).unconfigure();
+			viewer.configure(getSourceViewerConfiguration());
+		}
+	}
+
+	/**
+	 * Instance method to update content dependent elements.
+	 * 
+	 * Called with a delay by {@link #pActionUpdater}.
+	 */
 	private void runnableUpdateContentDependentActions() {
 
 		// Update outline page on content change
 		if (pOutlinePage != null) {
 			pOutlinePage.update();
 		}
+	}
+
+	private void setupPreferencesHandler() {
+
+		// Prepare the preference updater
+		pPreferencesUpdater = new Runnable() {
+
+			@Override
+			public void run() {
+				// Reset the viewer configuration
+				resetViewerConfiguration();
+			}
+		};
+
+		/*
+		 * Prepare the property change listener, which prepares a timer to
+		 * update all the viewer after a delay
+		 */
+		IPropertyChangeListener listener = new IPropertyChangeListener() {
+
+			@Override
+			public void propertyChange(final PropertyChangeEvent aEvent) {
+				// Cancel the current timer
+				pDummyDisplay.timerExec(-1, pPreferencesUpdater);
+
+				// Run a new one
+				pDummyDisplay.timerExec(ACTION_UPDATE_TIMEOUT,
+						pPreferencesUpdater);
+			}
+		};
+
+		/*
+		 * Attach the listener to the plug-in preference store. DO NOT USE
+		 * #setPreferenceStore, because it would unregister the standard
+		 * listener so standard options wouldn't be updated.
+		 */
+		RestPlugin.getDefault().getPreferenceStore()
+				.addPropertyChangeListener(listener);
 	}
 
 	/**

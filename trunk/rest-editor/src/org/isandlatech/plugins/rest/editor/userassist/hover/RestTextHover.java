@@ -56,6 +56,9 @@ public class RestTextHover implements ITextHover, ITextHoverExtension,
 	/** Hover link handler */
 	private final IInternalBrowserListener pBrowserListener;
 
+	/** Spell checking flag */
+	private boolean pSpellCheckingEnabled;
+
 	/**
 	 * Prepares the spell check hover
 	 * 
@@ -65,6 +68,7 @@ public class RestTextHover implements ITextHover, ITextHoverExtension,
 	public RestTextHover(final ISpellingEngine aSpellingEngine) {
 
 		pSpellingEngine = aSpellingEngine;
+		pSpellCheckingEnabled = pSpellingEngine != null;
 
 		// Prepare the spelling context
 		String contentTypeString = IContentTypeManager.CT_TEXT;
@@ -79,10 +83,24 @@ public class RestTextHover implements ITextHover, ITextHoverExtension,
 	}
 
 	/**
+	 * Enables or disables the spell checking while hovering.
+	 * 
+	 * @param aEnable
+	 *            True to enable spell checking, else false.
+	 */
+	public void enableSpellChecking(final boolean aEnable) {
+		pSpellCheckingEnabled = aEnable;
+	}
+
+	/**
+	 * Generates the hovered directive help message, if any.
 	 * 
 	 * @param aDocument
+	 *            Current document
 	 * @param aHoverRegion
-	 * @return
+	 *            Hovered document region
+	 * 
+	 * @return The directive help string, null if it isn't a directive
 	 */
 	protected String generateDirectiveHelp(final IDocument aDocument,
 			final IRegion aHoverRegion) {
@@ -143,6 +161,10 @@ public class RestTextHover implements ITextHover, ITextHoverExtension,
 	 */
 	protected String generateSpellingProposals(final IDocument aDocument,
 			final IRegion aHoverRegion) {
+
+		if (!pSpellCheckingEnabled) {
+			return null;
+		}
 
 		String correctionProposals = "";
 
