@@ -103,8 +103,9 @@ public interface RestLanguage {
 	/** End of a reference link */
 	String LINK_REFERENCE_END = "]_";
 
-	/** List markers */
-	String[] LIST_MARKERS = { "* ", "#. ", "- " };
+	/** List markers (with the trailing space) */
+	String[] LIST_MARKERS = { "* ", "+ ", "- ", "\u2022 " /* bullet */,
+			"\u2023 " /* triangular bullet */, "⁃ ", "#. ", "#) ", "(#) " };
 
 	/** Line prefixes of literal blocks */
 	String[] LITERAL_BLOCK_PREFIXES = { ".. ", "   ", "\t" };
