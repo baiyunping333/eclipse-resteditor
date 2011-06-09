@@ -189,6 +189,7 @@ public class LineUtil {
 		testedMarkersSet.add(RestLanguage.BOLD_MARKER);
 		testedMarkersSet.add(RestLanguage.EMPHASIS_MARKER);
 		testedMarkersSet.add(RestLanguage.INLINE_LITERAL_MARKER);
+		testedMarkersSet.add(RestLanguage.LINK_BEGIN);
 
 		final String[] testedMarkers = testedMarkersSet.toArray(new String[0]);
 
