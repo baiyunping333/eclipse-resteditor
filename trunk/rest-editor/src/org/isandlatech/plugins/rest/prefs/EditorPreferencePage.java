@@ -131,12 +131,6 @@ public class EditorPreferencePage extends FieldEditorPreferencePage implements
 				prepareLineWrapEntries(), parent);
 		addField(pLineWrapMode);
 
-		// Only allows this in debug mode
-		if (!System.getProperties().keySet()
-				.contains(IEditorPreferenceConstants.DEBUG_MODE)) {
-			pLineWrapMode.setEnabled(false, parent);
-		}
-
 		pLineWrapLength = new IntegerFieldEditor(
 				IEditorPreferenceConstants.EDITOR_LINEWRAP_LENGTH,
 				Messages.getString("preferences.wrap.length"), parent);
@@ -185,6 +179,16 @@ public class EditorPreferencePage extends FieldEditorPreferencePage implements
 	@Override
 	public void init(final IWorkbench workbench) {
 		// Do nothing
+	}
+
+	/**
+	 * Tests if the IDE is running with the ReST Editor debug mode parameter
+	 * 
+	 * @return True if debug options must be enabled
+	 */
+	public boolean isInDebugMode() {
+		return System.getProperties().keySet()
+				.contains(IEditorPreferenceConstants.DEBUG_MODE);
 	}
 
 	/**
