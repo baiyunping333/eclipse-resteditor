@@ -1,8 +1,14 @@
-/**
- * File:   RestViewerConfiguration.java
- * Author: Thomas Calmant
- * Date:   20 janv. 2011
- */
+/*******************************************************************************
+ * Copyright (c) 2011 isandlaTech, Thomas Calmant
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *    Thomas Calmant (isandlaTech) - initial API and implementation
+ *******************************************************************************/
+
 package org.isandlatech.plugins.rest.editor;
 
 import java.util.ArrayList;
@@ -41,6 +47,9 @@ import org.isandlatech.plugins.rest.RestPlugin;
 import org.isandlatech.plugins.rest.editor.formatters.DefaultTextFormattingStrategy;
 import org.isandlatech.plugins.rest.editor.formatters.GridTableFormattingStrategy;
 import org.isandlatech.plugins.rest.editor.formatters.SectionFormattingStrategy;
+import org.isandlatech.plugins.rest.editor.linewrap.HardLineWrapAutoEdit;
+import org.isandlatech.plugins.rest.editor.linewrap.LineWrapUtil;
+import org.isandlatech.plugins.rest.editor.linewrap.LineWrapUtil.LineWrapMode;
 import org.isandlatech.plugins.rest.editor.outline.OutlineUtil;
 import org.isandlatech.plugins.rest.editor.outline.RestContentOutlinePage;
 import org.isandlatech.plugins.rest.editor.providers.RuleProvider;
@@ -67,17 +76,26 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 	/** Content pAssistant */
 	private ContentAssistant pAssistant = null;
 
+	/** Auto indent strategy */
+	private DefaultIndentLineAutoEditStrategy pAutoEditIndent;
+
+	/** Auto line wrapping strategy */
+	private HardLineWrapAutoEdit pAutoEditLineWrap;
+
+	/** Auto conversion from tabs to spaces */
+	private TabsToSpacesConverter pAutoEditTabsToSpace;
+
 	/** Document formatter */
 	private ContentFormatter pDocFormatter = null;
 
 	/** ReST document token scanner */
 	private RestScanner pDocScanner = null;
 
+	/** Parent editor */
+	private final RestEditor pEditor;
+
 	/** Preference store */
 	private IPreferenceStore pPreferenceStore = null;
-
-	/** Parent editor */
-	private RestEditor pEditor;
 
 	/** Scanner rule provider */
 	private RuleProvider pRuleProvider = null;
@@ -104,18 +122,37 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 	public IAutoEditStrategy[] getAutoEditStrategies(
 			final ISourceViewer aSourceViewer, final String aContentType) {
 
-		List<IAutoEditStrategy> strategies = new ArrayList<IAutoEditStrategy>(2);
-		strategies.add(new DefaultIndentLineAutoEditStrategy());
+		if (pAutoEditIndent == null) {
+			pAutoEditIndent = new DefaultIndentLineAutoEditStrategy();
+		}
+
+		if (pAutoEditLineWrap == null) {
+			int maxLineLength = LineWrapUtil.get().getMaxLineLength();
+			pAutoEditLineWrap = new HardLineWrapAutoEdit(
+					RestPartitionScanner.PARTITIONING, maxLineLength);
+		}
+
+		List<IAutoEditStrategy> strategies = new ArrayList<IAutoEditStrategy>(3);
+		strategies.add(pAutoEditIndent);
+
+		// Only enable line wrapping in "default text"
+		if (LineWrapUtil.get().isWrappingEnabled()
+				&& IDocument.DEFAULT_CONTENT_TYPE.equals(aContentType)) {
+			strategies.add(pAutoEditLineWrap);
+		}
 
 		if (pPreferenceStore
 				.getBoolean(IEditorPreferenceConstants.EDITOR_TABS_TO_SPACES)) {
 
 			// Automatic tabs to space conversion
-			TabsToSpacesConverter tabs2spaces = new TabsToSpacesConverter();
-			tabs2spaces.setNumberOfSpacesPerTab(getTabWidth(aSourceViewer));
-			tabs2spaces.setLineTracker(new DefaultLineTracker());
+			if (pAutoEditTabsToSpace == null) {
+				pAutoEditTabsToSpace = new TabsToSpacesConverter();
+				pAutoEditTabsToSpace
+						.setNumberOfSpacesPerTab(getTabWidth(aSourceViewer));
+				pAutoEditTabsToSpace.setLineTracker(new DefaultLineTracker());
+			}
 
-			strategies.add(tabs2spaces);
+			strategies.add(pAutoEditTabsToSpace);
 		}
 
 		return strategies.toArray(new IAutoEditStrategy[0]);
@@ -129,7 +166,7 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 	@Override
 	public String getConfiguredDocumentPartitioning(
 			final ISourceViewer sourceViewer) {
-		return RestPartitionScanner.PARTITIONNING;
+		return RestPartitionScanner.PARTITIONING;
 	}
 
 	@Override
@@ -173,7 +210,7 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 			pDocFormatter = new ContentFormatter();
 			pDocFormatter.enablePartitionAwareFormatting(true);
 			pDocFormatter
-					.setDocumentPartitioning(RestPartitionScanner.PARTITIONNING);
+					.setDocumentPartitioning(RestPartitionScanner.PARTITIONING);
 
 			// Sections formatter
 			pDocFormatter.setFormattingStrategy(
@@ -186,15 +223,20 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 					RestPartitionScanner.GRID_TABLE_BLOCK);
 
 			// TODO RestPartitionScanner.SIMPLE_TABLE_BLOCK
+		}
 
-			if (pPreferenceStore
-					.getBoolean(IEditorPreferenceConstants.EDITOR_SAVE_TRIM)) {
+		if (pPreferenceStore
+				.getBoolean(IEditorPreferenceConstants.EDITOR_SAVE_TRIM)) {
 
-				// Removes trailing spaces
-				pDocFormatter.setFormattingStrategy(
-						new DefaultTextFormattingStrategy(),
-						IDocument.DEFAULT_CONTENT_TYPE);
-			}
+			// Removes trailing spaces
+			pDocFormatter.setFormattingStrategy(
+					new DefaultTextFormattingStrategy(),
+					IDocument.DEFAULT_CONTENT_TYPE);
+		} else {
+
+			// Disable it if not in preferences
+			pDocFormatter.setFormattingStrategy(null,
+					IDocument.DEFAULT_CONTENT_TYPE);
 		}
 
 		return pDocFormatter;
@@ -324,10 +366,10 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 			SpellingService selectedService = new SpellingService(
 					pPreferenceStore);
 
-			ISpellingEngine engine;
 			try {
-				engine = selectedService.getActiveSpellingEngineDescriptor(
-						pPreferenceStore).createEngine();
+				ISpellingEngine engine = selectedService
+						.getActiveSpellingEngineDescriptor(pPreferenceStore)
+						.createEngine();
 
 				pSpellCheckHover = new RestTextHover(engine);
 
@@ -335,6 +377,11 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 				e.printStackTrace();
 			}
 		}
+
+		// Update spell checking state
+		boolean engineEnabled = pPreferenceStore
+				.getBoolean(SpellingService.PREFERENCE_SPELLING_ENABLED);
+		pSpellCheckHover.enableSpellChecking(engineEnabled);
 
 		return pSpellCheckHover;
 	}
@@ -357,6 +404,8 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 	/**
 	 * On-save operations :
 	 * 
+	 * * Un-wrapping if needed
+	 * 
 	 * * Auto section markers normalization
 	 * 
 	 * * Auto formating when the editor saves the file
@@ -365,6 +414,8 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 	 *            The editor source viewer
 	 */
 	public void onEditorPerformSave(final ISourceViewer aSourceViewer) {
+
+		final IDocument document = aSourceViewer.getDocument();
 
 		if (pPreferenceStore
 				.getBoolean(IEditorPreferenceConstants.EDITOR_SAVE_RESET_MARKERS)) {
@@ -394,7 +445,6 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 			// Text format on save
 
 			// Doc informations
-			IDocument document = aSourceViewer.getDocument();
 			IRegion docRegion = new Region(0, document.getLength());
 
 			// Store current pointer location
@@ -406,6 +456,45 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 			// Reset point location
 			aSourceViewer
 					.setSelectedRange(currentLocation.x, currentLocation.y);
+		}
+
+		if (LineWrapUtil.get().isActiveMode(LineWrapMode.SOFT)) {
+			// Soft wrap mode : remove all added end-of-line
+
+			pAutoEditLineWrap.unregisterListener();
+			pAutoEditLineWrap.removeWrapping();
+		}
+	}
+
+	/**
+	 * Post-save operations : re-wrapping if needed
+	 * 
+	 * @param aSourceViewer
+	 *            The editor source viewer
+	 */
+	public void postEditorPerformSave(final ISourceViewer aSourceViewer) {
+
+		final IDocument document = aSourceViewer.getDocument();
+
+		if (LineWrapUtil.get().isActiveMode(LineWrapMode.SOFT)) {
+			pAutoEditLineWrap.registerListener(document);
+			pAutoEditLineWrap.wrapWholeDocument();
+		}
+	}
+
+	/**
+	 * Sets the document associated to the viewer configuration.
+	 * 
+	 * Updates the line wrapper, if needed.
+	 * 
+	 * @param aDocument
+	 *            Document associated to the source viewer
+	 */
+	public void setDocument(final IDocument aDocument) {
+
+		if (pAutoEditLineWrap != null && LineWrapUtil.get().isWrappingEnabled()) {
+			pAutoEditLineWrap.registerListener(aDocument);
+			pAutoEditLineWrap.wrapWholeDocument();
 		}
 	}
 }

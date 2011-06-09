@@ -2,7 +2,7 @@
 <feature
       id="org.psem2m.eclipse.rest.editor"
       label="ReST Editor"
-      version="1.0.4.qualifier"
+      version="1.0.5.qualifier"
       provider-name="isandlaTech.com">
 
    <description url="http://www.isandlatech.com">
@@ -110,7 +110,7 @@ This Agreement is governed by the laws of the State of New York and the intellec
    </license>
 
    <url>
-      <update label="Forge isandlaTech" url="http://forge.isandlatech.com:3080/eclipse"/>
+      <update label="ReST Project on SourceForge" url="http://resteditor.sourceforge.net/eclipse"/>
    </url>
 
    <requires>

@@ -107,7 +107,7 @@ This Agreement is governed by the laws of the State of New York and the intellec
    </license>
 
    <url>
-      <update label="Forge isandlaTech" url="http://forge.isandlatech.com:3080/eclipse"/>
+      <update label="ReST Project on SourceForge" url="http://resteditor.sourceforge.net/eclipse"/>
    </url>
 
    <plugin

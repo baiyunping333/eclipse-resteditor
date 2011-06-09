@@ -1,8 +1,14 @@
-/**
- * File:   RestDocumentSetupParticipant.java
- * Author: Thomas Calmant
- * Date:   3 mai 2011
- */
+/*******************************************************************************
+ * Copyright (c) 2011 isandlaTech, Thomas Calmant
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *    Thomas Calmant (isandlaTech) - initial API and implementation
+ *******************************************************************************/
+
 package org.isandlatech.plugins.rest.editor;
 
 import org.eclipse.core.filebuffers.IDocumentSetupParticipant;
@@ -38,7 +44,7 @@ public class RestDocumentSetupParticipant implements IDocumentSetupParticipant {
 					RestPartitionScanner.PARTITION_TYPES);
 
 			IDocumentExtension3 docExt3 = (IDocumentExtension3) aDocument;
-			docExt3.setDocumentPartitioner(RestPartitionScanner.PARTITIONNING,
+			docExt3.setDocumentPartitioner(RestPartitionScanner.PARTITIONING,
 					partitioner);
 
 			partitioner.connect(aDocument);

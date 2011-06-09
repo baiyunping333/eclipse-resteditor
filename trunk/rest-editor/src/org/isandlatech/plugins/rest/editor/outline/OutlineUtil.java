@@ -1,8 +1,14 @@
-/**
- * File:   OutlineUtil.java
- * Author: Thomas Calmant
- * Date:   11 mai 2011
- */
+/*******************************************************************************
+ * Copyright (c) 2011 isandlaTech, Thomas Calmant
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *    Thomas Calmant (isandlaTech) - initial API and implementation
+ *******************************************************************************/
+
 package org.isandlatech.plugins.rest.editor.outline;
 
 import java.util.ArrayList;
@@ -12,7 +18,10 @@ import java.util.List;
 
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.DocumentRewriteSession;
+import org.eclipse.jface.text.DocumentRewriteSessionType;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IDocumentExtension4;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.TextUtilities;
@@ -197,7 +206,21 @@ public class OutlineUtil {
 			preferredMarkersArray = preferredMarkers.toCharArray();
 		}
 
+		IDocument document = aSectionNode.getDocument();
+
+		// Indicate that we will perform multiple replacements on the document
+		DocumentRewriteSession rewriteSession = null;
+		if (document instanceof IDocumentExtension4) {
+			rewriteSession = ((IDocumentExtension4) document)
+					.startRewriteSession(DocumentRewriteSessionType.SEQUENTIAL);
+		}
+
 		normalizeSectionsMarker(aSectionNode, preferredMarkersArray);
+
+		// Stop rewrite session
+		if (rewriteSession != null) {
+			((IDocumentExtension4) document).stopRewriteSession(rewriteSession);
+		}
 	}
 
 	/**
@@ -211,7 +234,7 @@ public class OutlineUtil {
 	 * @param aMarkers
 	 *            Preferred markers array.
 	 */
-	protected static void normalizeSectionsMarker(final TreeData aSectionNode,
+	private static void normalizeSectionsMarker(final TreeData aSectionNode,
 			final char[] aMarkers) {
 
 		int sectionLevel = aSectionNode.getLevel();

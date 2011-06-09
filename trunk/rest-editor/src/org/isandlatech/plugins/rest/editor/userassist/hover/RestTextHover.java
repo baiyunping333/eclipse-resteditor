@@ -1,8 +1,14 @@
-/**
- * File:   RestTextHover.java
- * Author: Thomas Calmant
- * Date:   4 mars 2011
- */
+/*******************************************************************************
+ * Copyright (c) 2011 isandlaTech, Thomas Calmant
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *    Thomas Calmant (isandlaTech) - initial API and implementation
+ *******************************************************************************/
+
 package org.isandlatech.plugins.rest.editor.userassist.hover;
 
 import java.util.List;
@@ -50,6 +56,9 @@ public class RestTextHover implements ITextHover, ITextHoverExtension,
 	/** Hover link handler */
 	private final IInternalBrowserListener pBrowserListener;
 
+	/** Spell checking flag */
+	private boolean pSpellCheckingEnabled;
+
 	/**
 	 * Prepares the spell check hover
 	 * 
@@ -59,6 +68,7 @@ public class RestTextHover implements ITextHover, ITextHoverExtension,
 	public RestTextHover(final ISpellingEngine aSpellingEngine) {
 
 		pSpellingEngine = aSpellingEngine;
+		pSpellCheckingEnabled = pSpellingEngine != null;
 
 		// Prepare the spelling context
 		String contentTypeString = IContentTypeManager.CT_TEXT;
@@ -73,10 +83,24 @@ public class RestTextHover implements ITextHover, ITextHoverExtension,
 	}
 
 	/**
+	 * Enables or disables the spell checking while hovering.
+	 * 
+	 * @param aEnable
+	 *            True to enable spell checking, else false.
+	 */
+	public void enableSpellChecking(final boolean aEnable) {
+		pSpellCheckingEnabled = aEnable;
+	}
+
+	/**
+	 * Generates the hovered directive help message, if any.
 	 * 
 	 * @param aDocument
+	 *            Current document
 	 * @param aHoverRegion
-	 * @return
+	 *            Hovered document region
+	 * 
+	 * @return The directive help string, null if it isn't a directive
 	 */
 	protected String generateDirectiveHelp(final IDocument aDocument,
 			final IRegion aHoverRegion) {
@@ -86,7 +110,7 @@ public class RestTextHover implements ITextHover, ITextHoverExtension,
 		if (aDocument instanceof IDocumentExtension3) {
 			IDocumentExtension3 doc3 = (IDocumentExtension3) aDocument;
 			partitioner = doc3
-					.getDocumentPartitioner(RestPartitionScanner.PARTITIONNING);
+					.getDocumentPartitioner(RestPartitionScanner.PARTITIONING);
 		} else {
 			partitioner = aDocument.getDocumentPartitioner();
 		}
@@ -137,6 +161,10 @@ public class RestTextHover implements ITextHover, ITextHoverExtension,
 	 */
 	protected String generateSpellingProposals(final IDocument aDocument,
 			final IRegion aHoverRegion) {
+
+		if (!pSpellCheckingEnabled) {
+			return null;
+		}
 
 		String correctionProposals = "";
 
@@ -280,7 +308,7 @@ public class RestTextHover implements ITextHover, ITextHoverExtension,
 			endWord = hoverLine.length() - 1;
 		}
 
-		if (endWord <= 0 || endWord < beginWord) {
+		if (endWord <= 0 || endWord <= beginWord) {
 			// Empty word ?
 			return new Region(aOffset, 0);
 		}

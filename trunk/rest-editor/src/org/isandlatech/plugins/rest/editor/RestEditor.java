@@ -1,18 +1,34 @@
-/**
- * File:   RestEditor.java
- * Author: Thomas Calmant
- * Date:   20 janv. 2011
- */
+/*******************************************************************************
+ * Copyright (c) 2011 isandlaTech, Thomas Calmant
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *    Thomas Calmant (isandlaTech) - initial API and implementation
+ *******************************************************************************/
+
 package org.isandlatech.plugins.rest.editor;
 
 import java.util.ResourceBundle;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.source.ISourceViewer;
+import org.eclipse.jface.text.source.ISourceViewerExtension2;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.texteditor.ContentAssistAction;
 import org.eclipse.ui.texteditor.ITextEditorActionConstants;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
+import org.isandlatech.plugins.rest.RestPlugin;
 import org.isandlatech.plugins.rest.editor.outline.RestContentOutlinePage;
 import org.isandlatech.plugins.rest.i18n.Messages;
 
@@ -23,8 +39,20 @@ import org.isandlatech.plugins.rest.i18n.Messages;
  */
 public class RestEditor extends TextEditor {
 
+	/** Inactivity time to wait before updating the outline */
+	public static final int ACTION_UPDATE_TIMEOUT = 500;
+
+	/** Object called by the action update timer */
+	private Runnable pActionUpdater;
+
+	/** Complete preferences update runner, called by a timer */
+	private Runnable pPreferencesUpdater;
+
 	/** Source viewer configuration */
 	private RestViewerConfiguration pConfiguration;
+
+	/** Dummy display to access timers */
+	private Display pDummyDisplay;
 
 	/** Outline page */
 	private RestContentOutlinePage pOutlinePage;
@@ -34,6 +62,19 @@ public class RestEditor extends TextEditor {
 	 */
 	public RestEditor() {
 		super();
+		pDummyDisplay = Display.getDefault();
+
+		// Prepare the content updater
+		pActionUpdater = new Runnable() {
+
+			@Override
+			public void run() {
+				// Call the object one
+				runnableUpdateContentDependentActions();
+			}
+		};
+
+		setupPreferencesHandler();
 	}
 
 	@Override
@@ -55,12 +96,24 @@ public class RestEditor extends TextEditor {
 	}
 
 	@Override
+	public void createPartControl(final Composite parent) {
+		super.createPartControl(parent);
+		updateConfigurationDocument();
+	}
+
+	@Override
 	public void dispose() {
 		if (pOutlinePage != null) {
 			pOutlinePage.dispose();
 		}
 
 		super.dispose();
+	}
+
+	@Override
+	protected void doSetInput(final IEditorInput input) throws CoreException {
+		super.doSetInput(input);
+		updateConfigurationDocument();
 	}
 
 	@Override
@@ -72,6 +125,9 @@ public class RestEditor extends TextEditor {
 
 		// Save actions...
 		super.editorSaved();
+
+		// Perform treatments after saving the document...
+		pConfiguration.postEditorPerformSave(getSourceViewer());
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -120,7 +176,11 @@ public class RestEditor extends TextEditor {
 	protected void performSave(final boolean aOverwrite,
 			final IProgressMonitor aProgressMonitor) {
 
-		pConfiguration.onEditorPerformSave(getSourceViewer());
+		ISourceViewer sourceViewer = getSourceViewer();
+
+		// Perform treatments before saving the document...
+		pConfiguration.onEditorPerformSave(sourceViewer);
+
 		super.performSave(aOverwrite, aProgressMonitor);
 	}
 
@@ -132,10 +192,94 @@ public class RestEditor extends TextEditor {
 	@Override
 	protected void performSaveAs(final IProgressMonitor aProgressMonitor) {
 
+		ISourceViewer sourceViewer = getSourceViewer();
+
 		// Perform treatments before saving the document...
-		pConfiguration.onEditorPerformSave(getSourceViewer());
+		pConfiguration.onEditorPerformSave(sourceViewer);
 
 		super.performSaveAs(aProgressMonitor);
+	}
+
+	/**
+	 * Un-configures then re-configures the source viewer if it implements the
+	 * {@link ISourceViewerExtension2} interface.
+	 * 
+	 * Called by a timer with {@link #pPreferencesUpdater}.
+	 */
+	private void resetViewerConfiguration() {
+
+		// The hard way (we could try to make a soft configuration)
+		ISourceViewer viewer = getSourceViewer();
+
+		if (viewer instanceof ISourceViewerExtension2) {
+			((ISourceViewerExtension2) viewer).unconfigure();
+			viewer.configure(getSourceViewerConfiguration());
+		}
+	}
+
+	/**
+	 * Instance method to update content dependent elements.
+	 * 
+	 * Called with a delay by {@link #pActionUpdater}.
+	 */
+	private void runnableUpdateContentDependentActions() {
+
+		// Update outline page on content change
+		if (pOutlinePage != null) {
+			pOutlinePage.update();
+		}
+	}
+
+	private void setupPreferencesHandler() {
+
+		// Prepare the preference updater
+		pPreferencesUpdater = new Runnable() {
+
+			@Override
+			public void run() {
+				// Reset the viewer configuration
+				resetViewerConfiguration();
+			}
+		};
+
+		/*
+		 * Prepare the property change listener, which prepares a timer to
+		 * update all the viewer after a delay
+		 */
+		IPropertyChangeListener listener = new IPropertyChangeListener() {
+
+			@Override
+			public void propertyChange(final PropertyChangeEvent aEvent) {
+				// Cancel the current timer
+				pDummyDisplay.timerExec(-1, pPreferencesUpdater);
+
+				// Run a new one
+				pDummyDisplay.timerExec(ACTION_UPDATE_TIMEOUT,
+						pPreferencesUpdater);
+			}
+		};
+
+		/*
+		 * Attach the listener to the plug-in preference store. DO NOT USE
+		 * #setPreferenceStore, because it would unregister the standard
+		 * listener so standard options wouldn't be updated.
+		 */
+		RestPlugin.getDefault().getPreferenceStore()
+				.addPropertyChangeListener(listener);
+	}
+
+	/**
+	 * Updates the document instance in the configuration, if needed.
+	 */
+	private void updateConfigurationDocument() {
+
+		ISourceViewer viewer = getSourceViewer();
+		if (viewer != null) {
+			IDocument document = viewer.getDocument();
+			if (document != null) {
+				pConfiguration.setDocument(document);
+			}
+		}
 	}
 
 	/**
@@ -147,9 +291,9 @@ public class RestEditor extends TextEditor {
 	protected void updateContentDependentActions() {
 		super.updateContentDependentActions();
 
-		// Update outline page on content change
-		if (pOutlinePage != null) {
-			pOutlinePage.update();
-		}
+		// Cancel the current timer
+		pDummyDisplay.timerExec(-1, pActionUpdater);
+		// Set the "new" one
+		pDummyDisplay.timerExec(ACTION_UPDATE_TIMEOUT, pActionUpdater);
 	}
 }

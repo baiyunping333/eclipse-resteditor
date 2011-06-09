@@ -1,0 +1,84 @@
+{% extends "layout.html" %}
+{% set title = 'Overview' %}
+{% block body %}
+
+<h1>Welcome</h1>
+
+<p>
+ReST Editor is an Eclipse plug-in providing support to edit
+reStructuredText files. It was created by Thomas Calmant and is
+released under Eclipse Public License 1.0
+(<a href="http://www.eclipse.org/org/documents/epl-v10.php">license text here</a>).
+</p>
+	
+<p>
+It was originally created as an internal project of 
+<a href="http://www.isandlatech.com/">isandlaTech</a> to ease documentation writing.
+Previous versions descriptions are available on
+<a href="http://www.coderxpress.net/blog">my blog</a>, all new informations are on
+the <a href="https://sourceforge.net/projects/resteditor/">SourceForge project page</a>.
+</p>
+
+<p>
+	<a href="http://docutils.sf.net/rst.html">reStructuredText</a> is a
+	markup language that can be transformed in various output formats with
+	tools like <a href="http://sphinx.pocoo.org/">Sphinx documentation
+		generator</a>, <a href="http://code.google.com/p/rst2pdf">rst2pdf</a>, <a
+		href="http://www.agapow.net/software/rst2beamer">rst2beamer</a>, ...
+</p>
+
+<p>Current features are :</p>
+<ul>
+	<li>Grid table formatter : automatically normalizes your grid
+		tables aspect to be ReST compliant. (stable)</li>
+	<li>ReST and Sphinx directives content assistance, with a little
+		sample (stable on Helios, needs internal browser support)</li>
+	<li>Hierarchy modification : you can move sections in the
+		document. (stable)</li>
+	<li>Section markers normalization : use the preferences to
+		normalize all your sections markers in a document. (stable)</li>
+	<li>Source highlighting : to have a visual illustration of what is
+		written. (nearly stable)</li>
+	<li>Line wrapping : hard and soft wrapping are nearly stable</li>
+	<li><a href="http://code.google.com/p/hunspell4eclipse/">Hunspell4Eclipse</a>
+		spell checking support</li>
+	<li>Run configuration : runs the makefile or the make.bat script
+		for the selected output formats</li>
+</ul>
+
+<h2>Documentation</h2>
+<table class="contentstable" align="center" style="margin-left: 30px">
+	<tr>
+		<td width="34%">
+			<p class="biglink">
+				<a class="biglink" href="{{ pathto("contents") }}">Contents</a><br />
+				<span class="linkdescr">for a complete overview</span>
+			</p>
+		</td>
+		
+		<td width="33%">
+			<p class="biglink">
+				<a class="biglink" href="{{ pathto("search") }}">Search page</a><br />
+				<span class="linkdescr">search the documentation</span>
+			</p>
+		</td>
+			
+		<td width="33%">
+			<p class="biglink">
+				<a class="biglink" href="{{ pathto("credits") }}">Credits</a><br />
+				<span class="linkdescr">list of contributors</span>
+			</p>
+		</td>
+	</tr>
+</table>
+
+<h2>Get ReST Editor</h2>
+<p>
+ReST Editor is available using the project update site : 
+<tt>http://resteditor.sourceforge.net/eclipse</tt>.
+</p>
+<p>It is also available on the
+<a href="http://marketplace.eclipse.org/content/rest-editor">Eclipse Marketplace</a>
+</p>
+
+{% endblock %}

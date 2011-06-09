@@ -1,8 +1,14 @@
-/**
- * File:   LinePrefixRule.java
- * Author: Thomas Calmant
- * Date:   26 janv. 2011
- */
+/*******************************************************************************
+ * Copyright (c) 2011 isandlaTech, Thomas Calmant
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *    Thomas Calmant (isandlaTech) - initial API and implementation
+ *******************************************************************************/
+
 package org.isandlatech.plugins.rest.editor.rules;
 
 import java.util.ArrayList;
@@ -96,8 +102,10 @@ public class LinePrefixRule extends AbstractRule {
 		// Test block begin
 		if (pBlockPrefix != null) {
 
+			int column = aScanner.getColumn();
+
 			if (pMaxBlockPrefixColumn >= 0
-					&& aScanner.getColumn() > pMaxBlockPrefixColumn) {
+					&& (column < 0 || column > pMaxBlockPrefixColumn)) {
 				return Token.UNDEFINED;
 			}
 
@@ -200,7 +208,7 @@ public class LinePrefixRule extends AbstractRule {
 				column--;
 
 				// Test for prefixes
-				if (column < pMaxPrefixLength) {
+				if (column < pMaxPrefixLength && column >= 0) {
 					for (int i = 0; i < selectedPrefixes.size(); i++) {
 						char[] prefix = selectedPrefixes.get(i);
 
