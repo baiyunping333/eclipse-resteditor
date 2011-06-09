@@ -136,6 +136,10 @@ public class BlockInformation implements IRegion {
 		builder.append(pFirstLine);
 		builder.append(", last=");
 		builder.append(pLastLine);
+		builder.append(", offset=");
+		builder.append(pBlockOffset);
+		builder.append(", length=");
+		builder.append(pBlockLength);
 		builder.append("]");
 
 		return builder.toString();

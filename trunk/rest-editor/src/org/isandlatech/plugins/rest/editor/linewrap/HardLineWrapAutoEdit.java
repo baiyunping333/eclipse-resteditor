@@ -17,8 +17,11 @@ import java.util.Map.Entry;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.BadPositionCategoryException;
 import org.eclipse.jface.text.DocumentCommand;
+import org.eclipse.jface.text.DocumentRewriteSession;
+import org.eclipse.jface.text.DocumentRewriteSessionType;
 import org.eclipse.jface.text.IAutoEditStrategy;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IDocumentExtension4;
 import org.isandlatech.plugins.rest.editor.linewrap.HardLineWrap.WrapResult;
 
 /**
@@ -54,6 +57,9 @@ public class HardLineWrapAutoEdit implements IAutoEditStrategy {
 
 	/** Line wrapper */
 	private final HardLineWrap pWrapper;
+
+	/** Current document rewrite session */
+	private DocumentRewriteSession pRewriteSession;
 
 	/**
 	 * Prepares members : line wrapper and line position updater
@@ -144,6 +150,9 @@ public class HardLineWrapAutoEdit implements IAutoEditStrategy {
 	 */
 	public boolean removeWrapping() {
 
+		// Indicate that we will perform multiple replacements on the document
+		startRewriteSession();
+
 		// Store current content, to be able to roll back
 		final String docSave = pDocument.get();
 
@@ -155,43 +164,43 @@ public class HardLineWrapAutoEdit implements IAutoEditStrategy {
 				.toArray(new Entry[0]);
 
 		// Modify document from bottom to top, to avoid offset modifications
-		for (int i = entries.length - 1; i >= 0; i--) {
+		try {
+			for (int i = entries.length - 1; i >= 0; i--) {
 
-			Entry<Integer, IBlockDetector> entry = entries[i];
+				Entry<Integer, IBlockDetector> entry = entries[i];
 
-			int baseLine = entry.getKey();
-			IBlockDetector detector = entry.getValue();
+				int baseLine = entry.getKey();
+				IBlockDetector detector = entry.getValue();
 
-			// Find the block
-			BlockInformation blockInfo = detector.getBlock(pDocument, baseLine,
-					baseLine);
+				// Find the block
+				BlockInformation blockInfo = detector.getBlock(pDocument,
+						baseLine, baseLine);
 
-			// Re-use the handler, but to make a single line this time
-			IBlockWrappingHandler handler = BlockWrappingHandlerStore.get()
-					.getHandler(detector.getHandlerType());
+				// Re-use the handler, but to make a single line this time
+				IBlockWrappingHandler handler = BlockWrappingHandlerStore.get()
+						.getHandler(detector.getHandlerType());
+				handler.setUp(pDocument, blockInfo);
 
-			String blockContent;
-			try {
+				String blockContent;
 				blockContent = pDocument.get(blockInfo.getOffset(),
 						blockInfo.getLength());
 
-			} catch (BadLocationException e) {
-				e.printStackTrace();
-				pDocument.set(docSave);
-				return false;
-			}
+				// Replace the block
+				StringBuilder newLine = handler
+						.convertBlockInLine(blockContent);
 
-			// Replace the block
-			StringBuilder newLine = handler.convertBlockInLine(blockContent);
-			try {
 				pDocument.replace(blockInfo.getOffset(), blockInfo.getLength(),
 						newLine.toString());
-
-			} catch (BadLocationException e) {
-				e.printStackTrace();
-				pDocument.set(docSave);
-				return false;
 			}
+
+		} catch (BadLocationException e) {
+
+			e.printStackTrace();
+			pDocument.set(docSave);
+			return false;
+
+		} finally {
+			stopRewriteSession();
 		}
 
 		return true;
@@ -205,6 +214,29 @@ public class HardLineWrapAutoEdit implements IAutoEditStrategy {
 	 */
 	public void setMaxLineLength(final int aMaxLineLength) {
 		pMaxLineLength = aMaxLineLength;
+	}
+
+	/**
+	 * Starts a document rewrite session
+	 */
+	private void startRewriteSession() {
+
+		// Indicate that we will perform multiple replacements on the document
+		if (pDocument instanceof IDocumentExtension4) {
+			pRewriteSession = ((IDocumentExtension4) pDocument)
+					.startRewriteSession(DocumentRewriteSessionType.SEQUENTIAL);
+		}
+	}
+
+	/**
+	 * Stops the current rewrite session
+	 */
+	private void stopRewriteSession() {
+
+		if (pRewriteSession != null) {
+			((IDocumentExtension4) pDocument)
+					.stopRewriteSession(pRewriteSession);
+		}
 	}
 
 	/**
@@ -277,6 +309,8 @@ public class HardLineWrapAutoEdit implements IAutoEditStrategy {
 			return false;
 		}
 
+		startRewriteSession();
+
 		// Save the doc content
 		final String docSave = pDocument.get();
 
@@ -330,6 +364,9 @@ public class HardLineWrapAutoEdit implements IAutoEditStrategy {
 			e.printStackTrace();
 			pDocument.set(docSave);
 			return false;
+
+		} finally {
+			stopRewriteSession();
 		}
 
 		return true;
