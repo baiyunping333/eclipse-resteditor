@@ -37,15 +37,18 @@ Tabulations treatment
 Line wrapping
 =============
 
-.. warning:: Under development. Needs to activate the debug mode (see
-   :ref:`debug-mode`)
-
 Allows 3 wrap modes :
 
 * None (doing nothing)
 * Hard (inserting end of line sequences) and allows to set the maximum line
   length when using the Hard mode.
 * Soft : works like hard mode, but un-wrap lines before saving the document.
+
+In Soft mode, the document always appears as modified, to do the wrapping and
+un-wrapping processes.
+The file on disk is always un-wrapped in soft mode, so its content is not
+modified if you save it without editing it manually.
+You may see the un-wrapped version appear while saving the document.
 
 
 Spell checking

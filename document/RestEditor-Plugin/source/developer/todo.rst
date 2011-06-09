@@ -6,23 +6,23 @@ TODO list
 TODO table
 **********
 
-+------------------------+----------+--------------------+
-| Task                   | Priority | Duration (approx.) |
-+========================+==========+====================+
-| Line wrapping          | Hight    | 2 weeks            |
-+------------------------+----------+--------------------+
-| Shortcuts              | Low      | 2 days             |
-+------------------------+----------+--------------------+
-| Formatters             | Low      | 3 days             |
-+------------------------+----------+--------------------+
-| Favorite configuration | Medium   | 2 days             |
-+------------------------+----------+--------------------+
-| Sphinx output          | Low      | 3 weeks            |
-+------------------------+----------+--------------------+
-| Handle other tools     | Low      | 2 weeks            |
-+------------------------+----------+--------------------+
-| Architecture           | Low      | 4 weeks            |
-+------------------------+----------+--------------------+
++----------------------------+----------+--------------------+
+| Task                       | Priority | Duration (approx.) |
++============================+==========+====================+
+| Line wrapping improvements | Low      | 2 weeks            |
++----------------------------+----------+--------------------+
+| Shortcuts                  | Low      | 2 days             |
++----------------------------+----------+--------------------+
+| Formatters                 | Low      | 3 days             |
++----------------------------+----------+--------------------+
+| Favorite configuration     | Medium   | 2 days             |
++----------------------------+----------+--------------------+
+| Sphinx output              | Low      | 3 weeks            |
++----------------------------+----------+--------------------+
+| Handle other tools         | Low      | 2 weeks            |
++----------------------------+----------+--------------------+
+| Architecture               | Low      | 4 weeks            |
++----------------------------+----------+--------------------+
 
 Editor
 ******
@@ -32,10 +32,9 @@ Line wrapping
 
 The current line wrapping implementation must be fixed and completed.
 
-This task will be considered as done when :
-
-* the caret offset will be correctly updated
-* in-line markers, links, ... won't be cut anymore
+This task will be considered as done when the caret offset will be correctly
+updated and when operations (addition, deletion) on line bounds will work
+correctly.
 
 
 Layout shortcuts

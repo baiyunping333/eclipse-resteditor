@@ -36,22 +36,32 @@ Prerequisites
 =============
 
 The only thing you need is the Eclipse IDE, in a version >= 3.6 (Eclipse Helios).
-The plug-in has been developped under Eclipse Helios (3.6), and will be tested
+The plug-in has been developed under Eclipse Helios (3.6), and will be tested
 on Indigo (3.7).
 
 It seems we have a problem under Fedora 15 with Eclipse Helios, due to the lack
 of support of XulRunner 2 in Eclipse Helios.
 
-We recommand to use Eclipse for JavaEE Developpers distribution, which provides
+We recommend to use Eclipse for JavaEE Developers distribution, which provides
 the internal browser support, `here <http://www.eclipse.org/downloads/>`_.
 
 Installation
 ============
 
-Like other plugins :
+Via the Eclipse marketplace
+---------------------------
+
+ReST Editor is now available on the Eclipse marketplace.
+
+To install it, go to *Help> Eclipse Marketplace* and search for *ReST Editor*.
+
+Via the standard plug-in installation
+-------------------------------------
+
+Like other plug-ins :
 
 * Go to Help> Install new software
 * Add the project update site : ``http://resteditor.sourceforge.net/eclipse``
 * Select the ReST Editor plug-in.
 * The Eclipse Color Theme plug-in may not be accessible with default update
-  sites, so you may uncheck it if you don't use this one.
+  sites, so you may un-check it if you don't use this one.
