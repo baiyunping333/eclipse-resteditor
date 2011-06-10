@@ -41,7 +41,6 @@ import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.ui.editors.text.TextSourceViewerConfiguration;
 import org.eclipse.ui.texteditor.spelling.ISpellingEngine;
-import org.eclipse.ui.texteditor.spelling.SpellingReconcileStrategy;
 import org.eclipse.ui.texteditor.spelling.SpellingService;
 import org.isandlatech.plugins.rest.RestPlugin;
 import org.isandlatech.plugins.rest.editor.formatters.DefaultTextFormattingStrategy;
@@ -345,7 +344,8 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 		// Uses the preferences to select the spell engine
 		SpellingService selectedService = new SpellingService(pPreferenceStore);
 
-		IReconcilingStrategy strategy = new SpellingReconcileStrategy(
+		// use the specific reconciler
+		IReconcilingStrategy strategy = new RestSpellingReconcileStrategy(
 				aSourceViewer, selectedService);
 
 		MonoReconciler reconciler = new MonoReconciler(strategy, false);

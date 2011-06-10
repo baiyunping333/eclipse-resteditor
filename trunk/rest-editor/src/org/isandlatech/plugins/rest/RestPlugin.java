@@ -18,6 +18,8 @@ import java.io.InputStreamReader;
 
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
@@ -41,6 +43,20 @@ public class RestPlugin extends AbstractUIPlugin {
 
 	/** The plug-in name */
 	public static final String PLUGIN_NAME = Messages.getString("plugin.name");
+
+	/**
+	 * The specific rest content-type id (cf. full qualified id : PLUGIN_ID +
+	 * content-type id as defined in plug-in xml file)
+	 **/
+	public static final String REST_CONTENT_ID = PLUGIN_ID + ".restSource";
+
+	/**
+	 * @see the definition of this content type in the extension point
+	 *      "org.eclipse.core.contenttype.contentTypes" in the manifest file of
+	 *      the plug-in.
+	 */
+	public static final IContentType REST_CONTENT_TYPE = Platform
+			.getContentTypeManager().getContentType(REST_CONTENT_ID);
 
 	/**
 	 * Returns the shared instance
