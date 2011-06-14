@@ -14,6 +14,8 @@ package org.isandlatech.plugins.rest.editor.userassist;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
+import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.eclipse.ui.texteditor.spelling.SpellingProblem;
 
 /**
  * Basic hover browser internal links handler. Provides complete spell checking
@@ -32,8 +34,8 @@ public class BasicInternalLinkHandler implements IInternalBrowserListener {
 	 *            Action parameter
 	 * @return The forged internal link
 	 */
-	public static String makeLink(final String aActionPrefix,
-			final String aValue) {
+	public static String makeLink(final CharSequence aActionPrefix,
+			final CharSequence aValue) {
 
 		StringBuilder builder = new StringBuilder();
 		builder.append(IAssistanceConstants.INTERNAL_PREFIX);
@@ -41,6 +43,31 @@ public class BasicInternalLinkHandler implements IInternalBrowserListener {
 		builder.append(aValue);
 
 		return builder.toString();
+	}
+
+	/**
+	 * Prepare a spell replacement link in the browser.
+	 * 
+	 * The problem identifies the region, the proposal sets the replacement
+	 * string.
+	 * 
+	 * @param aProblem
+	 *            Spelling problem
+	 * @param aProposal
+	 *            A proposal of the spelling problem
+	 * @return An internal spell URI
+	 */
+	public static String makeSpellLink(final SpellingProblem aProblem,
+			final ICompletionProposal aProposal) {
+
+		final StringBuilder internalURI = new StringBuilder();
+		internalURI.append(aProblem.getOffset());
+		internalURI.append('/');
+		internalURI.append(aProblem.getLength());
+		internalURI.append('/');
+		internalURI.append(aProposal.getDisplayString());
+
+		return makeLink(IAssistanceConstants.SPELL_LINK_PREFIX, internalURI);
 	}
 
 	/*
@@ -57,10 +84,10 @@ public class BasicInternalLinkHandler implements IInternalBrowserListener {
 		if (aInternalLink.startsWith(IAssistanceConstants.SPELL_LINK_PREFIX)) {
 
 			// Spell checker link
-			String replacementWord = aInternalLink
+			String spellInfo = aInternalLink
 					.substring(IAssistanceConstants.SPELL_LINK_PREFIX.length());
 
-			return spellAction(aAssociatedData, replacementWord);
+			return spellAction(aAssociatedData, spellInfo);
 
 		} else if (aInternalLink
 				.startsWith(IAssistanceConstants.SAMPLE_LINK_PREFIX)) {
@@ -125,19 +152,40 @@ public class BasicInternalLinkHandler implements IInternalBrowserListener {
 	 * 
 	 * @param aAssociatedData
 	 *            Data associated to the hover browser event
-	 * @param aReplacementWord
-	 *            Well-spelled word to use
+	 * @param aSpellURI
+	 *            The spell URI content, without its prefix. Format
+	 *            offset/len/word.
 	 * @return True on success, False on error
 	 */
 	protected boolean spellAction(final InternalBrowserData aAssociatedData,
-			final String aReplacementWord) {
+			final String aSpellURI) {
 
-		IDocument document = aAssociatedData.getDocument();
-		IRegion region = aAssociatedData.getHoverRegion();
+		final IDocument document = aAssociatedData.getDocument();
+
+		final int offset, length;
+		final String word;
+
+		String[] spellInfo = aSpellURI.split("/");
+		if (spellInfo.length == 1) {
+			// No region info in the URI
+			IRegion region = aAssociatedData.getHoverRegion();
+			offset = region.getOffset();
+			length = region.getLength();
+			word = aSpellURI;
+
+		} else if (spellInfo.length == 3) {
+			// Extract data
+			offset = Integer.valueOf(spellInfo[0]);
+			length = Integer.valueOf(spellInfo[1]);
+			word = spellInfo[2];
+
+		} else {
+			// Invalid URI
+			return false;
+		}
 
 		try {
-			document.replace(region.getOffset(), region.getLength(),
-					aReplacementWord);
+			document.replace(offset, length, word);
 
 		} catch (BadLocationException e) {
 			e.printStackTrace();

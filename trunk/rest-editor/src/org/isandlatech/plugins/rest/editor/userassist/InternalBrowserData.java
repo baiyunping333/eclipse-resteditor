@@ -27,7 +27,7 @@ public class InternalBrowserData {
 	/** Hover region */
 	private IRegion pHoverRegion;
 
-	/** Hover control information */
+	/** Hover control displayed information */
 	private String pInformation;
 
 	/** Data sender */
@@ -60,21 +60,21 @@ public class InternalBrowserData {
 	}
 
 	/**
-	 * @return the document
+	 * @return the document associated to the hovering
 	 */
 	public IDocument getDocument() {
 		return pDocument;
 	}
 
 	/**
-	 * @return the hoverRegion
+	 * @return the hovered region
 	 */
 	public IRegion getHoverRegion() {
 		return pHoverRegion;
 	}
 
 	/**
-	 * @return the information
+	 * @return the hover control displayed string
 	 */
 	public String getInformation() {
 		return pInformation;
@@ -112,10 +112,10 @@ public class InternalBrowserData {
 	}
 
 	/**
-	 * Sets the information content
+	 * Sets the information content (displayed string)
 	 * 
 	 * @param aInformation
-	 *            Information associated to the tooltip
+	 *            Information associated to the tool-tip
 	 */
 	public void setInformation(final String aInformation) {
 		pInformation = aInformation;

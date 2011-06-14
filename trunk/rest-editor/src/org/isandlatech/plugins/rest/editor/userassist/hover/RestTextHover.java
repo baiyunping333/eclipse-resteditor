@@ -34,7 +34,6 @@ import org.eclipse.ui.texteditor.spelling.SpellingProblem;
 import org.isandlatech.plugins.rest.editor.scanners.RestPartitionScanner;
 import org.isandlatech.plugins.rest.editor.userassist.BasicInternalLinkHandler;
 import org.isandlatech.plugins.rest.editor.userassist.HelpMessagesUtil;
-import org.isandlatech.plugins.rest.editor.userassist.IAssistanceConstants;
 import org.isandlatech.plugins.rest.editor.userassist.IInternalBrowserListener;
 import org.isandlatech.plugins.rest.editor.userassist.InternalBrowserData;
 import org.isandlatech.plugins.rest.editor.userassist.InternalBrowserInformationControl;
@@ -185,10 +184,8 @@ public class RestTextHover implements ITextHover, ITextHoverExtension,
 					String displayedString = proposal.getDisplayString();
 
 					correctionProposals += "<a href=\""
-							+ BasicInternalLinkHandler.makeLink(
-									IAssistanceConstants.SPELL_LINK_PREFIX,
-									displayedString) + "\">" + displayedString
-							+ "</a>" + "<br />\n";
+							+ BasicInternalLinkHandler.makeSpellLink(problem, proposal) + "\">"
+							+ displayedString + "</a>" + "<br />\n";
 				}
 			}
 
@@ -324,7 +321,7 @@ public class RestTextHover implements ITextHover, ITextHoverExtension,
 
 		for (int i = offsetInWord; i > 0; i--) {
 
-			if (!Character.isLetter(wordArray[i])) {
+			if (!isWordCharacter(wordArray[i])) {
 				break;
 			}
 
@@ -332,7 +329,7 @@ public class RestTextHover implements ITextHover, ITextHoverExtension,
 		}
 
 		for (int i = offsetInWord; i < wordArray.length; i++) {
-			if (!Character.isLetter(wordArray[i])) {
+			if (!isWordCharacter(wordArray[i])) {
 				break;
 			}
 
@@ -352,5 +349,26 @@ public class RestTextHover implements ITextHover, ITextHoverExtension,
 
 		return new Region(lineOffset + beginWord + beginRealWord, endRealWord
 				- beginRealWord);
+	}
+
+	/**
+	 * Tests if the given character can be considered as a word character
+	 * 
+	 * @param aCharacter
+	 *            Character to be tested
+	 * 
+	 * @return True if the character is valid in a word.
+	 */
+	public boolean isWordCharacter(final char aCharacter) {
+
+		if (Character.isLetter(aCharacter)) {
+			return true;
+		}
+
+		if (aCharacter == '-') {
+			return true;
+		}
+
+		return false;
 	}
 }
