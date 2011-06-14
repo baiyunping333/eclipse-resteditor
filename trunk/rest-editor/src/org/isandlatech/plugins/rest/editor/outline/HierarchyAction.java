@@ -91,30 +91,30 @@ public class HierarchyAction extends Action {
 	 * @param aIncrement
 	 *            Direction of level modification (+1, -1)
 	 */
-	private void changeSectionLevel(final TreeData aSectionNode, int aIncrement) {
+	private void changeSectionLevel(final TreeData aSectionNode,
+			final int aIncrement) {
 
 		if (aIncrement == 0) {
 			return;
 		}
 
 		// Normalize level modification
+		final int increment;
 		if (aIncrement < 0) {
-			aIncrement = -1;
+			increment = -1;
+		} else {
+			increment = 1;
 		}
 
-		if (aIncrement > 0) {
-			aIncrement = 1;
-		}
-
-		if (aSectionNode.getLevel() + aIncrement < 1) {
+		if (aSectionNode.getLevel() + increment < 1) {
 			return;
 		}
 
 		// Let's go
-		replaceDecorators(aSectionNode, aIncrement);
+		replaceDecorators(aSectionNode, increment);
 
 		for (TreeData node : aSectionNode.getChildrenArray()) {
-			changeSectionLevel(node, aIncrement);
+			changeSectionLevel(node, increment);
 		}
 	}
 

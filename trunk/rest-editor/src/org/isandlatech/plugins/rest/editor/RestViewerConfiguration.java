@@ -348,8 +348,7 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 		IReconcilingStrategy strategy = new RestSpellingReconcileStrategy(
 				aSourceViewer, selectedService);
 
-		MonoReconciler reconciler = new MonoReconciler(strategy, false);
-		return reconciler;
+		return new MonoReconciler(strategy, false);
 	}
 
 	@Override

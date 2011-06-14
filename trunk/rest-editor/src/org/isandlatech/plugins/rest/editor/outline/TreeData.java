@@ -426,6 +426,20 @@ public class TreeData implements Comparable<TreeData> {
 	}
 
 	/**
+	 * TreeData hash code, based on title, line and parent.
+	 */
+	@Override
+	public int hashCode() {
+
+		StringBuilder builder = new StringBuilder();
+		builder.append(pText);
+		builder.append(pLine);
+		builder.append(pParent);
+
+		return builder.toString().hashCode();
+	}
+
+	/**
 	 * Returns true if the element has an upper line decoration
 	 * 
 	 * @return if the element has an upper line decoration

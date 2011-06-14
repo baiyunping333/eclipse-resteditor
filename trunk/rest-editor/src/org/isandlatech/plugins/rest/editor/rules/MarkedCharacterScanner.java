@@ -79,10 +79,9 @@ public class MarkedCharacterScanner implements ICharacterScanner {
 	@Override
 	public int getColumn() {
 
-		if (pBaseOffset != -1 && pDocument != null) {
-			if (pBaseOffset + pReadCharacters >= pDocument.getLength()) {
-				return -1;
-			}
+		if (pBaseOffset != -1 && pDocument != null
+				&& pBaseOffset + pReadCharacters >= pDocument.getLength()) {
+			return -1;
 		}
 
 		return pRealScanner.getColumn();

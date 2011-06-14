@@ -248,9 +248,8 @@ public class SectionContentProvider implements ITreePathContentProvider {
 		if (document instanceof IDocumentExtension3) {
 			try {
 				allPartitions = ((IDocumentExtension3) document)
-						.computePartitioning(
-								RestPartitionScanner.PARTITIONING, 0,
-								document.getLength(), false);
+						.computePartitioning(RestPartitionScanner.PARTITIONING,
+								0, document.getLength(), false);
 
 			} catch (BadLocationException e) {
 				e.printStackTrace();
@@ -284,7 +283,7 @@ public class SectionContentProvider implements ITreePathContentProvider {
 			}
 		}
 
-		pParentOutline.getTreeViewer().refresh();
+		pParentOutline.refreshTreeViewer();
 	}
 
 	/**

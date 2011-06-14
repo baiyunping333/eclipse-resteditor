@@ -158,17 +158,6 @@ public class RestContentOutlinePage extends ContentOutlinePage {
 		return pDocumentProvider;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.eclipse.ui.views.contentoutline.ContentOutlinePage#getTreeViewer()
-	 */
-	@Override
-	public TreeViewer getTreeViewer() {
-		return super.getTreeViewer();
-	}
-
 	@SuppressWarnings("unchecked")
 	private void normalizeSelection(
 			final IStructuredSelection aStructuredSelection) {
@@ -203,6 +192,13 @@ public class RestContentOutlinePage extends ContentOutlinePage {
 					newSelectionContent);
 			setSelection(newSelection);
 		}
+	}
+
+	/**
+	 * Refresh the tree viewer
+	 */
+	public void refreshTreeViewer() {
+		super.getTreeViewer().refresh();
 	}
 
 	/*

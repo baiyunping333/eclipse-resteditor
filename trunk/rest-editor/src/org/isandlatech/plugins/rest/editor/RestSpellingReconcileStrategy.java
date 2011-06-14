@@ -29,8 +29,8 @@ public class RestSpellingReconcileStrategy extends SpellingReconcileStrategy {
 	 * @param viewer
 	 * @param spellingService
 	 */
-	public RestSpellingReconcileStrategy(ISourceViewer viewer,
-			SpellingService spellingService) {
+	public RestSpellingReconcileStrategy(final ISourceViewer viewer,
+			final SpellingService spellingService) {
 		super(viewer, spellingService);
 		// TODO: retrieve and keep the document to be able to get the list of
 		// partition of the region in the "reconcile" methods.
@@ -62,11 +62,12 @@ public class RestSpellingReconcileStrategy extends SpellingReconcileStrategy {
 	 * eclipse.jface.text.reconciler.DirtyRegion,org.eclipse.jface.text.IRegion)
 	 */
 	@Override
-	public void reconcile(DirtyRegion dirtyRegion, IRegion subRegion) {
-		if (isRestSpellingEnabled())
+	public void reconcile(final DirtyRegion dirtyRegion, final IRegion subRegion) {
+		if (isRestSpellingEnabled()) {
 			// TODO: implement a filter to check only a subset of the partitions
 			// of the document. @see TextUtilities.computePartitioning()
 			super.reconcile(dirtyRegion, subRegion);
+		}
 	}
 
 	/*
@@ -75,11 +76,12 @@ public class RestSpellingReconcileStrategy extends SpellingReconcileStrategy {
 	 * eclipse.jface.text.IRegion)
 	 */
 	@Override
-	public void reconcile(IRegion region) {
-		if (isRestSpellingEnabled())
+	public void reconcile(final IRegion region) {
+		if (isRestSpellingEnabled()) {
 			// TODO: implement a filter to check only a subset of the partitions
 			// of the document. @see TextUtilities.computePartitioning()
 			super.reconcile(region);
+		}
 	}
 
 }

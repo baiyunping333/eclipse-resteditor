@@ -282,12 +282,9 @@ public abstract class AbstractBlockWrappingHandler implements
 
 		while (offset < aLine.length()) {
 
-			if (offset - aBaseOffset > aMaxLineLength) {
-
-				if (lastSpaceOffset != -1) {
-					breakOffset = lastSpaceOffset;
-					break;
-				}
+			if (offset - aBaseOffset > aMaxLineLength && lastSpaceOffset != -1) {
+				breakOffset = lastSpaceOffset;
+				break;
 			}
 
 			// Look for an in-line marker
@@ -301,11 +298,8 @@ public abstract class AbstractBlockWrappingHandler implements
 				continue;
 			}
 
-			if (Character.isWhitespace(aLine.charAt(offset))) {
-
-				if (!marker) {
-					lastSpaceOffset = offset;
-				}
+			if (!marker && Character.isWhitespace(aLine.charAt(offset))) {
+				lastSpaceOffset = offset;
 			}
 
 			offset++;
