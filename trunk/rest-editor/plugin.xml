@@ -184,5 +184,55 @@
                primary="true">
          </toc>
    </extension>
+   <extension
+         point="org.eclipse.debug.ui.launchShortcuts">
+      <shortcut
+            class="org.isandlatech.plugins.rest.launch.SphinxHtmlShortcut"
+            description="Runs Sphinx to compile HTML"
+            icon="icons/isandlatech_16.gif"
+            id="org.isandlatech.plugins.rest.launch.shortcuts.html"
+            label="%runner.shortcut.html"
+            modes="run">
+            
+            <contextualLaunch>
+            	<enablement>
+            		<with variable="selection">
+		               <count value="1"/>
+		               <iterate>
+		                 <or>
+		                   <test property="org.eclipse.debug.ui.matchesPattern" value="*.rst"/>
+		                   <instanceof value="org.isandlatech.plugins.rest.editor.RestEditor"/>
+		                 </or>
+		               </iterate>
+		             </with>
+            	</enablement>
+            </contextualLaunch>
+            <configurationType id="org.isandlatech.plugins.rest.launch.makefile" />
+      </shortcut>
+      
+      <shortcut
+            class="org.isandlatech.plugins.rest.launch.SphinxPdfShortcut"
+            description="Runs Sphinx to compile PDF"
+            icon="icons/isandlatech_16.gif"
+            id="org.isandlatech.plugins.rest.launch.shortcuts.pdf"
+            label="%runner.shortcut.pdf"
+            modes="run">
+            
+            <contextualLaunch>
+            	<enablement>
+            		<with variable="selection">
+		               <count value="1"/>
+		               <iterate>
+		                 <or>
+		                   <test property="org.eclipse.debug.ui.matchesPattern" value="*.rst"/>
+		                   <instanceof value="org.isandlatech.plugins.rest.editor.RestEditor"/>
+		                 </or>
+		               </iterate>
+		             </with>
+            	</enablement>
+            </contextualLaunch>
+            <configurationType id="org.isandlatech.plugins.rest.launch.makefile" />
+      </shortcut>
+   </extension>
 
 </plugin>
