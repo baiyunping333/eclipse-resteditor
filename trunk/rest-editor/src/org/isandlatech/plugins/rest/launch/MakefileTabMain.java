@@ -26,6 +26,7 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTab;
 import org.eclipse.debug.ui.StringVariableSelectionDialog;
+import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -88,9 +89,22 @@ public class MakefileTabMain extends AbstractLaunchConfigurationTab {
 			} else if (source.equals(pVariablesLocationButton)) {
 				// Variables insertion
 				handleVariablesButtonSelected();
+
+			} else if (source.equals(pCustomRulesEnabled)) {
+				// Enable/disable custom rules
+				pCustomRules.setEnabled(pCustomRulesEnabled.getSelection());
 			}
 		}
 	}
+
+	/** Custom make rules */
+	private Text pCustomRules;
+
+	/** Custom rules enables */
+	private Button pCustomRulesEnabled;
+
+	/** File selection button */
+	private Button pFileSystemLocationButton;
 
 	/** Make command to use */
 	private Text pMakeCommand;
@@ -101,17 +115,14 @@ public class MakefileTabMain extends AbstractLaunchConfigurationTab {
 	/** Common modification listener */
 	private ModificationListener pModificationListener = new ModificationListener();
 
+	/** Variables selection button */
+	private Button pVariablesLocationButton;
+
 	/** Project to compile */
 	private Text pWorkingDirectory;
 
 	/** Workspace selection button */
 	private Button pWorkspaceLocationButton;
-
-	/** File selection button */
-	private Button pFileSystemLocationButton;
-
-	/** Variables selection button */
-	private Button pVariablesLocationButton;
 
 	/*
 	 * (non-Javadoc)
@@ -158,6 +169,16 @@ public class MakefileTabMain extends AbstractLaunchConfigurationTab {
 
 			pMakeRules.put(rule, checkBox);
 		}
+
+		// Custom make rule
+		pCustomRulesEnabled = createCheckButton(rulesGroup,
+				Messages.getString("runner.main.output.custom"));
+		pCustomRulesEnabled.setSelection(false);
+		pCustomRulesEnabled.addSelectionListener(pModificationListener);
+
+		pCustomRules = createText(rulesGroup);
+		pCustomRules.setEnabled(false);
+		pCustomRules.addModifyListener(pModificationListener);
 
 		// Button group
 		Group group = new Group(aParent, SWT.SHADOW_ETCHED_IN);
@@ -213,7 +234,7 @@ public class MakefileTabMain extends AbstractLaunchConfigurationTab {
 		// Working directory text field
 		pWorkingDirectory = new Text(group, SWT.BORDER);
 		gridData = new GridData(GridData.FILL_HORIZONTAL);
-		gridData.widthHint = 100; // IDialogConstants.ENTRY_FIELD_WIDTH;
+		gridData.widthHint = IDialogConstants.ENTRY_FIELD_WIDTH;
 		pWorkingDirectory.setLayoutData(gridData);
 		pWorkingDirectory.addModifyListener(pModificationListener);
 
@@ -361,7 +382,25 @@ public class MakefileTabMain extends AbstractLaunchConfigurationTab {
 				Button btn = pMakeRules.get(rule);
 				if (btn != null) {
 					btn.setSelection(true);
+
+				} else {
+					// Add rule to custom ones if unknown
+					if (!pCustomRules.getText().isEmpty()) {
+						pCustomRules.append(" ");
+					}
+
+					pCustomRules.append(rule);
 				}
+			}
+
+			if (aConfiguration.getAttribute(
+					IMakefileConstants.ATTR_CUSTOM_RULES_ENABLED, false)) {
+				pCustomRulesEnabled.setSelection(true);
+				pCustomRules.setEnabled(true);
+
+			} else {
+				pCustomRulesEnabled.setSelection(false);
+				pCustomRules.setEnabled(false);
 			}
 
 		} catch (CoreException e) {
@@ -405,6 +444,15 @@ public class MakefileTabMain extends AbstractLaunchConfigurationTab {
 				selectedRules.add(entry.getKey());
 			}
 		}
+
+		if (pCustomRulesEnabled.getSelection()) {
+			selectedRules.add(pCustomRules.getText());
+		}
+
+		aConfiguration.setAttribute(
+				IMakefileConstants.ATTR_CUSTOM_RULES_ENABLED,
+				pCustomRulesEnabled.getSelection());
+
 		aConfiguration.setAttribute(IMakefileConstants.ATTR_MAKE_RULES,
 				selectedRules);
 	}
@@ -463,7 +511,6 @@ public class MakefileTabMain extends AbstractLaunchConfigurationTab {
 		}
 
 		aTextField.setText(value);
-
 	}
 
 	/*
@@ -483,6 +530,9 @@ public class MakefileTabMain extends AbstractLaunchConfigurationTab {
 
 		aConfiguration.setAttribute(IMakefileConstants.ATTR_MAKE_RULES,
 				new HashSet<String>());
+
+		aConfiguration.setAttribute(
+				IMakefileConstants.ATTR_CUSTOM_RULES_ENABLED, false);
 	}
 
 	/**
@@ -510,5 +560,8 @@ public class MakefileTabMain extends AbstractLaunchConfigurationTab {
 		for (Button btn : pMakeRules.values()) {
 			btn.setSelection(false);
 		}
+
+		pCustomRulesEnabled.setSelection(false);
+		pCustomRules.setEnabled(false);
 	}
 }
