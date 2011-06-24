@@ -17,13 +17,15 @@ import java.io.StringReader;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
+import org.isandlatech.plugins.rest.RestPlugin;
+
 /**
  * Internationalization handler. Loads strings from a resource bundle
  * (.properties file).
  * 
  * @author Thomas Calmant
  */
-public class Messages {
+public final class Messages {
 
 	/** Base resource bundle */
 	private static final String BUNDLE_NAME = "org.isandlatech.plugins.rest.i18n.messages";
@@ -140,7 +142,7 @@ public class Messages {
 
 		} catch (MissingResourceException ex) {
 			message = "<undefined>" + aKey + "</undefined>";
-			ex.printStackTrace();
+			RestPlugin.logError("Ressource not found", ex);
 		}
 
 		return completeMessage(message);

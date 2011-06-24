@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.DefaultIndentLineAutoEditStrategy;
 import org.eclipse.jface.text.DefaultLineTracker;
@@ -131,7 +132,7 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 					RestPartitionScanner.PARTITIONING, maxLineLength);
 		}
 
-		List<IAutoEditStrategy> strategies = new ArrayList<IAutoEditStrategy>(3);
+		List<IAutoEditStrategy> strategies = new ArrayList<IAutoEditStrategy>();
 		strategies.add(pAutoEditIndent);
 
 		// Only enable line wrapping in "default text"
@@ -373,7 +374,7 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 				pSpellCheckHover = new RestTextHover(engine);
 
 			} catch (CoreException e) {
-				e.printStackTrace();
+				DebugPlugin.logMessage("Error preparing the spell engine", e);
 			}
 		}
 

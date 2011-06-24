@@ -22,6 +22,7 @@ import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.jface.text.contentassist.IContextInformationValidator;
+import org.isandlatech.plugins.rest.RestPlugin;
 
 /**
  * Utility class for content assistant proposal generation.
@@ -93,14 +94,20 @@ public abstract class AbstractProposalProcessor implements
 		int currentOffset = aOffset - 1;
 
 		String currentWord = "";
-		char currentChar;
+		char currentChar = 0;
 
 		try {
-			while (currentOffset > 0
-					&& !Character.isWhitespace(currentChar = document
-							.getChar(currentOffset))) {
+			if (currentOffset > 0) {
+				currentChar = document.getChar(currentOffset);
+			}
+
+			while (currentOffset > 0 && !Character.isWhitespace(currentChar)) {
 				currentWord = currentChar + currentWord;
 				currentOffset--;
+
+				if (currentOffset > 0) {
+					currentChar = document.getChar(currentOffset);
+				}
 			}
 
 			Map<String, String> suggestions = buildSuggestions(currentWord);
@@ -108,7 +115,7 @@ public abstract class AbstractProposalProcessor implements
 					- currentWord.length());
 
 		} catch (BadLocationException e) {
-			e.printStackTrace();
+			RestPlugin.logError("Error preparing completion proposals", e);
 		}
 
 		return null;

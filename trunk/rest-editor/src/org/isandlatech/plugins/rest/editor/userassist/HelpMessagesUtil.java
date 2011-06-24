@@ -14,10 +14,11 @@ package org.isandlatech.plugins.rest.editor.userassist;
 import org.isandlatech.plugins.rest.i18n.Messages;
 
 /**
- * @author Thomas Calmant
+ * Help messages utility class
  * 
+ * @author Thomas Calmant
  */
-public class HelpMessagesUtil {
+public final class HelpMessagesUtil {
 
 	/**
 	 * Retrieves the help message associated to the given key
@@ -66,6 +67,13 @@ public class HelpMessagesUtil {
 		}
 
 		return Messages.getString(sampleKey);
+	}
+
+	/**
+	 * Hidden constructor
+	 */
+	private HelpMessagesUtil() {
+		// Hidden constructor
 	}
 
 }

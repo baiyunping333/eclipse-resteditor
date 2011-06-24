@@ -18,16 +18,18 @@ import java.util.Arrays;
 import java.util.Set;
 
 import org.eclipse.jface.text.TextUtilities;
+import org.isandlatech.plugins.rest.RestPlugin;
 import org.isandlatech.plugins.rest.parser.RestLanguage;
 
 /**
- * @author Thomas Calmant
+ * ReST list blocks wrapper
  * 
+ * @author Thomas Calmant
  */
 public class ListBlockWrappingHandler extends AbstractBlockWrappingHandler {
 
 	/** Handler type */
-	public static String HANDLER_TYPE = "__list_block_handler__";
+	public static final String HANDLER_TYPE = "__list_block_handler__";
 
 	/** The block indentation */
 	private String pBlockIndent;
@@ -91,8 +93,8 @@ public class ListBlockWrappingHandler extends AbstractBlockWrappingHandler {
 
 		try {
 			pFirstLineContent = strReader.readLine();
-		} catch (IOException e1) {
-			e1.printStackTrace();
+		} catch (IOException e) {
+			RestPlugin.logError("Error extracting list block", e);
 			return false;
 		}
 
@@ -118,7 +120,7 @@ public class ListBlockWrappingHandler extends AbstractBlockWrappingHandler {
 			}
 
 		} catch (IOException e) {
-			e.printStackTrace();
+			RestPlugin.logError("Error extracting list block", e);
 			return false;
 		}
 

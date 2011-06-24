@@ -54,12 +54,13 @@ public class RestSimpleTableRule extends AbstractRule implements RestLanguage {
 	 */
 	protected ELineType analyzeNextLine(
 			final MarkedCharacterScanner aMarkedScanner) {
+
 		int readChar;
 		boolean emptyLine = true;
 		boolean markerLine = true;
 
-		while ((readChar = aMarkedScanner.read()) != ICharacterScanner.EOF
-				&& readChar != '\n') {
+		readChar = aMarkedScanner.read();
+		while (readChar != ICharacterScanner.EOF && readChar != '\n') {
 
 			if (emptyLine && !Character.isWhitespace(readChar)) {
 				emptyLine = false;
@@ -71,6 +72,8 @@ public class RestSimpleTableRule extends AbstractRule implements RestLanguage {
 							.getColumn() > 1)))) {
 				markerLine = false;
 			}
+
+			readChar = aMarkedScanner.read();
 		}
 
 		if (readChar == ICharacterScanner.EOF) {

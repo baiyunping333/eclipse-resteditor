@@ -31,6 +31,7 @@ import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.ui.texteditor.spelling.ISpellingEngine;
 import org.eclipse.ui.texteditor.spelling.SpellingContext;
 import org.eclipse.ui.texteditor.spelling.SpellingProblem;
+import org.isandlatech.plugins.rest.RestPlugin;
 import org.isandlatech.plugins.rest.editor.scanners.RestPartitionScanner;
 import org.isandlatech.plugins.rest.editor.userassist.BasicInternalLinkHandler;
 import org.isandlatech.plugins.rest.editor.userassist.HelpMessagesUtil;
@@ -199,8 +200,7 @@ public class RestTextHover implements ITextHover, ITextHoverExtension,
 			}
 
 		} catch (NullPointerException ex) {
-			System.err.println("Error while using the spell checker");
-			ex.printStackTrace();
+			RestPlugin.logError("Error while using the spell checker", ex);
 		}
 
 		// No valid proposals

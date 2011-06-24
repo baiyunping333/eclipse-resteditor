@@ -22,6 +22,9 @@ import org.eclipse.jface.text.IDocument;
  */
 public class DefaultBlockDetector extends AbstractBlockDetector {
 
+	/** Line utility singleton */
+	private final LineUtil pLineUtil = LineUtil.get();
+
 	/** Default detector type */
 	public static final String DETECTOR_TYPE = "__default_detector__";
 

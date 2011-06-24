@@ -36,7 +36,7 @@ import org.isandlatech.plugins.rest.prefs.IEditorPreferenceConstants;
  * 
  * @author Thomas Calmant
  */
-public class OutlineUtil {
+public final class OutlineUtil {
 
 	/**
 	 * Retrieves the region corresponding to the given section content with all
@@ -160,7 +160,7 @@ public class OutlineUtil {
 			blockLength += document.getLineLength(line);
 
 		} catch (BadLocationException e) {
-			e.printStackTrace();
+			RestPlugin.logError("Error retrieving title block", e);
 			return null;
 		}
 
@@ -349,7 +349,14 @@ public class OutlineUtil {
 			document.replace(sectionBlock.getOffset(),
 					sectionBlock.getLength(), newSectionBlock.toString());
 		} catch (BadLocationException e) {
-			e.printStackTrace();
+			RestPlugin.logError("Error replacing section markers", e);
 		}
+	}
+
+	/**
+	 * Hidden constructor
+	 */
+	private OutlineUtil() {
+		// Hide constructor
 	}
 }

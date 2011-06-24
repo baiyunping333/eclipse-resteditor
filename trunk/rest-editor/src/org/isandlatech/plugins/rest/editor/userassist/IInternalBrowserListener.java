@@ -28,6 +28,6 @@ public interface IInternalBrowserListener {
 	 *            Data associated to the hover browser sending this event
 	 * @return True if the browser must be closed, else False
 	 */
-	public boolean hoverInternalLinkClicked(final String aInternalLink,
+	boolean hoverInternalLinkClicked(String aInternalLink,
 			InternalBrowserData aAssociatedData);
 }

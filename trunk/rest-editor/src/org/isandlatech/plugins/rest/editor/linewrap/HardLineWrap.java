@@ -18,6 +18,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentCommand;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.TextUtilities;
+import org.isandlatech.plugins.rest.RestPlugin;
 import org.isandlatech.plugins.rest.editor.scanners.RestPartitionScanner;
 
 /**
@@ -175,7 +176,8 @@ public class HardLineWrap {
 			}
 
 		} catch (ArrayIndexOutOfBoundsException ex) {
-			ex.printStackTrace();
+			RestPlugin.logError(
+					"Can't cound number of occurrences in the given text", ex);
 		}
 
 		return count;

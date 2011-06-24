@@ -186,10 +186,10 @@ public class NewSphinxProject extends BasicNewProjectResourceWizard {
 		try {
 			setProjectContent(generator);
 		} catch (CoreException e) {
-			e.printStackTrace();
+			RestPlugin.logError("Error setting project content", e);
 			return false;
 		} catch (IOException e) {
-			e.printStackTrace();
+			RestPlugin.logError("Error setting project content", e);
 			return false;
 		}
 

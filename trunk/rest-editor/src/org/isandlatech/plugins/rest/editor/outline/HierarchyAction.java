@@ -295,7 +295,7 @@ public class HierarchyAction extends Action {
 			// Revert text
 			aDocument.set(documentText);
 
-			e.printStackTrace();
+			RestPlugin.logError("Error moving region", e);
 			return false;
 		}
 
@@ -384,7 +384,7 @@ public class HierarchyAction extends Action {
 			}
 
 		} catch (BadLocationException e) {
-			e.printStackTrace();
+			RestPlugin.logError("Error adding last document line", e);
 		}
 
 		return 0;

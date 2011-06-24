@@ -21,7 +21,7 @@ import org.isandlatech.plugins.rest.prefs.IEditorPreferenceConstants;
  * 
  * @author Thomas Calmant
  */
-public class LineWrapUtil {
+public final class LineWrapUtil {
 
 	/**
 	 * Line wrap modes definition

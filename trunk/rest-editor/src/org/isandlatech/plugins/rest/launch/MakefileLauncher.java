@@ -28,6 +28,7 @@ import org.eclipse.debug.core.model.ILaunchConfigurationDelegate;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.IStreamMonitor;
 import org.eclipse.jface.util.Util;
+import org.isandlatech.plugins.rest.RestPlugin;
 
 public class MakefileLauncher implements ILaunchConfigurationDelegate {
 
@@ -165,7 +166,7 @@ public class MakefileLauncher implements ILaunchConfigurationDelegate {
 					public void streamAppended(final String aText,
 							final IStreamMonitor aMonitor) {
 						// TODO treat error output
-						System.out.print("[ERROR] : " + aText);
+						// System.out.print("[ERROR] : " + aText);
 					}
 				});
 	}
@@ -192,7 +193,7 @@ public class MakefileLauncher implements ILaunchConfigurationDelegate {
 
 		if (Util.isWindows()) {
 			// Handle Windows specific launch
-			cmdLine = new ArrayList<String>(makeRules.size() + 3);
+			cmdLine = new ArrayList<String>(makeRules.size());
 
 			// Executable : command line emulation
 			cmdLine.add("cmd");
@@ -230,7 +231,7 @@ public class MakefileLauncher implements ILaunchConfigurationDelegate {
 					.getEnvironment(aConfiguration);
 
 		} catch (CoreException e) {
-			e.printStackTrace();
+			RestPlugin.logError("Error retrieving launch environment", e);
 		}
 
 		return env;

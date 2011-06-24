@@ -40,6 +40,7 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.ContainerSelectionDialog;
+import org.isandlatech.plugins.rest.RestPlugin;
 import org.isandlatech.plugins.rest.i18n.Messages;
 
 /**
@@ -76,15 +77,15 @@ public class MakefileTabMain extends AbstractLaunchConfigurationTab {
 
 			Object source = aEvent.getSource();
 
-			if (source == pWorkspaceLocationButton) {
+			if (source.equals(pWorkspaceLocationButton)) {
 				// Workspace folder selection
 				handleWorkspaceWorkingDirectoryButtonSelected();
 
-			} else if (source == pFileSystemLocationButton) {
+			} else if (source.equals(pFileSystemLocationButton)) {
 				// File system selection
 				handleFileWorkingDirectoryButtonSelected();
 
-			} else if (source == pVariablesLocationButton) {
+			} else if (source.equals(pVariablesLocationButton)) {
 				// Variables insertion
 				handleVariablesButtonSelected();
 			}
@@ -364,7 +365,7 @@ public class MakefileTabMain extends AbstractLaunchConfigurationTab {
 			}
 
 		} catch (CoreException e) {
-			e.printStackTrace();
+			RestPlugin.logError("Error preparing make rules selection", e);
 		}
 	}
 

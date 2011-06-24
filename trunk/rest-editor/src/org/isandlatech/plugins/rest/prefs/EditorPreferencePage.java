@@ -264,7 +264,7 @@ public class EditorPreferencePage extends FieldEditorPreferencePage implements
 		try {
 			preferences.flush();
 		} catch (BackingStoreException e) {
-			e.printStackTrace();
+			RestPlugin.logError("Error saving color preferences", e);
 		}
 	}
 }

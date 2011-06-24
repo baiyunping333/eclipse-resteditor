@@ -19,7 +19,7 @@ import org.eclipse.jface.text.IDocument;
 public abstract class AbstractBlockDetector implements IBlockDetector {
 
 	/** Line utility singleton */
-	protected final LineUtil pLineUtil = LineUtil.get();
+	private final LineUtil pLineUtil = LineUtil.get();
 
 	/**
 	 * Find the last line with the same indentation, content type, ... starting

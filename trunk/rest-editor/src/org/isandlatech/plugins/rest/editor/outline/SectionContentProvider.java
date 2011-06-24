@@ -26,6 +26,7 @@ import org.eclipse.jface.text.ITypedRegion;
 import org.eclipse.jface.viewers.ITreePathContentProvider;
 import org.eclipse.jface.viewers.TreePath;
 import org.eclipse.jface.viewers.Viewer;
+import org.isandlatech.plugins.rest.RestPlugin;
 import org.isandlatech.plugins.rest.editor.rules.DecoratedLinesRule;
 import org.isandlatech.plugins.rest.editor.scanners.RestPartitionScanner;
 import org.isandlatech.plugins.rest.i18n.Messages;
@@ -110,20 +111,20 @@ public class SectionContentProvider implements ITreePathContentProvider {
 	 *            Section level
 	 * @return The section decoration
 	 */
-	protected char getDecorationForLevel(int aLevel) {
+	protected char getDecorationForLevel(final int aLevel) {
 
 		// Rebase level (root = 1 in data)
-		aLevel = aLevel - 1;
+		int level = aLevel - 1;
 
-		if (aLevel >= RestLanguage.SECTION_DECORATIONS.length) {
+		if (level >= RestLanguage.SECTION_DECORATIONS.length) {
 			return pDecoratorsLevels.get(pDecoratorsLevels.size() - 1);
 		}
 
-		while (aLevel >= pDecoratorsLevels.size()) {
+		while (level >= pDecoratorsLevels.size()) {
 			appendDecorator();
 		}
 
-		return pDecoratorsLevels.get(aLevel);
+		return pDecoratorsLevels.get(level);
 	}
 
 	/**
@@ -252,10 +253,10 @@ public class SectionContentProvider implements ITreePathContentProvider {
 								0, document.getLength(), false);
 
 			} catch (BadLocationException e) {
-				e.printStackTrace();
+				RestPlugin.logError("Error computing block partitions", e);
 				return;
 			} catch (BadPartitioningException e) {
-				e.printStackTrace();
+				RestPlugin.logError("Invalid partition", e);
 				return;
 			}
 		}
@@ -278,7 +279,7 @@ public class SectionContentProvider implements ITreePathContentProvider {
 
 				} catch (BadLocationException e) {
 					// Should never happen...
-					e.printStackTrace();
+					RestPlugin.logError("Error reading section", e);
 				}
 			}
 		}
@@ -304,13 +305,14 @@ public class SectionContentProvider implements ITreePathContentProvider {
 	 */
 	private TreeData storeSection(final IDocument aDocument,
 			final TreeData aCurrentElement, final String aContent,
-			int aSectionLineNumber) throws BadLocationException {
+			final int aSectionLineNumber) throws BadLocationException {
 
 		TreeData newElement = aCurrentElement;
 		char decorationChar = 0;
 		boolean upperlined = false;
 		boolean underlined = false;
 		String sectionTitle = null;
+		int sectionLineNumber = aSectionLineNumber;
 
 		BufferedReader strReader = new BufferedReader(
 				new StringReader(aContent));
@@ -320,7 +322,7 @@ public class SectionContentProvider implements ITreePathContentProvider {
 			while ((sectionBlockLine = strReader.readLine()) != null) {
 
 				if (sectionTitle == null) {
-					aSectionLineNumber++;
+					sectionLineNumber++;
 
 					if (!DecoratedLinesRule.isDecorativeLine(sectionBlockLine)) {
 						sectionTitle = sectionBlockLine;
@@ -339,7 +341,7 @@ public class SectionContentProvider implements ITreePathContentProvider {
 			}
 		} catch (IOException e) {
 			// May never happen...
-			e.printStackTrace();
+			RestPlugin.logError("Error section block lines", e);
 			return newElement;
 		}
 
@@ -385,10 +387,10 @@ public class SectionContentProvider implements ITreePathContentProvider {
 		}
 
 		// Why "-1" ? getLine() begins at 1, getLineOffset() at 0.
-		int lineOffset = aDocument.getLineOffset(aSectionLineNumber - 1);
+		int lineOffset = aDocument.getLineOffset(sectionLineNumber - 1);
 
 		// Store the document in node data
-		TreeData newNodeData = new TreeData(sectionTitle, aSectionLineNumber,
+		TreeData newNodeData = new TreeData(sectionTitle, sectionLineNumber,
 				lineOffset, upperlined);
 		newNodeData.setDocument(aDocument);
 

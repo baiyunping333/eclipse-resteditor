@@ -16,6 +16,7 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.ui.texteditor.spelling.SpellingProblem;
+import org.isandlatech.plugins.rest.RestPlugin;
 
 /**
  * Basic hover browser internal links handler. Provides complete spell checking
@@ -188,7 +189,7 @@ public class BasicInternalLinkHandler implements IInternalBrowserListener {
 			document.replace(offset, length, word);
 
 		} catch (BadLocationException e) {
-			e.printStackTrace();
+			RestPlugin.logError("Error replacing misspelled word", e);
 			return false;
 		}
 

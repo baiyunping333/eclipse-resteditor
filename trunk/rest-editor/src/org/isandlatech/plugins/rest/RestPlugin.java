@@ -17,8 +17,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.Image;
@@ -36,7 +38,7 @@ import org.osgi.framework.BundleContext;
 public class RestPlugin extends AbstractUIPlugin {
 
 	/** The shared instance */
-	private static RestPlugin plugin;
+	private static RestPlugin sPlugin;
 
 	/** The plug-in ID */
 	public static final String PLUGIN_ID = "ReSTEditor";
@@ -64,7 +66,7 @@ public class RestPlugin extends AbstractUIPlugin {
 	 * @return the shared instance
 	 */
 	public static RestPlugin getDefault() {
-		return plugin;
+		return sPlugin;
 	}
 
 	/**
@@ -77,6 +79,44 @@ public class RestPlugin extends AbstractUIPlugin {
 	 */
 	public static ImageDescriptor getImageDescriptor(final String path) {
 		return imageDescriptorFromPlugin(PLUGIN_ID, path);
+	}
+
+	/**
+	 * Logs the given status
+	 * 
+	 * @param aStatus
+	 *            Status to be logged
+	 */
+	public static void log(final IStatus aStatus) {
+		sPlugin.getLog().log(aStatus);
+	}
+
+	/**
+	 * Logs the given error
+	 * 
+	 * @param aMessage
+	 *            Error message
+	 * @param aThrowable
+	 *            Associated exception or error
+	 */
+	public static void logError(final String aMessage,
+			final Throwable aThrowable) {
+
+		IStatus status = new Status(IStatus.ERROR, PLUGIN_ID, aMessage,
+				aThrowable);
+		sPlugin.getLog().log(status);
+	}
+
+	/**
+	 * Logs the given information
+	 * 
+	 * @param aMessage
+	 *            Message to be logged
+	 */
+	public static void logInfo(final String aMessage) {
+
+		IStatus status = new Status(IStatus.INFO, PLUGIN_ID, aMessage);
+		sPlugin.getLog().log(status);
 	}
 
 	/**
@@ -199,7 +239,7 @@ public class RestPlugin extends AbstractUIPlugin {
 	@Override
 	public void start(final BundleContext context) throws Exception {
 		super.start(context);
-		plugin = this;
+		sPlugin = this;
 	}
 
 	/*
@@ -211,7 +251,7 @@ public class RestPlugin extends AbstractUIPlugin {
 	 */
 	@Override
 	public void stop(final BundleContext context) throws Exception {
-		plugin = null;
+		sPlugin = null;
 		super.stop(context);
 	}
 }

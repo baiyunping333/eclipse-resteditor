@@ -16,12 +16,14 @@ import org.eclipse.jface.text.BadPartitioningException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension3;
 import org.eclipse.jface.text.IRegion;
+import org.isandlatech.plugins.rest.RestPlugin;
 
 /**
- * @author Thomas Calmant
+ * Utility methods for line treatments
  * 
+ * @author Thomas Calmant
  */
-public class LineUtil {
+public final class LineUtil {
 
 	/** The singleton */
 	private static LineUtil sSingleton;
@@ -73,9 +75,11 @@ public class LineUtil {
 						aPartitionning, baseLineOffset, false).getType();
 
 			} catch (BadLocationException e) {
-				e.printStackTrace();
+				RestPlugin.logError("Error while retrieving line content type",
+						e);
 			} catch (BadPartitioningException e) {
-				e.printStackTrace();
+				RestPlugin.logError(
+						"Error while retrieve document partitionner", e);
 			}
 		}
 
@@ -140,7 +144,7 @@ public class LineUtil {
 			}
 
 		} catch (BadLocationException e) {
-			e.printStackTrace();
+			RestPlugin.logError("Error while retrieving line content", e);
 			return null;
 		}
 

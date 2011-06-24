@@ -23,6 +23,12 @@ import org.isandlatech.plugins.rest.editor.linewrap.LineWrapUtil.LineWrapMode;
  */
 public class EditorPreferenceInitializer extends AbstractPreferenceInitializer {
 
+	/** Default line wrap length */
+	public static final int DEFAULT_LINE_LENGTH = 80;
+
+	/** Default tab length */
+	public static final int DEFAULT_TAB_LENGTH = 3;
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -44,12 +50,14 @@ public class EditorPreferenceInitializer extends AbstractPreferenceInitializer {
 				"#*=-^\"");
 
 		// Tabulations
-		store.setDefault(IEditorPreferenceConstants.EDITOR_TABS_LENGTH, 3);
+		store.setDefault(IEditorPreferenceConstants.EDITOR_TABS_LENGTH,
+				DEFAULT_TAB_LENGTH);
 		store.setDefault(IEditorPreferenceConstants.EDITOR_TABS_TO_SPACES, true);
 
 		// Line wrap
 		store.setDefault(IEditorPreferenceConstants.EDITOR_LINEWRAP_MODE,
 				LineWrapMode.NONE.toString());
-		store.setDefault(IEditorPreferenceConstants.EDITOR_LINEWRAP_LENGTH, 80);
+		store.setDefault(IEditorPreferenceConstants.EDITOR_LINEWRAP_LENGTH,
+				DEFAULT_LINE_LENGTH);
 	}
 }
