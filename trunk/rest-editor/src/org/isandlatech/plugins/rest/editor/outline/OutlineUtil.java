@@ -327,8 +327,8 @@ public final class OutlineUtil {
 		char[] decorationArray = new char[sectionTitle.length()];
 		Arrays.fill(decorationArray, aNewMarker);
 
-		StringBuilder newSectionBlock = new StringBuilder(3
-				* sectionTitle.length() + 3 * endOfLine.length());
+		StringBuilder newSectionBlock = new StringBuilder(sectionTitle.length()
+				+ endOfLine.length());
 
 		// Add upperline, if needed
 		if (aSectionNode.isUpperlined()) {

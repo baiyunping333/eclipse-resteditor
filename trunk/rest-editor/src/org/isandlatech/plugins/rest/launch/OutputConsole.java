@@ -63,7 +63,7 @@ public class OutputConsole {
 	}
 
 	/** Error stream color */
-	public static final Color sErrorColor = new Color(Display.getDefault(),
+	public static final Color ERROR_COLOR = new Color(Display.getDefault(),
 			new RGB(255, 0, 0));
 
 	/** The console */
@@ -84,11 +84,9 @@ public class OutputConsole {
 	public OutputConsole(final String aName) {
 
 		pConsole = findConsole(aName);
-
 		pStdout = pConsole.newMessageStream();
-
 		pStderr = pConsole.newMessageStream();
-		pStderr.setColor(sErrorColor);
+		pStderr.setColor(ERROR_COLOR);
 	}
 
 	/**
@@ -105,7 +103,7 @@ public class OutputConsole {
 	 *            The console name
 	 * @return A console
 	 */
-	protected MessageConsole findConsole(final String aConsoleName) {
+	private MessageConsole findConsole(final String aConsoleName) {
 
 		ConsolePlugin consolePlugin = ConsolePlugin.getDefault();
 		IConsoleManager consoleManager = consolePlugin.getConsoleManager();

@@ -85,9 +85,7 @@ public abstract class AbstractShinxShortcut implements ILaunchShortcut {
 			return null;
 		}
 
-		IAdaptable adaptable = (IAdaptable) element;
-		Object adapter = adaptable.getAdapter(IResource.class);
-		return (IResource) adapter;
+		return (IResource) ((IAdaptable) element).getAdapter(IResource.class);
 	}
 
 	/**
