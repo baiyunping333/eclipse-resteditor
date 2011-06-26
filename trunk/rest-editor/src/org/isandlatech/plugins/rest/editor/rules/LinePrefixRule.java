@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Thomas Calmant (isandlaTech) - initial API and implementation
+ * Thomas Calmant (isandlaTech) - initial API and implementation
  *******************************************************************************/
 
 package org.isandlatech.plugins.rest.editor.rules;
@@ -26,22 +26,22 @@ import org.eclipse.jface.text.rules.Token;
 public class LinePrefixRule extends AbstractRule {
 
 	/** Does the block begin right after the block prefix or the next line ? */
-	private boolean pBeginLineAfterBlockPrefix;
+	private final boolean pBeginLineAfterBlockPrefix;
 
 	/** Prefix needed before the prefixed block */
-	private String pBlockPrefix;
+	private final String pBlockPrefix;
 
 	/** Rule fails if EOF is on the prefix line */
-	private boolean pFailOnEOF;
+	private final boolean pFailOnEOF;
 
 	/** Maximum column of the block prefix. -1 for "don't care" */
-	private int pMaxBlockPrefixColumn;
+	private final int pMaxBlockPrefixColumn;
 
 	/** Maximum prefix length */
 	private int pMaxPrefixLength;
 
 	/** Allowed line prefixes */
-	private char[][] pPrefixes;
+	private final char[][] pPrefixes;
 
 	/**
 	 * Configures the rule
@@ -155,12 +155,8 @@ public class LinePrefixRule extends AbstractRule {
 			selectedPrefixes.add(prefix);
 		}
 
-		String readData = "";
-
 		do {
 			readChar = aScanner.read();
-			readData += (char) readChar;
-
 			// Stop on EOF
 			if (readChar == ICharacterScanner.EOF) {
 				if (!pFailOnEOF) {
@@ -179,8 +175,6 @@ public class LinePrefixRule extends AbstractRule {
 					// 0
 					break;
 				}
-
-				readData = "";
 
 				// Reset the flags on new line
 				validPrefixFound = false;

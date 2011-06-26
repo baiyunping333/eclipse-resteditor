@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Thomas Calmant (isandlaTech) - initial API and implementation
+ * Thomas Calmant (isandlaTech) - initial API and implementation
  *******************************************************************************/
 
 package org.isandlatech.plugins.rest.editor;
@@ -42,6 +42,7 @@ import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.ui.editors.text.TextSourceViewerConfiguration;
 import org.eclipse.ui.texteditor.spelling.ISpellingEngine;
+import org.eclipse.ui.texteditor.spelling.SpellingEngineDescriptor;
 import org.eclipse.ui.texteditor.spelling.SpellingService;
 import org.isandlatech.plugins.rest.RestPlugin;
 import org.isandlatech.plugins.rest.editor.formatters.DefaultTextFormattingStrategy;
@@ -362,16 +363,28 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 	public ITextHover getTextHover(final ISourceViewer aSourceViewer,
 			final String aContentType) {
 
-		if (pSpellCheckHover == null) {
+		boolean engineEnabled = pPreferenceStore
+				.getBoolean(SpellingService.PREFERENCE_SPELLING_ENABLED);
+
+		if (pSpellCheckHover == null && engineEnabled) {
 			SpellingService selectedService = new SpellingService(
 					pPreferenceStore);
 
 			try {
-				ISpellingEngine engine = selectedService
-						.getActiveSpellingEngineDescriptor(pPreferenceStore)
-						.createEngine();
+				SpellingEngineDescriptor engineDescriptor = selectedService
+						.getActiveSpellingEngineDescriptor(pPreferenceStore);
 
-				pSpellCheckHover = new RestTextHover(engine);
+				if (engineDescriptor != null) {
+					// A spell engine may be available
+					ISpellingEngine engine = engineDescriptor.createEngine();
+					if (engine != null) {
+						pSpellCheckHover = new RestTextHover(engine);
+					}
+
+				} else {
+					// No spell engine available
+					RestPlugin.logWarning("No spell engin found");
+				}
 
 			} catch (CoreException e) {
 				DebugPlugin.logMessage("Error preparing the spell engine", e);
@@ -379,10 +392,7 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 		}
 
 		// Update spell checking state
-		boolean engineEnabled = pPreferenceStore
-				.getBoolean(SpellingService.PREFERENCE_SPELLING_ENABLED);
 		pSpellCheckHover.enableSpellChecking(engineEnabled);
-
 		return pSpellCheckHover;
 	}
 

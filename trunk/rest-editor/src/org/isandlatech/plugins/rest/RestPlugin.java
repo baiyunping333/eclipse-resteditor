@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Thomas Calmant (isandlaTech) - initial API and implementation
+ * Thomas Calmant (isandlaTech) - initial API and implementation
  *******************************************************************************/
 
 package org.isandlatech.plugins.rest;
@@ -37,9 +37,6 @@ import org.osgi.framework.BundleContext;
  */
 public class RestPlugin extends AbstractUIPlugin {
 
-	/** The shared instance */
-	private static RestPlugin sPlugin;
-
 	/** The plug-in ID */
 	public static final String PLUGIN_ID = "ReSTEditor";
 
@@ -59,6 +56,9 @@ public class RestPlugin extends AbstractUIPlugin {
 	 */
 	public static final IContentType REST_CONTENT_TYPE = Platform
 			.getContentTypeManager().getContentType(REST_CONTENT_ID);
+
+	/** The shared instance */
+	private static RestPlugin sPlugin;
 
 	/**
 	 * Returns the shared instance
@@ -116,6 +116,18 @@ public class RestPlugin extends AbstractUIPlugin {
 	public static void logInfo(final String aMessage) {
 
 		IStatus status = new Status(IStatus.INFO, PLUGIN_ID, aMessage);
+		sPlugin.getLog().log(status);
+	}
+
+	/**
+	 * Logs the given warning
+	 * 
+	 * @param aMessage
+	 *            Message to be logged
+	 */
+	public static void logWarning(final String aMessage) {
+
+		IStatus status = new Status(IStatus.WARNING, PLUGIN_ID, aMessage);
 		sPlugin.getLog().log(status);
 	}
 

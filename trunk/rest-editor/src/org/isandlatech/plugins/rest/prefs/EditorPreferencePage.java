@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Thomas Calmant (isandlaTech) - initial API and implementation
+ * Thomas Calmant (isandlaTech) - initial API and implementation
  *******************************************************************************/
 
 package org.isandlatech.plugins.rest.prefs;
@@ -254,7 +254,7 @@ public class EditorPreferencePage extends FieldEditorPreferencePage implements
 	 */
 	public void resetColors() {
 
-		IEclipsePreferences preferences = new InstanceScope()
+		IEclipsePreferences preferences = InstanceScope.INSTANCE
 				.getNode(RestPlugin.PLUGIN_ID);
 
 		for (String themeKey : IThemeConstants.THEME_KEYS) {
