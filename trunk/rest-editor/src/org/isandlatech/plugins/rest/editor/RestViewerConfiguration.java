@@ -392,7 +392,9 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 		}
 
 		// Update spell checking state
-		pSpellCheckHover.enableSpellChecking(engineEnabled);
+		if (pSpellCheckHover != null) {
+			pSpellCheckHover.enableSpellChecking(engineEnabled);
+		}
 		return pSpellCheckHover;
 	}
 
