@@ -94,11 +94,11 @@ public class InternalBrowserInformationControl extends
 
 	}
 
-	/** The web browser widget */
-	private Browser pBrowser;
-
 	/** Indicates if setInformation() or setInput() has been called */
 	private boolean hasData;
+
+	/** The web browser widget */
+	private Browser pBrowser;
 
 	/** The creator that instantiated this object */
 	private final IInformationControlCreator pControlCreator;
@@ -204,7 +204,9 @@ public class InternalBrowserInformationControl extends
 	protected void createContent(final Composite aParent) {
 
 		// Fall back on default browser
-		pBrowser = new Browser(aParent, SWT.NONE);
+		// FIXME If style is NONE, Indigo will crash
+		// => SWT.MOZILLA must be tested on all platforms before being committed
+		pBrowser = new Browser(aParent, SWT.MOZILLA);
 
 		// Disable links (for safety)
 		pBrowser.setJavascriptEnabled(false);

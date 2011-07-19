@@ -254,6 +254,8 @@ public class EditorPreferencePage extends FieldEditorPreferencePage implements
 	 */
 	public void resetColors() {
 
+		// WARNING InstanceScope.INSTANCE should replace the constructor,
+		// but it is not available on Helios (3.6)
 		IEclipsePreferences preferences = new InstanceScope()
 				.getNode(RestPlugin.PLUGIN_ID);
 
