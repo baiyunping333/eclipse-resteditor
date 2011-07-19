@@ -22,6 +22,9 @@ import org.isandlatech.plugins.rest.parser.RestLanguage;
  */
 public class ListBlockDetector extends AbstractBlockDetector {
 
+	/** Line utility singleton */
+	private final LineUtil pLineUtil = LineUtil.get();
+
 	/** Detector type */
 	public static final String DETECTOR_TYPE = "__list_block_detector__";
 

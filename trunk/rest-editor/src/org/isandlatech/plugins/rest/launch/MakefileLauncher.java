@@ -23,13 +23,28 @@ import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
-import org.eclipse.debug.core.IStreamListener;
 import org.eclipse.debug.core.model.ILaunchConfigurationDelegate;
 import org.eclipse.debug.core.model.IProcess;
-import org.eclipse.debug.core.model.IStreamMonitor;
 import org.eclipse.jface.util.Util;
+import org.isandlatech.plugins.rest.RestPlugin;
 
 public class MakefileLauncher implements ILaunchConfigurationDelegate {
+
+	/** Console name */
+	public static final String CONSOLE_NAME = "Makefile output";
+
+	/** Sphinx Makefile launcher ID */
+	public static final String LAUNCHER_ID = "org.isandlatech.plugins.rest.launch.makefile";
+
+	/** The output console */
+	private OutputConsole pOutputConsole;
+
+	/**
+	 * Prepares the output console
+	 */
+	public MakefileLauncher() {
+		pOutputConsole = new OutputConsole(CONSOLE_NAME);
+	}
 
 	/**
 	 * Retrieves the expected configuration attribute. Returns
@@ -43,8 +58,9 @@ public class MakefileLauncher implements ILaunchConfigurationDelegate {
 	 *            Value to be used if the attribute doesn't exist
 	 * @return The attribute value or {@link IMakefileConstants#UNDEFINED}
 	 */
-	private String getConfiguration(final ILaunchConfiguration aConfiguration,
-			final String aConfigKey, final String aDefaultValue) {
+	protected String getConfiguration(
+			final ILaunchConfiguration aConfiguration, final String aConfigKey,
+			final String aDefaultValue) {
 
 		String value;
 		try {
@@ -67,7 +83,7 @@ public class MakefileLauncher implements ILaunchConfigurationDelegate {
 	 * @return The attribute value or an empty set
 	 */
 	@SuppressWarnings("unchecked")
-	private Set<String> getConfigurationSet(
+	protected Set<String> getConfigurationSet(
 			final ILaunchConfiguration aConfiguration, final String aConfigKey) {
 
 		Set<String> value;
@@ -150,6 +166,9 @@ public class MakefileLauncher implements ILaunchConfigurationDelegate {
 		// Make the environment
 		String[] envArray = makeEnvironment(aConfiguration);
 
+		// Prepare a console
+		pOutputConsole.activate();
+
 		// Run !
 		Process execProcess = DebugPlugin.exec(cmdLine, workingDirectory,
 				envArray);
@@ -157,17 +176,8 @@ public class MakefileLauncher implements ILaunchConfigurationDelegate {
 		IProcess streamProcess = DebugPlugin.newProcess(aLaunch, execProcess,
 				cmdLine[0]);
 
-		// Handle output
-		streamProcess.getStreamsProxy().getErrorStreamMonitor()
-				.addListener(new IStreamListener() {
-
-					@Override
-					public void streamAppended(final String aText,
-							final IStreamMonitor aMonitor) {
-						// TODO treat error output
-						System.out.print("[ERROR] : " + aText);
-					}
-				});
+		// Handle outputs
+		pOutputConsole.listenStreams(streamProcess.getStreamsProxy());
 	}
 
 	/**
@@ -177,7 +187,7 @@ public class MakefileLauncher implements ILaunchConfigurationDelegate {
 	 *            Launch configuration
 	 * @return The command line in an array
 	 */
-	private String[] makeCommandLine(final ILaunchConfiguration aConfiguration) {
+	protected String[] makeCommandLine(final ILaunchConfiguration aConfiguration) {
 
 		// Prepare the command line
 		String makeCmd = getConfiguration(aConfiguration,
@@ -192,7 +202,7 @@ public class MakefileLauncher implements ILaunchConfigurationDelegate {
 
 		if (Util.isWindows()) {
 			// Handle Windows specific launch
-			cmdLine = new ArrayList<String>(makeRules.size() + 3);
+			cmdLine = new ArrayList<String>(makeRules.size());
 
 			// Executable : command line emulation
 			cmdLine.add("cmd");
@@ -221,7 +231,7 @@ public class MakefileLauncher implements ILaunchConfigurationDelegate {
 	 *            Launch configuration
 	 * @return The complete process environment
 	 */
-	private String[] makeEnvironment(final ILaunchConfiguration aConfiguration) {
+	protected String[] makeEnvironment(final ILaunchConfiguration aConfiguration) {
 
 		String[] env = null;
 
@@ -230,7 +240,7 @@ public class MakefileLauncher implements ILaunchConfigurationDelegate {
 					.getEnvironment(aConfiguration);
 
 		} catch (CoreException e) {
-			e.printStackTrace();
+			RestPlugin.logError("Error retrieving launch environment", e);
 		}
 
 		return env;

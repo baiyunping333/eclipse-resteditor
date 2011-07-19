@@ -14,6 +14,7 @@ package org.isandlatech.plugins.rest.editor.linewrap;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
+import org.isandlatech.plugins.rest.RestPlugin;
 
 /**
  * Stores basic information about a text block
@@ -66,7 +67,7 @@ public class BlockInformation implements IRegion {
 			return true;
 
 		} catch (BadLocationException e) {
-			e.printStackTrace();
+			RestPlugin.logError("Error preparing block informations", e);
 		}
 
 		return false;

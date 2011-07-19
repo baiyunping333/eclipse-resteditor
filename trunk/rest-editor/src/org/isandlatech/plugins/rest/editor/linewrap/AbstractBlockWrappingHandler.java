@@ -21,6 +21,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentCommand;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.TextUtilities;
+import org.isandlatech.plugins.rest.RestPlugin;
 
 /**
  * @author Thomas Calmant
@@ -191,7 +192,8 @@ public abstract class AbstractBlockWrappingHandler implements
 
 		} catch (IOException e) {
 			// Really ?
-			e.printStackTrace();
+			RestPlugin.logError(
+					"StringReader error while converting a block in line", e);
 		}
 
 		// Remove the last added trailing space
@@ -282,12 +284,9 @@ public abstract class AbstractBlockWrappingHandler implements
 
 		while (offset < aLine.length()) {
 
-			if (offset - aBaseOffset > aMaxLineLength) {
-
-				if (lastSpaceOffset != -1) {
-					breakOffset = lastSpaceOffset;
-					break;
-				}
+			if (offset - aBaseOffset > aMaxLineLength && lastSpaceOffset != -1) {
+				breakOffset = lastSpaceOffset;
+				break;
 			}
 
 			// Look for an in-line marker
@@ -301,11 +300,8 @@ public abstract class AbstractBlockWrappingHandler implements
 				continue;
 			}
 
-			if (Character.isWhitespace(aLine.charAt(offset))) {
-
-				if (!marker) {
-					lastSpaceOffset = offset;
-				}
+			if (!marker && Character.isWhitespace(aLine.charAt(offset))) {
+				lastSpaceOffset = offset;
 			}
 
 			offset++;
@@ -463,7 +459,8 @@ public abstract class AbstractBlockWrappingHandler implements
 					getDocBlock().getLength());
 
 		} catch (BadLocationException e) {
-			e.printStackTrace();
+			RestPlugin
+					.logError("Error retrieving the block content to wrap", e);
 			return false;
 		}
 
@@ -506,8 +503,7 @@ public abstract class AbstractBlockWrappingHandler implements
 		// Line delimiter
 		final int delimLen = pLineDelimiter.length();
 
-		StringBuilder wrappedLine = new StringBuilder(
-				(int) (aLine.length() * 1.2));
+		StringBuilder wrappedLine = new StringBuilder(aLine.length());
 
 		int breakPos = 0;
 		int oldBreakPos = 0;

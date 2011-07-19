@@ -1,22 +1,24 @@
-{% extends "layout.html" %}
-{% set title = 'Overview' %}
-{% block body %}
+{% extends "layout.html" %} {% set title = 'Overview' %} {% block body
+%}
 
 <h1>Welcome</h1>
 
 <p>
-ReST Editor is an Eclipse plug-in providing support to edit
-reStructuredText files. It was created by Thomas Calmant and is
-released under Eclipse Public License 1.0
-(<a href="http://www.eclipse.org/org/documents/epl-v10.php">license text here</a>).
+	ReST Editor is an Eclipse plug-in providing support to edit
+	reStructuredText files. It was created by Thomas Calmant and is
+	released under Eclipse Public License 1.0 (<a
+		href="http://www.eclipse.org/org/documents/epl-v10.php">license
+		text here</a>).
 </p>
-	
+
 <p>
-It was originally created as an internal project of 
-<a href="http://www.isandlatech.com/">isandlaTech</a> to ease documentation writing.
-Previous versions descriptions are available on
-<a href="http://www.coderxpress.net/blog">my blog</a>, all new informations are on
-the <a href="https://sourceforge.net/projects/resteditor/">SourceForge project page</a>.
+	It was originally created as an internal project of <a
+		href="http://www.isandlatech.com/">isandlaTech</a> to ease
+	documentation writing. Previous versions descriptions are available on
+	<a href="http://www.coderxpress.net/blog">my blog</a>, all new
+	informations are on the <a
+		href="https://sourceforge.net/projects/resteditor/">SourceForge
+		project page</a>.
 </p>
 
 <p>
@@ -46,24 +48,36 @@ the <a href="https://sourceforge.net/projects/resteditor/">SourceForge project p
 		for the selected output formats</li>
 </ul>
 
+<p>Feel free to contribute to this project ! It currently lacks a
+	visual identity (logos, ...), and needs some improvements in the word
+	wrapping parts :)</p>
+
 <h2>Documentation</h2>
 <table class="contentstable" align="center" style="margin-left: 30px">
 	<tr>
-		<td width="34%">
+		<td width="25%">
 			<p class="biglink">
 				<a class="biglink" href="{{ pathto("contents") }}">Contents</a><br />
 				<span class="linkdescr">for a complete overview</span>
 			</p>
 		</td>
-		
-		<td width="33%">
+
+		<td width="25%">
+			<p class="biglink">
+				<a class="biglink" href="{{ pathto("news") }}">News</a><br />
+				<span class="linkdescr">what's new in this project ?</span>
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td width="25%">
 			<p class="biglink">
 				<a class="biglink" href="{{ pathto("search") }}">Search page</a><br />
 				<span class="linkdescr">search the documentation</span>
 			</p>
 		</td>
-			
-		<td width="33%">
+
+		<td width="25%">
 			<p class="biglink">
 				<a class="biglink" href="{{ pathto("credits") }}">Credits</a><br />
 				<span class="linkdescr">list of contributors</span>
@@ -74,11 +88,14 @@ the <a href="https://sourceforge.net/projects/resteditor/">SourceForge project p
 
 <h2>Get ReST Editor</h2>
 <p>
-ReST Editor is available using the project update site : 
-<tt>http://resteditor.sourceforge.net/eclipse</tt>.
+	ReST Editor is available using the project update site :
+	<tt>http://resteditor.sourceforge.net/eclipse</tt>
+	.
 </p>
-<p>It is also available on the
-<a href="http://marketplace.eclipse.org/content/rest-editor">Eclipse Marketplace</a>
+<p>
+	It is also available on the <a
+		href="http://marketplace.eclipse.org/content/rest-editor">Eclipse
+		Marketplace</a>
 </p>
 
 {% endblock %}

@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Thomas Calmant (isandlaTech) - initial API and implementation
+ * Thomas Calmant (isandlaTech) - initial API and implementation
  *******************************************************************************/
 
 package org.isandlatech.plugins.rest.editor;
@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.DefaultIndentLineAutoEditStrategy;
 import org.eclipse.jface.text.DefaultLineTracker;
@@ -41,7 +42,7 @@ import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.ui.editors.text.TextSourceViewerConfiguration;
 import org.eclipse.ui.texteditor.spelling.ISpellingEngine;
-import org.eclipse.ui.texteditor.spelling.SpellingReconcileStrategy;
+import org.eclipse.ui.texteditor.spelling.SpellingEngineDescriptor;
 import org.eclipse.ui.texteditor.spelling.SpellingService;
 import org.isandlatech.plugins.rest.RestPlugin;
 import org.isandlatech.plugins.rest.editor.formatters.DefaultTextFormattingStrategy;
@@ -132,7 +133,7 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 					RestPartitionScanner.PARTITIONING, maxLineLength);
 		}
 
-		List<IAutoEditStrategy> strategies = new ArrayList<IAutoEditStrategy>(3);
+		List<IAutoEditStrategy> strategies = new ArrayList<IAutoEditStrategy>();
 		strategies.add(pAutoEditIndent);
 
 		// Only enable line wrapping in "default text"
@@ -345,11 +346,11 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 		// Uses the preferences to select the spell engine
 		SpellingService selectedService = new SpellingService(pPreferenceStore);
 
-		IReconcilingStrategy strategy = new SpellingReconcileStrategy(
+		// use the specific reconciler
+		IReconcilingStrategy strategy = new RestSpellingReconcileStrategy(
 				aSourceViewer, selectedService);
 
-		MonoReconciler reconciler = new MonoReconciler(strategy, false);
-		return reconciler;
+		return new MonoReconciler(strategy, false);
 	}
 
 	@Override
@@ -362,27 +363,38 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 	public ITextHover getTextHover(final ISourceViewer aSourceViewer,
 			final String aContentType) {
 
-		if (pSpellCheckHover == null) {
+		boolean engineEnabled = pPreferenceStore
+				.getBoolean(SpellingService.PREFERENCE_SPELLING_ENABLED);
+
+		if (pSpellCheckHover == null && engineEnabled) {
 			SpellingService selectedService = new SpellingService(
 					pPreferenceStore);
 
 			try {
-				ISpellingEngine engine = selectedService
-						.getActiveSpellingEngineDescriptor(pPreferenceStore)
-						.createEngine();
+				SpellingEngineDescriptor engineDescriptor = selectedService
+						.getActiveSpellingEngineDescriptor(pPreferenceStore);
 
-				pSpellCheckHover = new RestTextHover(engine);
+				if (engineDescriptor != null) {
+					// A spell engine may be available
+					ISpellingEngine engine = engineDescriptor.createEngine();
+					if (engine != null) {
+						pSpellCheckHover = new RestTextHover(engine);
+					}
+
+				} else {
+					// No spell engine available
+					RestPlugin.logWarning("No spell engin found");
+				}
 
 			} catch (CoreException e) {
-				e.printStackTrace();
+				DebugPlugin.logMessage("Error preparing the spell engine", e);
 			}
 		}
 
 		// Update spell checking state
-		boolean engineEnabled = pPreferenceStore
-				.getBoolean(SpellingService.PREFERENCE_SPELLING_ENABLED);
-		pSpellCheckHover.enableSpellChecking(engineEnabled);
-
+		if (pSpellCheckHover != null) {
+			pSpellCheckHover.enableSpellChecking(engineEnabled);
+		}
 		return pSpellCheckHover;
 	}
 

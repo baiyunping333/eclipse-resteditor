@@ -16,6 +16,7 @@ import java.lang.reflect.Field;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.rules.ICharacterScanner;
 import org.eclipse.jface.text.rules.RuleBasedScanner;
+import org.isandlatech.plugins.rest.RestPlugin;
 
 /**
  * Eclipse character scanner extension, allowing to return to its original
@@ -79,10 +80,9 @@ public class MarkedCharacterScanner implements ICharacterScanner {
 	@Override
 	public int getColumn() {
 
-		if (pBaseOffset != -1 && pDocument != null) {
-			if (pBaseOffset + pReadCharacters >= pDocument.getLength()) {
-				return -1;
-			}
+		if (pBaseOffset != -1 && pDocument != null
+				&& pBaseOffset + pReadCharacters >= pDocument.getLength()) {
+			return -1;
 		}
 
 		return pRealScanner.getColumn();
@@ -131,7 +131,7 @@ public class MarkedCharacterScanner implements ICharacterScanner {
 			pDocument = (IDocument) sDocumentField.get(pRealScanner);
 
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			RestPlugin.logError("Error reading scanner private fields", ex);
 			pDocument = null;
 		}
 
@@ -139,7 +139,7 @@ public class MarkedCharacterScanner implements ICharacterScanner {
 			pBaseOffset = (Integer) sOffsetField.get(pRealScanner);
 
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			RestPlugin.logError("Error reading scanner private fields", ex);
 			pBaseOffset = -1;
 		}
 	}
@@ -183,10 +183,10 @@ public class MarkedCharacterScanner implements ICharacterScanner {
 
 			return field;
 
-		} catch (SecurityException e) {
-			e.printStackTrace();
-		} catch (NoSuchFieldException e) {
-			e.printStackTrace();
+		} catch (SecurityException ex) {
+			RestPlugin.logError("Error accessing scanner private fields", ex);
+		} catch (NoSuchFieldException ex) {
+			RestPlugin.logError("Error accessing scanner private fields", ex);
 		}
 
 		return null;

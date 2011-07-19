@@ -108,8 +108,8 @@ public class MarkupRule extends AbstractRule {
 
 	@Override
 	public IToken evaluate(final MarkedCharacterScanner aScanner) {
+
 		int readChar;
-		int contentLength = 0;
 
 		// If the previous character is an escape one, ignore the starting
 		// marker
@@ -148,7 +148,6 @@ public class MarkupRule extends AbstractRule {
 
 		int lastReadChar = 0;
 		while ((readChar = aScanner.read()) != ICharacterScanner.EOF) {
-			contentLength++;
 
 			// EOL in single line mode -> stop
 			if (pSingleLine && MarkedCharacterScanner.isAnEOL(readChar)) {

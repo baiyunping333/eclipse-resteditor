@@ -87,11 +87,12 @@ public class RestGridTableRule extends AbstractRule implements RestLanguage {
 	 *         stopped at the faulty character.
 	 */
 	private boolean validateBorderLine(final MarkedCharacterScanner aScanner) {
+
 		int readChar;
 		boolean onePass = false;
 
-		while ((readChar = aScanner.read()) != ICharacterScanner.EOF
-				&& readChar != '\n') {
+		readChar = aScanner.read();
+		while (readChar != ICharacterScanner.EOF && readChar != '\n') {
 
 			boolean validChar = false;
 			for (char allowedChar : GRID_TABLE_BORDERS_CHARACTERS) {
@@ -107,6 +108,7 @@ public class RestGridTableRule extends AbstractRule implements RestLanguage {
 			}
 
 			onePass = true;
+			readChar = aScanner.read();
 		}
 
 		return onePass;

@@ -20,6 +20,10 @@ import org.eclipse.debug.core.DebugPlugin;
  */
 public interface IMakefileConstants {
 
+	/** Enable custom rules */
+	String ATTR_CUSTOM_RULES_ENABLED = DebugPlugin.getUniqueIdentifier()
+			+ ".custom.rules";
+
 	/** Make command configuration attribute default value */
 	String ATTR_DEFAULT_MAKE_CMD = "/usr/bin/make";
 

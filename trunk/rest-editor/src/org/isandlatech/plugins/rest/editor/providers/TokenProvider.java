@@ -165,20 +165,20 @@ public class TokenProvider {
 		IToken commonToken;
 
 		// Theme colors
-		Color default_color = getKeyThemeColor(IThemeConstants.DEFAULT);
-		Color inline_emphasis_color = getKeyThemeColor(IThemeConstants.INLINE_EMPHASIS);
-		Color inline_literal_color = getKeyThemeColor(IThemeConstants.INLINE_LITERAL);
+		Color defaultColor = getKeyThemeColor(IThemeConstants.DEFAULT);
+		Color inlineEmphasisColor = getKeyThemeColor(IThemeConstants.INLINE_EMPHASIS);
+		Color inlineLiteralColor = getKeyThemeColor(IThemeConstants.INLINE_LITERAL);
 
-		Color link_color = getKeyThemeColor(IThemeConstants.LINK);
-		Color list_bullets_color = getKeyThemeColor(IThemeConstants.LIST_BULLET);
-		Color directive_color = getKeyThemeColor(IThemeConstants.DIRECTIVE);
-		Color literal_block_color = getKeyThemeColor(IThemeConstants.LITERAL);
-		Color section_block_color = getKeyThemeColor(IThemeConstants.SECTION);
-		Color souce_block_color = getKeyThemeColor(IThemeConstants.SOURCE);
-		Color table_block_color = getKeyThemeColor(IThemeConstants.TABLE);
+		Color linkColor = getKeyThemeColor(IThemeConstants.LINK);
+		Color listBulletsColor = getKeyThemeColor(IThemeConstants.LIST_BULLET);
+		Color directiveColor = getKeyThemeColor(IThemeConstants.DIRECTIVE);
+		Color literalBlockColor = getKeyThemeColor(IThemeConstants.LITERAL);
+		Color sectionBlockColor = getKeyThemeColor(IThemeConstants.SECTION);
+		Color souceBlockColor = getKeyThemeColor(IThemeConstants.SOURCE);
+		Color tableBlockColor = getKeyThemeColor(IThemeConstants.TABLE);
 
 		// Default token
-		pDefaultToken = getToken(default_color);
+		pDefaultToken = getToken(defaultColor);
 
 		if (pTokensRegistry == null) {
 			pTokensRegistry = new HashMap<String, IToken>();
@@ -188,46 +188,46 @@ public class TokenProvider {
 
 		// In-line modifiers
 		pTokensRegistry.put(ITokenConstants.INLINE_LITERAL,
-				getToken(inline_literal_color, null, SWT.ITALIC));
+				getToken(inlineLiteralColor, null, SWT.ITALIC));
 
 		pTokensRegistry.put(ITokenConstants.INLINE_EMPHASIS_TEXT,
-				getToken(inline_emphasis_color, null, SWT.ITALIC));
+				getToken(inlineEmphasisColor, null, SWT.ITALIC));
 
 		pTokensRegistry.put(ITokenConstants.INLINE_BOLD_TEXT,
-				getToken(inline_emphasis_color, null, SWT.BOLD));
+				getToken(inlineEmphasisColor, null, SWT.BOLD));
 
 		// Links, fields, roles
-		commonToken = getToken(link_color, null, SWT.ITALIC);
+		commonToken = getToken(linkColor, null, SWT.ITALIC);
 		pTokensRegistry.put(ITokenConstants.LINK, commonToken);
 		pTokensRegistry.put(ITokenConstants.FIELD, commonToken);
 		pTokensRegistry.put(ITokenConstants.ROLE, commonToken);
 
 		// Link references
-		commonToken = getToken(link_color, null, SWT.BOLD);
+		commonToken = getToken(linkColor, null, SWT.BOLD);
 		pTokensRegistry.put(ITokenConstants.LINK_REFERENCE, commonToken);
 		pTokensRegistry.put(ITokenConstants.LINK_FOOTNOTE, commonToken);
 		pTokensRegistry.put(ITokenConstants.SUBSTITUTION, commonToken);
 
 		// Lists
 		pTokensRegistry.put(ITokenConstants.LIST_BULLET,
-				getToken(list_bullets_color, null, SWT.ITALIC | SWT.BOLD));
+				getToken(listBulletsColor, null, SWT.ITALIC | SWT.BOLD));
 
 		// Literals
 		pTokensRegistry.put(ITokenConstants.LITERAL_DEFAULT,
-				getToken(literal_block_color));
+				getToken(literalBlockColor));
 
 		pTokensRegistry.put(ITokenConstants.LITERAL_DIRECTIVE,
-				getToken(directive_color, null, SWT.BOLD));
+				getToken(directiveColor, null, SWT.BOLD));
 
 		// Section
 		pTokensRegistry.put(ITokenConstants.SECTION,
-				getToken(section_block_color, null, SWT.BOLD));
+				getToken(sectionBlockColor, null, SWT.BOLD));
 
 		// Code block
 		pTokensRegistry.put(ITokenConstants.SOURCE,
-				getToken(souce_block_color, null, SWT.NORMAL));
+				getToken(souceBlockColor, null, SWT.NORMAL));
 
 		// Table (grid and simple)
-		pTokensRegistry.put(ITokenConstants.TABLE, getToken(table_block_color));
+		pTokensRegistry.put(ITokenConstants.TABLE, getToken(tableBlockColor));
 	}
 }

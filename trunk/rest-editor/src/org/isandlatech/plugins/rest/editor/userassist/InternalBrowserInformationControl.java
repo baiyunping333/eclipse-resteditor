@@ -73,8 +73,6 @@ public class InternalBrowserInformationControl extends
 		return new IInformationControlCreator() {
 
 			/*
-			 * (non-Javadoc)
-			 * 
 			 * @see org.eclipse.jface.text.IInformationControlCreator#
 			 * createInformationControl(org.eclipse.swt.widgets.Shell)
 			 */
@@ -91,7 +89,6 @@ public class InternalBrowserInformationControl extends
 				}
 			}
 		};
-
 	}
 
 	/** Indicates if setInformation() or setInput() has been called */
@@ -182,7 +179,7 @@ public class InternalBrowserInformationControl extends
 				// reference to the IFile
 				location = URLDecoder.decode(rawLocation, "UTF-8");
 			} catch (UnsupportedEncodingException e) {
-				e.printStackTrace();
+				RestPlugin.logError("Can't decode given local", e);
 				location = rawLocation;
 			}
 
@@ -242,7 +239,7 @@ public class InternalBrowserInformationControl extends
 			htmlContent.append(RestPlugin.getDefault().getBundleFileContent(
 					STYLE_SHEET_PATH));
 		} catch (IOException e) {
-			e.printStackTrace();
+			RestPlugin.logError("HTML style sheet not found", e);
 		}
 
 		// Colors styles from display

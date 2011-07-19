@@ -31,6 +31,7 @@ import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.ui.texteditor.spelling.ISpellingEngine;
 import org.eclipse.ui.texteditor.spelling.SpellingContext;
 import org.eclipse.ui.texteditor.spelling.SpellingProblem;
+import org.isandlatech.plugins.rest.RestPlugin;
 import org.isandlatech.plugins.rest.editor.scanners.RestPartitionScanner;
 import org.isandlatech.plugins.rest.editor.userassist.BasicInternalLinkHandler;
 import org.isandlatech.plugins.rest.editor.userassist.HelpMessagesUtil;
@@ -161,7 +162,7 @@ public class RestTextHover implements ITextHover, ITextHoverExtension,
 	protected String generateSpellingProposals(final IDocument aDocument,
 			final IRegion aHoverRegion) {
 
-		if (!pSpellCheckingEnabled) {
+		if (!pSpellCheckingEnabled || pSpellingEngine == null) {
 			return null;
 		}
 
@@ -176,22 +177,30 @@ public class RestTextHover implements ITextHover, ITextHoverExtension,
 			List<SpellingProblem> foundProblems = collector.getProblems();
 
 			for (SpellingProblem problem : foundProblems) {
+
+				if (problem == null) {
+					continue;
+				}
+
 				correctionProposals += "<h1>" + problem.getMessage()
 						+ " :</h1>\n";
 
 				for (ICompletionProposal proposal : problem.getProposals()) {
 
-					String displayedString = proposal.getDisplayString();
+					if (proposal == null) {
+						continue;
+					}
 
+					final String displayedString = proposal.getDisplayString();
 					correctionProposals += "<a href=\""
-							+ BasicInternalLinkHandler.makeSpellLink(problem, proposal) + "\">"
-							+ displayedString + "</a>" + "<br />\n";
+							+ BasicInternalLinkHandler.makeSpellLink(problem,
+									proposal) + "\">" + displayedString
+							+ "</a>" + "<br />\n";
 				}
 			}
 
 		} catch (NullPointerException ex) {
-			System.err.println("Error while using the spell checker");
-			ex.printStackTrace();
+			RestPlugin.logError("Error while using the spell checker", ex);
 		}
 
 		// No valid proposals

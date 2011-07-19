@@ -372,19 +372,20 @@ public final class ConfigGenerator {
 	 * @param aValue
 	 *            Associated value
 	 */
-	public void setStringProperty(final String aProperty, String aValue) {
+	public void setStringProperty(final String aProperty, final String aValue) {
 
 		if (aProperty == null || aProperty.length() == 0) {
 			return;
 		}
 
+		final String value;
 		if (aValue == null) {
-			aValue = "None";
+			value = "None";
 		} else {
-			aValue = "u'" + aValue + "'";
+			value = "u'" + aValue + "'";
 		}
 
-		pConfiguration.put(aProperty, aValue);
+		pConfiguration.put(aProperty, value);
 	}
 
 	/**

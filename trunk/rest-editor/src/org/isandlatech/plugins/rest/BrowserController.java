@@ -26,7 +26,7 @@ import org.eclipse.ui.browser.IWorkbenchBrowserSupport;
  * 
  * @author Thomas Calmant
  */
-public class BrowserController {
+public final class BrowserController {
 
 	/** Controller unique instance */
 	private static BrowserController sSingleton;
@@ -105,7 +105,7 @@ public class BrowserController {
 			pWebBrowsers.put(aId, browser);
 
 		} catch (PartInitException e) {
-			e.printStackTrace();
+			RestPlugin.logError("Error preparing a browser", e);
 			browser = pWebBrowsers.get(aId);
 		}
 
@@ -128,7 +128,8 @@ public class BrowserController {
 			openUrl(aId, url);
 
 		} catch (MalformedURLException e) {
-			e.printStackTrace();
+			RestPlugin.logError("Can't parse the given URL : '" + aLocation
+					+ "'", e);
 		}
 	}
 
@@ -149,7 +150,7 @@ public class BrowserController {
 		try {
 			browser.openURL(aUrl);
 		} catch (PartInitException e) {
-			e.printStackTrace();
+			RestPlugin.logError("Can't open the URL '" + aUrl + "'", e);
 		}
 	}
 }

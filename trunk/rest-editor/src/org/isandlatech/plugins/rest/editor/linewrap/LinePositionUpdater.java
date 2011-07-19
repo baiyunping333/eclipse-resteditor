@@ -19,6 +19,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentListener;
+import org.isandlatech.plugins.rest.RestPlugin;
 
 /**
  * Updates all document positions of the given category to store the offset of
@@ -94,7 +95,7 @@ public class LinePositionUpdater implements IDocumentListener {
 		try {
 			modificationLine = document.getLineOfOffset(aEvent.getOffset());
 		} catch (BadLocationException e) {
-			e.printStackTrace();
+			RestPlugin.logError("Error retrieving modified line offset", e);
 			return;
 		}
 

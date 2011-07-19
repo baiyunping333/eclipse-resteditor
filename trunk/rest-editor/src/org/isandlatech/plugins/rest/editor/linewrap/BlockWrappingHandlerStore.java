@@ -15,10 +15,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * @author Thomas Calmant
+ * Stores block wrapping handles
  * 
+ * @author Thomas Calmant
  */
-public class BlockWrappingHandlerStore {
+public final class BlockWrappingHandlerStore {
 
 	/** Factory singleton */
 	private static BlockWrappingHandlerStore sSingleton = new BlockWrappingHandlerStore();

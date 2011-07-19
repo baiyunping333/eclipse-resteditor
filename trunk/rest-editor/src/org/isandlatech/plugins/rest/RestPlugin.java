@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Thomas Calmant (isandlaTech) - initial API and implementation
+ * Thomas Calmant (isandlaTech) - initial API and implementation
  *******************************************************************************/
 
 package org.isandlatech.plugins.rest;
@@ -17,7 +17,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
@@ -33,9 +37,6 @@ import org.osgi.framework.BundleContext;
  */
 public class RestPlugin extends AbstractUIPlugin {
 
-	/** The shared instance */
-	private static RestPlugin plugin;
-
 	/** The plug-in ID */
 	public static final String PLUGIN_ID = "ReSTEditor";
 
@@ -43,12 +44,29 @@ public class RestPlugin extends AbstractUIPlugin {
 	public static final String PLUGIN_NAME = Messages.getString("plugin.name");
 
 	/**
+	 * The specific rest content-type id (cf. full qualified id : PLUGIN_ID +
+	 * content-type id as defined in plug-in xml file)
+	 **/
+	public static final String REST_CONTENT_ID = PLUGIN_ID + ".restSource";
+
+	/**
+	 * @see the definition of this content type in the extension point
+	 *      "org.eclipse.core.contenttype.contentTypes" in the manifest file of
+	 *      the plug-in.
+	 */
+	public static final IContentType REST_CONTENT_TYPE = Platform
+			.getContentTypeManager().getContentType(REST_CONTENT_ID);
+
+	/** The shared instance */
+	private static RestPlugin sPlugin;
+
+	/**
 	 * Returns the shared instance
 	 * 
 	 * @return the shared instance
 	 */
 	public static RestPlugin getDefault() {
-		return plugin;
+		return sPlugin;
 	}
 
 	/**
@@ -61,6 +79,56 @@ public class RestPlugin extends AbstractUIPlugin {
 	 */
 	public static ImageDescriptor getImageDescriptor(final String path) {
 		return imageDescriptorFromPlugin(PLUGIN_ID, path);
+	}
+
+	/**
+	 * Logs the given status
+	 * 
+	 * @param aStatus
+	 *            Status to be logged
+	 */
+	public static void log(final IStatus aStatus) {
+		sPlugin.getLog().log(aStatus);
+	}
+
+	/**
+	 * Logs the given error
+	 * 
+	 * @param aMessage
+	 *            Error message
+	 * @param aThrowable
+	 *            Associated exception or error
+	 */
+	public static void logError(final String aMessage,
+			final Throwable aThrowable) {
+
+		IStatus status = new Status(IStatus.ERROR, PLUGIN_ID, aMessage,
+				aThrowable);
+		sPlugin.getLog().log(status);
+	}
+
+	/**
+	 * Logs the given information
+	 * 
+	 * @param aMessage
+	 *            Message to be logged
+	 */
+	public static void logInfo(final String aMessage) {
+
+		IStatus status = new Status(IStatus.INFO, PLUGIN_ID, aMessage);
+		sPlugin.getLog().log(status);
+	}
+
+	/**
+	 * Logs the given warning
+	 * 
+	 * @param aMessage
+	 *            Message to be logged
+	 */
+	public static void logWarning(final String aMessage) {
+
+		IStatus status = new Status(IStatus.WARNING, PLUGIN_ID, aMessage);
+		sPlugin.getLog().log(status);
 	}
 
 	/**
@@ -183,7 +251,7 @@ public class RestPlugin extends AbstractUIPlugin {
 	@Override
 	public void start(final BundleContext context) throws Exception {
 		super.start(context);
-		plugin = this;
+		sPlugin = this;
 	}
 
 	/*
@@ -195,7 +263,7 @@ public class RestPlugin extends AbstractUIPlugin {
 	 */
 	@Override
 	public void stop(final BundleContext context) throws Exception {
-		plugin = null;
+		sPlugin = null;
 		super.stop(context);
 	}
 }

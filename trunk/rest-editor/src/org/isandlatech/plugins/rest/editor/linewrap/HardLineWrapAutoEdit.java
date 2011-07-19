@@ -22,6 +22,7 @@ import org.eclipse.jface.text.DocumentRewriteSessionType;
 import org.eclipse.jface.text.IAutoEditStrategy;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension4;
+import org.isandlatech.plugins.rest.RestPlugin;
 import org.isandlatech.plugins.rest.editor.linewrap.HardLineWrap.WrapResult;
 
 /**
@@ -90,7 +91,7 @@ public class HardLineWrapAutoEdit implements IAutoEditStrategy {
 
 		if (pDocument == null) {
 			pDocument = aDocument;
-		} else if (pDocument != aDocument) {
+		} else if (!pDocument.equals(aDocument)) {
 			// Bad document ?
 			return;
 		}
@@ -103,7 +104,7 @@ public class HardLineWrapAutoEdit implements IAutoEditStrategy {
 			wrapLine(aCommand);
 
 		} catch (BadLocationException e) {
-			e.printStackTrace();
+			RestPlugin.logError("Error during line wrapping", e);
 		}
 	}
 
@@ -127,7 +128,7 @@ public class HardLineWrapAutoEdit implements IAutoEditStrategy {
 
 		if (pDocument == null) {
 			pDocument = aDocument;
-		} else if (pDocument != aDocument) {
+		} else if (!pDocument.equals(aDocument)) {
 			return;
 		}
 
@@ -195,7 +196,7 @@ public class HardLineWrapAutoEdit implements IAutoEditStrategy {
 
 		} catch (BadLocationException e) {
 
-			e.printStackTrace();
+			RestPlugin.logError("Error during line tracking update", e);
 			pDocument.set(docSave);
 			return false;
 
@@ -361,7 +362,7 @@ public class HardLineWrapAutoEdit implements IAutoEditStrategy {
 			}
 
 		} catch (BadLocationException e) {
-			e.printStackTrace();
+			RestPlugin.logError("Error during document wrapping", e);
 			pDocument.set(docSave);
 			return false;
 
