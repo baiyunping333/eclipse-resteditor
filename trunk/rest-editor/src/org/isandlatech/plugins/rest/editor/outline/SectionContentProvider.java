@@ -40,7 +40,7 @@ import org.isandlatech.plugins.rest.parser.RestLanguage;
 public class SectionContentProvider implements ITreePathContentProvider {
 
 	/** Decoration level list */
-	private final List<Character> pDecoratorsLevels = new ArrayList<Character>(
+	private final List<SectionDecoration> pDecoratorsLevels = new ArrayList<SectionDecoration>(
 			RestLanguage.SECTION_DECORATIONS.length);
 
 	/** Root path label */
@@ -66,7 +66,9 @@ public class SectionContentProvider implements ITreePathContentProvider {
 	 */
 	private void appendDecorator() {
 
-		for (char decoration : RestLanguage.SECTION_DECORATIONS) {
+		for (char marker : RestLanguage.SECTION_DECORATIONS) {
+
+			SectionDecoration decoration = new SectionDecoration(marker, false);
 
 			if (!pDecoratorsLevels.contains(decoration)) {
 				pDecoratorsLevels.add(decoration);
@@ -111,7 +113,7 @@ public class SectionContentProvider implements ITreePathContentProvider {
 	 *            Section level
 	 * @return The section decoration
 	 */
-	protected char getDecorationForLevel(final int aLevel) {
+	protected SectionDecoration getDecorationForLevel(final int aLevel) {
 
 		// Rebase level (root = 1 in data)
 		int level = aLevel - 1;
@@ -132,23 +134,25 @@ public class SectionContentProvider implements ITreePathContentProvider {
 	 * 
 	 * @param aChar
 	 *            The decorator to find
+	 * @param The
+	 *            decorated line also have an upper-line
 	 * @return The level of the decorator
 	 */
-	protected int getDecorationLevel(final char aChar) {
+	protected int getDecorationLevel(final char aChar, final boolean aUpperlined) {
 
 		if (!DecoratedLinesRule.isDecorationCharacter(aChar)) {
 			return -1;
 		}
 
-		Character aCharObject = Character.valueOf(aChar);
+		SectionDecoration decoration = new SectionDecoration(aChar, aUpperlined);
 
-		if (!pDecoratorsLevels.contains(aCharObject)) {
-			pDecoratorsLevels.add(aCharObject);
+		if (!pDecoratorsLevels.contains(decoration)) {
+			pDecoratorsLevels.add(decoration);
 		}
 
 		// "+ 1" : the title is on level 1, the level 0 corresponds to the
 		// pDocumentRoot member (tree root)
-		return pDecoratorsLevels.indexOf(aCharObject) + 1;
+		return pDecoratorsLevels.indexOf(decoration) + 1;
 	}
 
 	/*
@@ -352,7 +356,7 @@ public class SectionContentProvider implements ITreePathContentProvider {
 
 		// We found something interesting
 		sectionTitle = sectionTitle.trim();
-		int decorationLevel = getDecorationLevel(decorationChar);
+		int decorationLevel = getDecorationLevel(decorationChar, upperlined);
 
 		// Not a valid decoration marker...
 		if (decorationLevel < 0) {

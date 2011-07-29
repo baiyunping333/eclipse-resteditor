@@ -215,7 +215,15 @@ public final class OutlineUtil {
 					.startRewriteSession(DocumentRewriteSessionType.SEQUENTIAL);
 		}
 
-		normalizeSectionsMarker(aSectionNode, preferredMarkersArray);
+		// Convert simple marker into section decorators objects
+		SectionDecoration[] preferredDecoratorsArray = new SectionDecoration[preferredMarkersArray.length];
+
+		int i = 0;
+		for (char marker : preferredMarkersArray) {
+			preferredDecoratorsArray[i] = new SectionDecoration(marker, false);
+		}
+
+		normalizeSectionsMarker(aSectionNode, preferredDecoratorsArray);
 
 		// Stop rewrite session
 		if (rewriteSession != null) {
@@ -235,7 +243,7 @@ public final class OutlineUtil {
 	 *            Preferred markers array.
 	 */
 	private static void normalizeSectionsMarker(final TreeData aSectionNode,
-			final char[] aMarkers) {
+			final SectionDecoration[] aMarkers) {
 
 		int sectionLevel = aSectionNode.getLevel();
 
@@ -304,7 +312,7 @@ public final class OutlineUtil {
 	 *            The new marker to use
 	 */
 	public static void replaceSectionMarker(final TreeData aSectionNode,
-			final char aNewMarker) {
+			final SectionDecoration aNewMarker) {
 
 		final IDocument document = aSectionNode.getDocument();
 		if (document == null) {
@@ -325,13 +333,13 @@ public final class OutlineUtil {
 
 		// Prepare the decoration line
 		char[] decorationArray = new char[sectionTitle.length()];
-		Arrays.fill(decorationArray, aNewMarker);
+		Arrays.fill(decorationArray, aNewMarker.getMarker());
 
 		StringBuilder newSectionBlock = new StringBuilder(sectionTitle.length()
 				+ endOfLine.length());
 
 		// Add upperline, if needed
-		if (aSectionNode.isUpperlined()) {
+		if (aNewMarker.isUpperlined()) {
 			newSectionBlock.append(decorationArray);
 			newSectionBlock.append(endOfLine);
 		}

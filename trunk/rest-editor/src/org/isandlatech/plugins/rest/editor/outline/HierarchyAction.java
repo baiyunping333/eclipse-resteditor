@@ -62,10 +62,10 @@ public class HierarchyAction extends Action {
 	}
 
 	/** Hierarchy modification direction */
-	private Direction pDirection;
+	private final Direction pDirection;
 
 	/** The associated outline page */
-	private RestContentOutlinePage pOutline;
+	private final RestContentOutlinePage pOutline;
 
 	/**
 	 * Sets up the hierarchy action
@@ -315,7 +315,7 @@ public class HierarchyAction extends Action {
 
 		// Get the decoration character
 		int newLevel = aSectionNode.getLevel() + aIncrement;
-		char newDecorator = pOutline.getContentProvider()
+		SectionDecoration newDecorator = pOutline.getContentProvider()
 				.getDecorationForLevel(newLevel);
 
 		OutlineUtil.replaceSectionMarker(aSectionNode, newDecorator);
