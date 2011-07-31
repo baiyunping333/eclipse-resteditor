@@ -201,9 +201,16 @@ public class InternalBrowserInformationControl extends
 	protected void createContent(final Composite aParent) {
 
 		// Fall back on default browser
-		// FIXME If style is NONE, Indigo will crash
-		// => SWT.MOZILLA must be tested on all platforms before being committed
-		pBrowser = new Browser(aParent, SWT.MOZILLA);
+		try {
+			// If style is NONE, Indigo will crash
+			pBrowser = new Browser(aParent, SWT.MOZILLA);
+		} catch (Throwable th) {
+			// => SWT.WEBKIT should be tested before NONE, but it was not
+			// available on Helios
+			RestPlugin.logError("Error creating an internal Browser", th);
+
+			pBrowser = new Browser(aParent, SWT.NONE);
+		}
 
 		// Disable links (for safety)
 		pBrowser.setJavascriptEnabled(false);
