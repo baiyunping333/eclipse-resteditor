@@ -26,11 +26,11 @@ import org.isandlatech.plugins.rest.RestPlugin;
  */
 public class MarkedCharacterScanner implements ICharacterScanner {
 
-	/** {@link RuleBasedScanner}.fOffset field */
-	private static Field sOffsetField;
-
 	/** {@link RuleBasedScanner}.fDocument field */
 	private static Field sDocumentField;
+
+	/** {@link RuleBasedScanner}.fOffset field */
+	private static Field sOffsetField;
 
 	/**
 	 * Test if the given character can considered as an end of line character
@@ -43,17 +43,32 @@ public class MarkedCharacterScanner implements ICharacterScanner {
 		return codePoint == '\n' || codePoint == '\r';
 	}
 
-	/** Character count */
-	private int pReadCharacters;
-
-	/** Real character scanner */
-	private ICharacterScanner pRealScanner;
+	/**
+	 * Test if the given two character sequence is the end of line.
+	 * 
+	 * @param aCodePoint
+	 *            The first character to be tested
+	 * @param aCodePoint2
+	 *            The second character to be tested
+	 * @return True if the given two characters are the EOL character sequence
+	 */
+	public static boolean isTwoCharEOL(final int aCodePoint,
+			final int aCodePoint2) {
+		return (aCodePoint == '\r' && aCodePoint2 == '\n')
+				|| (aCodePoint == '\n' && aCodePoint2 == '\r');
+	}
 
 	/** The scanner start offset */
 	private int pBaseOffset;
 
 	/** The scanned document */
 	private IDocument pDocument;
+
+	/** Character count */
+	private int pReadCharacters;
+
+	/** Real character scanner */
+	private final ICharacterScanner pRealScanner;
 
 	/**
 	 * Prepares the marked scanner
@@ -209,6 +224,13 @@ public class MarkedCharacterScanner implements ICharacterScanner {
 			}
 
 		} while (!isAnEOL(readChar) && readChar != EOF);
+
+		if (isAnEOL(readChar)) {
+			int readChar2 = read();
+			if (!isTwoCharEOL(readChar, readChar2)) {
+				unread();
+			}
+		}
 
 		return emptyLine;
 	}
