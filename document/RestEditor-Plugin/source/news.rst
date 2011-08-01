@@ -3,6 +3,16 @@
 What's new
 ##########
 
+Version 1.0.5c
+**************
+
+Fixed
+=====
+
+* Bug #3383354 : Editor does not highlight files with DOS line ends (CRLF)
+* Bug #3380074 : Parser doesn't recognize overlines
+
+
 Version 1.0.5b
 **************
 
