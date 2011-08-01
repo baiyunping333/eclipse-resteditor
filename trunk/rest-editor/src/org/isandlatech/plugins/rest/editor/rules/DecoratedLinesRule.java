@@ -60,6 +60,7 @@ public class DecoratedLinesRule extends AbstractRule {
 
 		for (char character : aLine.toCharArray()) {
 			if (MarkedCharacterScanner.isAnEOL(character)) {
+				// No need to test for two character EOL here.
 				break;
 			}
 
@@ -115,6 +116,14 @@ public class DecoratedLinesRule extends AbstractRule {
 			} while (readChar != ICharacterScanner.EOF
 					&& !MarkedCharacterScanner.isAnEOL(readChar));
 
+			// Consume the missing EOL marker, if needed
+			if (MarkedCharacterScanner.isAnEOL(readChar)) {
+				int readChar2 = aScanner.read();
+				if (!MarkedCharacterScanner.isTwoCharEOL(readChar, readChar2)) {
+					aScanner.unread();
+				}
+			}
+
 		} else {
 			// No decoration found, assume we are reading the content line
 			upperline = false;
@@ -150,6 +159,10 @@ public class DecoratedLinesRule extends AbstractRule {
 		while ((readChar = aScanner.read()) != ICharacterScanner.EOF) {
 
 			if (MarkedCharacterScanner.isAnEOL(readChar)) {
+				int readChar2 = aScanner.read();
+				if (!MarkedCharacterScanner.isTwoCharEOL(readChar, readChar2)) {
+					aScanner.unread();
+				}
 				break;
 			}
 			// Error on first different character

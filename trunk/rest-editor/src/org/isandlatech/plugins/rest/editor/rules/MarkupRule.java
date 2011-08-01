@@ -24,16 +24,16 @@ import org.isandlatech.plugins.rest.parser.RestLanguage;
 public class MarkupRule extends AbstractRule {
 
 	/** Marker end string */
-	private String pEnd;
+	private final String pEnd;
 
 	/** False if first character mustn't be a white space */
-	private boolean pNoSpace;
+	private final boolean pNoSpace;
 
 	/** If true, the value between markers must be on a single line */
-	private boolean pSingleLine;
+	private final boolean pSingleLine;
 
 	/** Marker start string */
-	private String pStart;
+	private final String pStart;
 
 	/**
 	 * Configures the rule
@@ -151,6 +151,10 @@ public class MarkupRule extends AbstractRule {
 
 			// EOL in single line mode -> stop
 			if (pSingleLine && MarkedCharacterScanner.isAnEOL(readChar)) {
+				int readChar2 = aScanner.read();
+				if (!MarkedCharacterScanner.isTwoCharEOL(readChar, readChar2)) {
+					aScanner.unread();
+				}
 				return Token.UNDEFINED;
 			}
 
