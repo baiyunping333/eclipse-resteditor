@@ -220,7 +220,7 @@ public final class OutlineUtil {
 
 		int i = 0;
 		for (char marker : preferredMarkersArray) {
-			preferredDecoratorsArray[i] = new SectionDecoration(marker, false);
+			preferredDecoratorsArray[i++] = new SectionDecoration(marker, false);
 		}
 
 		normalizeSectionsMarker(aSectionNode, preferredDecoratorsArray);
