@@ -17,9 +17,11 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.core.runtime.content.IContentTypeManager;
 import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.DefaultInformationControl;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension3;
 import org.eclipse.jface.text.IDocumentPartitioner;
+import org.eclipse.jface.text.IInformationControl;
 import org.eclipse.jface.text.IInformationControlCreator;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextHover;
@@ -28,16 +30,18 @@ import org.eclipse.jface.text.ITextHoverExtension2;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.texteditor.spelling.ISpellingEngine;
 import org.eclipse.ui.texteditor.spelling.SpellingContext;
 import org.eclipse.ui.texteditor.spelling.SpellingProblem;
 import org.isandlatech.plugins.rest.RestPlugin;
 import org.isandlatech.plugins.rest.editor.scanners.RestPartitionScanner;
+import org.isandlatech.plugins.rest.editor.ui.RestInformationPresenter;
 import org.isandlatech.plugins.rest.editor.userassist.BasicInternalLinkHandler;
 import org.isandlatech.plugins.rest.editor.userassist.HelpMessagesUtil;
 import org.isandlatech.plugins.rest.editor.userassist.IInternalBrowserListener;
 import org.isandlatech.plugins.rest.editor.userassist.InternalBrowserData;
-import org.isandlatech.plugins.rest.editor.userassist.InternalBrowserInformationControl;
 
 /**
  * Text assistant : spell checker or directive helper
@@ -47,17 +51,17 @@ import org.isandlatech.plugins.rest.editor.userassist.InternalBrowserInformation
 public class RestTextHover implements ITextHover, ITextHoverExtension,
 		ITextHoverExtension2 {
 
-	/** Spelling context to be used (standard text) */
-	private final SpellingContext pSpellingContext;
-
-	/** Spelling engine to use */
-	private final ISpellingEngine pSpellingEngine;
-
 	/** Hover link handler */
 	private final IInternalBrowserListener pBrowserListener;
 
 	/** Spell checking flag */
 	private boolean pSpellCheckingEnabled;
+
+	/** Spelling context to be used (standard text) */
+	private final SpellingContext pSpellingContext;
+
+	/** Spelling engine to use */
+	private final ISpellingEngine pSpellingEngine;
 
 	/**
 	 * Prepares the spell check hover
@@ -218,7 +222,25 @@ public class RestTextHover implements ITextHover, ITextHoverExtension,
 	 */
 	@Override
 	public IInformationControlCreator getHoverControlCreator() {
-		return InternalBrowserInformationControl.getCreator();
+
+		return new IInformationControlCreator() {
+
+			@Override
+			public IInformationControl createInformationControl(
+					final Shell aParent) {
+
+				String tooltipAffordanceString = null;
+				try {
+					tooltipAffordanceString = EditorsUI
+							.getTooltipAffordanceString();
+				} catch (Throwable e) {
+					// Not available on Eclipse 3.2
+				}
+
+				return new DefaultInformationControl(aParent,
+						tooltipAffordanceString, new RestInformationPresenter());
+			}
+		};
 	}
 
 	/*
@@ -231,6 +253,8 @@ public class RestTextHover implements ITextHover, ITextHoverExtension,
 	@Override
 	public String getHoverInfo(final ITextViewer aTextViewer,
 			final IRegion aHoverRegion) {
+
+		System.out.println("Spell hover - getHoverInfo");
 
 		// Get the document
 		IDocument document = aTextViewer.getDocument();

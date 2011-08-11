@@ -14,10 +14,8 @@ package org.isandlatech.plugins.rest.editor.userassist.contentassist;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.IInformationControlCreator;
 import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
-import org.eclipse.jface.text.contentassist.ICompletionProposalExtension3;
 import org.eclipse.jface.text.contentassist.ICompletionProposalExtension5;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.swt.graphics.Image;
@@ -25,7 +23,6 @@ import org.eclipse.swt.graphics.Point;
 import org.isandlatech.plugins.rest.editor.userassist.BasicInternalLinkHandler;
 import org.isandlatech.plugins.rest.editor.userassist.IInternalBrowserListener;
 import org.isandlatech.plugins.rest.editor.userassist.InternalBrowserData;
-import org.isandlatech.plugins.rest.editor.userassist.InternalBrowserInformationControl;
 
 /**
  * Completion proposal with an internal link handler registration
@@ -33,28 +30,28 @@ import org.isandlatech.plugins.rest.editor.userassist.InternalBrowserInformation
  * @author Thomas Calmant
  */
 public class HoverCompletionProposal implements ICompletionProposal,
-		ICompletionProposalExtension3, ICompletionProposalExtension5 {
+		ICompletionProposalExtension5 {
 
 	/** Description printed when the proposal is selected */
-	private String pAdditionalInformation;
+	private final String pAdditionalInformation;
+
+	/** Hover link handler */
+	private final IInternalBrowserListener pBrowserListener;
 
 	/** String display in the choice list */
 	private String pDisplayString;
 
 	/** Current document */
-	private IDocument pDocument;
+	private final IDocument pDocument;
 
 	/** Replacement length */
-	private int pReplacementLength;
+	private final int pReplacementLength;
 
 	/** Replacement offset */
-	private int pReplacementOffset;
+	private final int pReplacementOffset;
 
 	/** Replacement content */
-	private String pReplacementString;
-
-	/** Hover link handler */
-	private IInternalBrowserListener pBrowserListener;
+	private final String pReplacementString;
 
 	/**
 	 * Stores a completion proposal
@@ -176,43 +173,6 @@ public class HoverCompletionProposal implements ICompletionProposal,
 	 */
 	@Override
 	public Image getImage() {
-		return null;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.jface.text.contentassist.ICompletionProposalExtension3#
-	 * getInformationControlCreator()
-	 */
-	@Override
-	public IInformationControlCreator getInformationControlCreator() {
-		return InternalBrowserInformationControl.getCreator();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.jface.text.contentassist.ICompletionProposalExtension3#
-	 * getPrefixCompletionStart(org.eclipse.jface.text.IDocument, int)
-	 */
-	@Override
-	public int getPrefixCompletionStart(final IDocument aDocument,
-			final int aCompletionOffset) {
-
-		return 0;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.jface.text.contentassist.ICompletionProposalExtension3#
-	 * getPrefixCompletionText(org.eclipse.jface.text.IDocument, int)
-	 */
-	@Override
-	public CharSequence getPrefixCompletionText(final IDocument aDocument,
-			final int aCompletionOffset) {
-
 		return null;
 	}
 

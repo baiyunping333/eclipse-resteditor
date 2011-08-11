@@ -19,9 +19,12 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.DefaultIndentLineAutoEditStrategy;
+import org.eclipse.jface.text.DefaultInformationControl;
 import org.eclipse.jface.text.DefaultLineTracker;
 import org.eclipse.jface.text.IAutoEditStrategy;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IInformationControl;
+import org.eclipse.jface.text.IInformationControlCreator;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextHover;
 import org.eclipse.jface.text.Region;
@@ -40,6 +43,7 @@ import org.eclipse.jface.text.rules.DefaultDamagerRepairer;
 import org.eclipse.jface.text.rules.ITokenScanner;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.editors.text.TextSourceViewerConfiguration;
 import org.eclipse.ui.texteditor.spelling.ISpellingEngine;
 import org.eclipse.ui.texteditor.spelling.SpellingEngineDescriptor;
@@ -61,7 +65,6 @@ import org.isandlatech.plugins.rest.editor.scanners.RestScanner;
 import org.isandlatech.plugins.rest.editor.scanners.RestSectionBlockScanner;
 import org.isandlatech.plugins.rest.editor.scanners.RestSourceBlockScanner;
 import org.isandlatech.plugins.rest.editor.scanners.RestTableBlockScanner;
-import org.isandlatech.plugins.rest.editor.userassist.InternalBrowserInformationControl;
 import org.isandlatech.plugins.rest.editor.userassist.contentassist.DeclarativeProposalProcessor;
 import org.isandlatech.plugins.rest.editor.userassist.contentassist.ProposalDispatcher;
 import org.isandlatech.plugins.rest.editor.userassist.hover.RestTextHover;
@@ -178,9 +181,15 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 			pAssistant = new ContentAssistant();
 
 			// Mandatory for contextual description
+			// pAssistant.setInformationControlCreator(InternalBrowserInformationControl.getCreator());
 			pAssistant
-					.setInformationControlCreator(InternalBrowserInformationControl
-							.getCreator());
+					.setInformationControlCreator(new IInformationControlCreator() {
+						@Override
+						public IInformationControl createInformationControl(
+								final Shell aParent) {
+							return new DefaultInformationControl(aParent, true);
+						}
+					});
 
 			// Document partitioning informations
 			pAssistant
