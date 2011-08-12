@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
+import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.text.DefaultInformationControl.IInformationPresenter;
 import org.eclipse.jface.text.DefaultInformationControl.IInformationPresenterExtension;
 import org.eclipse.jface.text.IInformationControl;
@@ -25,7 +26,9 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.Drawable;
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.PlatformUI;
 import org.isandlatech.plugins.rest.RestPlugin;
 import org.isandlatech.plugins.rest.editor.userassist.InternalHoverData;
 
@@ -43,6 +46,8 @@ public class RestInformationPresenter implements IInformationPresenter,
 
 	/** Marker of a long attribute value (with spaces) */
 	protected final static char LONG_ATTRIBUTE_VALUE_MARKER = '"';
+
+	private static Font sEditorFont;
 
 	/** Beginning of an HTML tag */
 	protected final static char TAG_BEGIN = '<';
@@ -67,6 +72,13 @@ public class RestInformationPresenter implements IInformationPresenter,
 	 */
 	public RestInformationPresenter(final InternalHoverData aHoverData) {
 		pInternalHoverData = aHoverData;
+
+		if (sEditorFont == null) {
+			// Find the editor font (used in pre-formatted text block)
+			sEditorFont = PlatformUI.getWorkbench().getThemeManager()
+					.getCurrentTheme().getFontRegistry()
+					.get(JFaceResources.TEXT_FONT);
+		}
 	}
 
 	/**
@@ -198,11 +210,13 @@ public class RestInformationPresenter implements IInformationPresenter,
 		} else if (tagName.equals("pre")) {
 			// Pre-formatted text
 
-			aBuilder.insert(aTag.getStartOffset(), '\n');
-			aBuilder.append('\n');
+			aBuilder.insert(aTag.getStartOffset(), "\n\n");
+			// Don't forget to update the start offset after the inserted lines
+			style.start += 2;
 
-			style.start++;
-			style.fontStyle = SWT.ITALIC;
+			aBuilder.append("\n\n");
+
+			style.font = sEditorFont;
 			return style;
 
 		} else if (tagName.equals("h1")) {
