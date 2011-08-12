@@ -13,21 +13,21 @@ package org.isandlatech.plugins.rest.editor.userassist;
 
 /**
  * Interface to be implemented by hover handlers to receive internal links
- * events from the browser tooltip
+ * events from the browser tool tip
  * 
  * @author Thomas Calmant
  */
-public interface IInternalBrowserListener {
+public interface IInternalLinkListener {
 
 	/**
-	 * Handles an internal link selection in the hover browser
+	 * Handles an internal link selection in the hover presenter
 	 * 
 	 * @param aInternalLink
 	 *            Selected link
 	 * @param aAssociatedData
-	 *            Data associated to the hover browser sending this event
-	 * @return True if the browser must be closed, else False
+	 *            Data associated to the hover presenter sending this event
+	 * @return True if the presenter must be closed, else False
 	 */
 	boolean hoverInternalLinkClicked(String aInternalLink,
-			InternalBrowserData aAssociatedData);
+			InternalHoverData aAssociatedData);
 }

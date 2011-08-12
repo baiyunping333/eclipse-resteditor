@@ -23,35 +23,47 @@ import org.eclipse.jface.text.TextPresentation;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
-import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Drawable;
 import org.eclipse.swt.widgets.Display;
 import org.isandlatech.plugins.rest.RestPlugin;
+import org.isandlatech.plugins.rest.editor.userassist.InternalHoverData;
 
 /**
- * Tooltip presenter. Converts basic html text into a styled text presentation.
+ * Tool tip presenter. Converts pseudo HTML text into a styled text
+ * presentation.
  * 
  * @author Thomas Calmant
  */
 public class RestInformationPresenter implements IInformationPresenter,
 		IInformationPresenterExtension {
 
-	/**
-	 * Links color
-	 * 
-	 * TODO Use preferences
-	 */
-	public static final Color LINK_COLOR = new Color(Display.getDefault(), 0,
-			0, 255);
+	/** Marker of attribute assignment */
+	protected final static char ATTRIBUTE_ASSIGNMENT_MARKER = '=';
+
+	/** Marker of a long attribute value (with spaces) */
+	protected final static char LONG_ATTRIBUTE_VALUE_MARKER = '"';
 
 	/** Beginning of an HTML tag */
-	private final static char TAG_BEGIN = '<';
+	protected final static char TAG_BEGIN = '<';
 
 	/** End of an HTML tag */
-	private final static char TAG_END = '>';
+	protected final static char TAG_END = '>';
 
 	/** Marker of the end of an HTML tag zone */
-	private final static char TAG_END_MARKER = '/';
+	protected final static char TAG_END_MARKER = '/';
+
+	/** The associated hover data */
+	private final InternalHoverData pInternalHoverData;
+
+	/**
+	 * Sets up the presenter
+	 * 
+	 * @param aHoverData
+	 *            The internal hover data
+	 */
+	public RestInformationPresenter(final InternalHoverData aHoverData) {
+		pInternalHoverData = aHoverData;
+	}
 
 	/**
 	 * Extract attributes (format: a=b c="d e")
@@ -69,12 +81,12 @@ public class RestInformationPresenter implements IInformationPresenter,
 		int valueStartIndex;
 		int valueEndIndex;
 
-		int assignationIndex = aTagContent.indexOf('=');
-		while (assignationIndex != -1) {
+		int valuationIndex = aTagContent.indexOf(ATTRIBUTE_ASSIGNMENT_MARKER);
+		while (valuationIndex != -1) {
 
 			// Find the attribute name start
 			int attributeNameStart = aTagContent.lastIndexOf(' ',
-					assignationIndex);
+					valuationIndex);
 			if (attributeNameStart == -1) {
 				// Use tag begin if needed
 				attributeNameStart = 0;
@@ -84,30 +96,31 @@ public class RestInformationPresenter implements IInformationPresenter,
 				attributeNameStart++;
 			}
 
-			if (assignationIndex + 1 >= aTagContent.length()) {
+			if (valuationIndex + 1 >= aTagContent.length()) {
 				// If the attribute can't have a value, stop there
 				break;
 			}
 
 			// Extract the attribute name
 			final String attributeName = aTagContent.substring(
-					attributeNameStart, assignationIndex).trim();
+					attributeNameStart, valuationIndex).trim();
 
 			// Find attribute value
-			if (aTagContent.charAt(assignationIndex + 1) == '"') {
+			if (aTagContent.charAt(valuationIndex + 1) == LONG_ATTRIBUTE_VALUE_MARKER) {
 				// Attribute between quotes
-				valueStartIndex = assignationIndex + 2;
+				valueStartIndex = valuationIndex + 2;
 
 				if (valueStartIndex >= aTagContent.length()) {
 					// If the attribute can't have a value, stop there
 					break;
 				}
 
-				valueEndIndex = aTagContent.indexOf('"', valueStartIndex);
+				valueEndIndex = aTagContent.indexOf(
+						LONG_ATTRIBUTE_VALUE_MARKER, valueStartIndex);
 
 			} else {
 				// Simple attribute (space separation)
-				valueStartIndex = assignationIndex + 1;
+				valueStartIndex = valuationIndex + 1;
 				valueEndIndex = aTagContent.indexOf(' ', valueStartIndex);
 			}
 
@@ -119,7 +132,8 @@ public class RestInformationPresenter implements IInformationPresenter,
 			attributes.put(attributeName, attributeValue);
 
 			// Next loop
-			assignationIndex = aTagContent.indexOf('=', assignationIndex + 1);
+			valuationIndex = aTagContent.indexOf(ATTRIBUTE_ASSIGNMENT_MARKER,
+					valuationIndex + 1);
 		}
 
 		return attributes;
@@ -171,10 +185,9 @@ public class RestInformationPresenter implements IInformationPresenter,
 
 		if (tagName.equals("a")) {
 			// Link
-			style.foreground = LINK_COLOR;
 			style.data = aTag.getAttributes().get("href");
-			style.fontStyle = SWT.UNDERLINE_LINK | SWT.CURSOR_HAND;
 			style.underline = true;
+			style.underlineStyle = SWT.UNDERLINE_LINK;
 
 			return style;
 
@@ -310,7 +323,7 @@ public class RestInformationPresenter implements IInformationPresenter,
 					foundTag = new HtmlTag(tag, builder.length());
 
 				} else {
-					// Tag with attributes
+					// Tag with attributes (and without a space after the '<'
 					foundTag = new HtmlTag(tag.substring(0, tagNameEnd),
 							builder.length());
 
@@ -370,6 +383,13 @@ public class RestInformationPresenter implements IInformationPresenter,
 			final int aMaxWidth, final int aMaxHeight) {
 
 		if (aDrawable instanceof StyledText) {
+
+			// Set up the link listener
+			final StyledTextLinkListener listener = new StyledTextLinkListener(
+					pInternalHoverData);
+			listener.registerTo((StyledText) aDrawable);
+
+			// Convert pseudo-HTML to TextPresentation styles
 			return html2TextPresentation(aHoverInfo, aPresentation);
 		}
 

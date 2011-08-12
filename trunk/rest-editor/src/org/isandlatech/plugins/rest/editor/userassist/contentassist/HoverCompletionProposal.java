@@ -21,8 +21,8 @@ import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.isandlatech.plugins.rest.editor.userassist.BasicInternalLinkHandler;
-import org.isandlatech.plugins.rest.editor.userassist.IInternalBrowserListener;
-import org.isandlatech.plugins.rest.editor.userassist.InternalBrowserData;
+import org.isandlatech.plugins.rest.editor.userassist.IInternalLinkListener;
+import org.isandlatech.plugins.rest.editor.userassist.InternalHoverData;
 
 /**
  * Completion proposal with an internal link handler registration
@@ -36,7 +36,7 @@ public class HoverCompletionProposal implements ICompletionProposal,
 	private final String pAdditionalInformation;
 
 	/** Hover link handler */
-	private final IInternalBrowserListener pBrowserListener;
+	private final IInternalLinkListener pBrowserListener;
 
 	/** String display in the choice list */
 	private String pDisplayString;
@@ -135,7 +135,7 @@ public class HoverCompletionProposal implements ICompletionProposal,
 		 * As we are near to add a directive, its suffix ('::') is included in
 		 * the replacement length value.
 		 */
-		InternalBrowserData data = new InternalBrowserData(pBrowserListener,
+		InternalHoverData data = new InternalHoverData(pBrowserListener,
 				pDocument, region, true);
 
 		data.setInformation(getAdditionalProposalInfo());

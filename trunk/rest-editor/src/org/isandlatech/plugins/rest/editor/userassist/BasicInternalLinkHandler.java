@@ -24,7 +24,7 @@ import org.isandlatech.plugins.rest.RestPlugin;
  * 
  * @author Thomas Calmant
  */
-public class BasicInternalLinkHandler implements IInternalBrowserListener {
+public class BasicInternalLinkHandler implements IInternalLinkListener {
 
 	/**
 	 * Simple way to make an internal link
@@ -80,7 +80,7 @@ public class BasicInternalLinkHandler implements IInternalBrowserListener {
 	 */
 	@Override
 	public boolean hoverInternalLinkClicked(final String aInternalLink,
-			final InternalBrowserData aAssociatedData) {
+			final InternalHoverData aAssociatedData) {
 
 		if (aInternalLink.startsWith(IAssistanceConstants.SPELL_LINK_PREFIX)) {
 
@@ -114,7 +114,7 @@ public class BasicInternalLinkHandler implements IInternalBrowserListener {
 	 * @return True on success, False on error
 	 */
 	protected boolean sampleInsertionAction(
-			final InternalBrowserData aAssociatedData, final String aDirective) {
+			final InternalHoverData aAssociatedData, final String aDirective) {
 
 		IDocument document = aAssociatedData.getDocument();
 		IRegion region = aAssociatedData.getHoverRegion();
@@ -158,7 +158,7 @@ public class BasicInternalLinkHandler implements IInternalBrowserListener {
 	 *            offset/len/word.
 	 * @return True on success, False on error
 	 */
-	protected boolean spellAction(final InternalBrowserData aAssociatedData,
+	protected boolean spellAction(final InternalHoverData aAssociatedData,
 			final String aSpellURI) {
 
 		final IDocument document = aAssociatedData.getDocument();
