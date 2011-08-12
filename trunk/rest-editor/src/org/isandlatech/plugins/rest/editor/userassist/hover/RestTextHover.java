@@ -206,7 +206,7 @@ public class RestTextHover implements ITextHover, ITextHoverExtension,
 					correctionProposals += "<a href=\""
 							+ BasicInternalLinkHandler.makeSpellLink(problem,
 									proposal) + "\">" + displayedString
-							+ "</a>" + "<br />\n";
+							+ "</a><br />";
 				}
 			}
 

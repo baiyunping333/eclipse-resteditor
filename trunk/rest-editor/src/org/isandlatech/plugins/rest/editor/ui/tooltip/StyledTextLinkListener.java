@@ -17,6 +17,7 @@ import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
@@ -117,9 +118,39 @@ public class StyledTextLinkListener implements Listener {
 
 					if (controlMustBeClosed && pInformationControl != null) {
 
-						// If the notification returns true, the tool tip must
-						// be closed
+						/*
+						 * If the notification returns true, the tool tip must
+						 * be closed, in any case
+						 */
 						pInformationControl.dispose();
+
+						/*
+						 * Try to dispose the tool tip.
+						 * 
+						 * Parent = widget container or scroll pane Grand Parent
+						 * = scroll pane container, if any
+						 */
+						if (!widget.isDisposed()) {
+
+							final Composite widgetParent = widget.getParent();
+
+							if (widgetParent != null
+									&& !widgetParent.isDisposed()) {
+
+								final Composite widgetGrandParent = widgetParent
+										.getParent();
+
+								if (!widgetGrandParent.isDisposed()) {
+									widgetGrandParent.dispose();
+
+								} else {
+									widgetParent.dispose();
+								}
+
+							} else {
+								widget.dispose();
+							}
+						}
 					}
 				}
 

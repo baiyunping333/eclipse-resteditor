@@ -47,6 +47,7 @@ public class RestInformationPresenter implements IInformationPresenter,
 	/** Marker of a long attribute value (with spaces) */
 	protected final static char LONG_ATTRIBUTE_VALUE_MARKER = '"';
 
+	/** Text editor font (from platform preferences) */
 	private static Font sEditorFont;
 
 	/** Beginning of an HTML tag */
@@ -437,9 +438,7 @@ public class RestInformationPresenter implements IInformationPresenter,
 			listener.registerTo((StyledText) aDrawable);
 
 			// Convert pseudo-HTML to TextPresentation styles
-			String res = html2TextPresentation(aHoverInfo, aPresentation);
-			System.out.println("Res = " + res);
-			return res;
+			return html2TextPresentation(aHoverInfo, aPresentation);
 		}
 
 		return null;
