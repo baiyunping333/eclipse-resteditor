@@ -56,7 +56,7 @@ public final class BrowserController {
 	}
 
 	/** ID -> Browser hash map */
-	private Map<String, IWebBrowser> pWebBrowsers;
+	private final Map<String, IWebBrowser> pWebBrowsers;
 
 	/**
 	 * Single instance
@@ -84,19 +84,32 @@ public final class BrowserController {
 	 * Creates or retrieves a browser for this ID. Returns null on error
 	 * 
 	 * @param aId
-	 *            Browser ID
+	 *            Browser ID (can be null)
+	 * 
 	 * @return A browser associated to this ID, null on error
 	 */
 	protected IWebBrowser getBrowser(final String aId) {
 
 		IWebBrowser browser;
 
+		// Default : use an internal browser
+		int internalOrExternal = IWorkbenchBrowserSupport.AS_EDITOR;
+
+		/*
+		 * BUG #3371105 : Eclipse crashes on recent Linux distributions when
+		 * using an internal browser
+		 */
+		if (isLinux()) {
+			// Always use an external browser to avoid the bug
+			internalOrExternal = IWorkbenchBrowserSupport.AS_EXTERNAL;
+		}
+
 		try {
 			browser = PlatformUI
 					.getWorkbench()
 					.getBrowserSupport()
 					.createBrowser(
-							IWorkbenchBrowserSupport.AS_EDITOR
+							internalOrExternal
 									| IWorkbenchBrowserSupport.LOCATION_BAR
 									| IWorkbenchBrowserSupport.NAVIGATION_BAR
 									| IWorkbenchBrowserSupport.STATUS, aId,
@@ -105,11 +118,31 @@ public final class BrowserController {
 			pWebBrowsers.put(aId, browser);
 
 		} catch (PartInitException e) {
+
 			RestPlugin.logError("Error preparing a browser", e);
 			browser = pWebBrowsers.get(aId);
 		}
 
 		return browser;
+	}
+
+	/**
+	 * Tests if the current operating system is a Linux flavor
+	 * 
+	 * @return True if the current operating system is Linux.
+	 */
+	public boolean isLinux() {
+
+		// Retrieve the OS name
+		String osName = System.getProperty("os.name");
+
+		if (osName == null) {
+			return false;
+		}
+
+		// Convert it to lower cases (simplifies the test)
+		osName = osName.toLowerCase();
+		return osName.contains("linux");
 	}
 
 	/**

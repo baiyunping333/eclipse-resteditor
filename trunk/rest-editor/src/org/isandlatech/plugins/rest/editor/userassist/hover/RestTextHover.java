@@ -151,7 +151,11 @@ public class RestTextHover implements ITextHover, ITextHoverExtension,
 		}
 
 		// Remove trailing "::"
-		directive = directive.substring(0, directive.length() - 2);
+		directive = directive.substring(0, directive.length() - 2).trim();
+
+		if (directive.isEmpty()) {
+			return null;
+		}
 
 		return HelpMessagesUtil.getDirectiveHelp(directive);
 	}

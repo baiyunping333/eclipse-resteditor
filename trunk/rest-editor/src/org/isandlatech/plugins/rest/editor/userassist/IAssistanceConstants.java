@@ -18,6 +18,12 @@ package org.isandlatech.plugins.rest.editor.userassist;
  */
 public interface IAssistanceConstants {
 
+	/** Insert sample message */
+	String INSERT_SAMPLE_MESSAGE = "help.directive.sample.insert";
+
+	/** Internal browser ID */
+	String INTERNAL_BROWSER_ID = "org.isandlatech.plugins.rest.editor.userassist";
+
 	/** Browser internal links prefix */
 	String INTERNAL_PREFIX = "rest-internal://";
 
@@ -26,7 +32,4 @@ public interface IAssistanceConstants {
 
 	/** Spelling action prefix in internal links */
 	String SPELL_LINK_PREFIX = "spell/";
-
-	/** Insert sample message */
-	String INSERT_SAMPLE_MESSAGE = "help.directive.sample.insert";
 }

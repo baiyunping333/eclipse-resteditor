@@ -16,6 +16,7 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.ui.texteditor.spelling.SpellingProblem;
+import org.isandlatech.plugins.rest.BrowserController;
 import org.isandlatech.plugins.rest.RestPlugin;
 
 /**
@@ -110,6 +111,21 @@ public class BasicInternalLinkHandler implements IInternalLinkListener {
 					.substring(IAssistanceConstants.SAMPLE_LINK_PREFIX.length());
 
 			return sampleInsertionAction(aAssociatedData, directive);
+
+		} else {
+
+			try {
+				// Try to open the link with a browser
+				BrowserController.getController().openUrl(
+						IAssistanceConstants.INTERNAL_BROWSER_ID, internalLink);
+				return true;
+
+			} catch (Throwable th) {
+				// Error using the link : log it
+				RestPlugin.logError("Error trying to open the link '"
+						+ internalLink + "'", th);
+			}
+
 		}
 
 		// Link not treated
