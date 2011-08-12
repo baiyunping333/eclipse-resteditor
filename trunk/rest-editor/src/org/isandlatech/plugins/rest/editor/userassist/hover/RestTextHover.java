@@ -17,11 +17,9 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.core.runtime.content.IContentTypeManager;
 import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.DefaultInformationControl;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension3;
 import org.eclipse.jface.text.IDocumentPartitioner;
-import org.eclipse.jface.text.IInformationControl;
 import org.eclipse.jface.text.IInformationControlCreator;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextHover;
@@ -30,8 +28,6 @@ import org.eclipse.jface.text.ITextHoverExtension2;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.texteditor.spelling.ISpellingEngine;
 import org.eclipse.ui.texteditor.spelling.SpellingContext;
 import org.eclipse.ui.texteditor.spelling.SpellingProblem;
@@ -231,29 +227,7 @@ public class RestTextHover implements ITextHover, ITextHoverExtension,
 	public IInformationControlCreator getHoverControlCreator() {
 
 		// Store the last generated hover data (can be null)
-		final InternalHoverData associatedData = pLastHoverData;
-
-		return new IInformationControlCreator() {
-
-			@Override
-			public IInformationControl createInformationControl(
-					final Shell aParent) {
-
-				// Prepare the presenter
-				final RestInformationPresenter restPresenter = new RestInformationPresenter(
-						associatedData);
-
-				// Prepare the information control
-				final IInformationControl informationControl = new DefaultInformationControl(
-						aParent, EditorsUI.getTooltipAffordanceString(),
-						restPresenter);
-
-				// Link the presenter and the information control
-				restPresenter.setInformationControl(informationControl);
-
-				return informationControl;
-			}
-		};
+		return RestInformationPresenter.getCreator(pLastHoverData);
 	}
 
 	/*

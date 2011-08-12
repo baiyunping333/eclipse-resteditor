@@ -18,9 +18,11 @@ import java.util.Map;
 import java.util.Stack;
 
 import org.eclipse.jface.resource.JFaceResources;
+import org.eclipse.jface.text.DefaultInformationControl;
 import org.eclipse.jface.text.DefaultInformationControl.IInformationPresenter;
 import org.eclipse.jface.text.DefaultInformationControl.IInformationPresenterExtension;
 import org.eclipse.jface.text.IInformationControl;
+import org.eclipse.jface.text.IInformationControlCreator;
 import org.eclipse.jface.text.TextPresentation;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
@@ -28,8 +30,11 @@ import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.Drawable;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.editors.text.EditorsUI;
 import org.isandlatech.plugins.rest.RestPlugin;
+import org.isandlatech.plugins.rest.editor.userassist.IInternalLinkListener;
 import org.isandlatech.plugins.rest.editor.userassist.InternalHoverData;
 
 /**
@@ -58,6 +63,53 @@ public class RestInformationPresenter implements IInformationPresenter,
 
 	/** Marker of the end of an HTML tag zone */
 	protected final static char TAG_END_MARKER = '/';
+
+	/**
+	 * Prepares an information control creator.
+	 * 
+	 * @param aListener
+	 *            A link listener. Document and Region data will be null.
+	 * 
+	 * @return A new information control creator
+	 */
+	public static IInformationControlCreator getCreator(
+			final IInternalLinkListener aListener) {
+
+		return getCreator(new InternalHoverData(aListener, null, null, false));
+	}
+
+	/**
+	 * Prepares an information control creator.
+	 * 
+	 * @param aAssociatedData
+	 *            Tool tip internal data
+	 * @return A new information control creator
+	 */
+	public static IInformationControlCreator getCreator(
+			final InternalHoverData aAssociatedData) {
+
+		return new IInformationControlCreator() {
+
+			@Override
+			public IInformationControl createInformationControl(
+					final Shell aParent) {
+
+				// Prepare the presenter
+				final RestInformationPresenter restPresenter = new RestInformationPresenter(
+						aAssociatedData);
+
+				// Prepare the information control
+				final IInformationControl informationControl = new DefaultInformationControl(
+						aParent, EditorsUI.getTooltipAffordanceString(),
+						restPresenter);
+
+				// Link the presenter and the information control
+				restPresenter.setInformationControl(informationControl);
+
+				return informationControl;
+			}
+		};
+	}
 
 	/** The presented information control */
 	private IInformationControl pInformationControl;

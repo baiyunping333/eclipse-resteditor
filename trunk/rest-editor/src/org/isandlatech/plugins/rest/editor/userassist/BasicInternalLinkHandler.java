@@ -144,8 +144,13 @@ public class BasicInternalLinkHandler implements IInternalLinkListener {
 	protected boolean sampleInsertionAction(
 			final InternalHoverData aAssociatedData, final String aDirective) {
 
-		IDocument document = aAssociatedData.getDocument();
-		IRegion region = aAssociatedData.getHoverRegion();
+		final IDocument document = aAssociatedData.getDocument();
+		final IRegion region = aAssociatedData.getHoverRegion();
+
+		if (document == null || region == null) {
+			// Consider incomplete information state as a failure
+			return false;
+		}
 
 		String sample = HelpMessagesUtil.getDirectiveSample(aDirective);
 		if (sample == null) {
@@ -191,13 +196,24 @@ public class BasicInternalLinkHandler implements IInternalLinkListener {
 
 		final IDocument document = aAssociatedData.getDocument();
 
+		if (document == null) {
+			// Consider incomplete information state as a failure
+			return false;
+		}
+
 		final int offset, length;
 		final String word;
 
 		String[] spellInfo = aSpellURI.split("/");
 		if (spellInfo.length == 1) {
 			// No region info in the URI
-			IRegion region = aAssociatedData.getHoverRegion();
+			final IRegion region = aAssociatedData.getHoverRegion();
+
+			if (region == null) {
+				// Incomplete information => failure
+				return false;
+			}
+
 			offset = region.getOffset();
 			length = region.getLength();
 			word = aSpellURI;
