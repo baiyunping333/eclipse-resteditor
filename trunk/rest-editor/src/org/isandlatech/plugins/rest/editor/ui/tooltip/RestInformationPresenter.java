@@ -210,9 +210,9 @@ public class RestInformationPresenter implements IInformationPresenter,
 		} else if (tagName.equals("pre")) {
 			// Pre-formatted text
 
-			aBuilder.insert(aTag.getStartOffset(), "\n\n");
+			aBuilder.insert(aTag.getStartOffset(), "\n");
 			// Don't forget to update the start offset after the inserted lines
-			style.start += 2;
+			style.start += 1;
 
 			aBuilder.append("\n\n");
 
@@ -228,6 +228,11 @@ public class RestInformationPresenter implements IInformationPresenter,
 			// Set up the style range
 			style.fontStyle = SWT.BOLD;
 			return style;
+
+		} else if (tagName.equals("p")) {
+			// Append a new line at the end of the paragraph
+			aBuilder.append("\n");
+			return null;
 
 		} else if (tagName.equals("b")) {
 			// Set up the style range
@@ -291,6 +296,8 @@ public class RestInformationPresenter implements IInformationPresenter,
 				break;
 			}
 
+			boolean needsInsertion = false;
+
 			// Extract the tag
 			String tag = aHtml.substring(tagStart + 1, tagEnd).trim();
 
@@ -303,6 +310,8 @@ public class RestInformationPresenter implements IInformationPresenter,
 				if (style != null) {
 					stylesList.add(style);
 				}
+
+				needsInsertion = true;
 
 			} else if (tag.charAt(0) == TAG_END_MARKER) {
 				// End of a tag area
@@ -357,6 +366,13 @@ public class RestInformationPresenter implements IInformationPresenter,
 			// Continue to parse...
 			tagStart = aHtml.indexOf(TAG_BEGIN, tagEnd);
 			oldTagEnd = tagEnd + 1;
+
+			if (needsInsertion && tagStart != -1) {
+				// Append text between the current text index and the current
+				// one, if necessary
+				builder.append(aHtml.substring(oldTagEnd, tagStart));
+				needsInsertion = false;
+			}
 		}
 
 		// Append the end of the string
@@ -421,7 +437,9 @@ public class RestInformationPresenter implements IInformationPresenter,
 			listener.registerTo((StyledText) aDrawable);
 
 			// Convert pseudo-HTML to TextPresentation styles
-			return html2TextPresentation(aHoverInfo, aPresentation);
+			String res = html2TextPresentation(aHoverInfo, aPresentation);
+			System.out.println("Res = " + res);
+			return res;
 		}
 
 		return null;
