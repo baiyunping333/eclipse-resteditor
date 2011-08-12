@@ -82,19 +82,31 @@ public class BasicInternalLinkHandler implements IInternalLinkListener {
 	public boolean hoverInternalLinkClicked(final String aInternalLink,
 			final InternalHoverData aAssociatedData) {
 
-		if (aInternalLink.startsWith(IAssistanceConstants.SPELL_LINK_PREFIX)) {
+		final String internalLink;
+
+		if (aInternalLink.startsWith(IAssistanceConstants.INTERNAL_PREFIX)) {
+			// Remove internal link prefix
+			internalLink = aInternalLink
+					.substring(IAssistanceConstants.INTERNAL_PREFIX.length());
+
+		} else {
+			// Use raw argument
+			internalLink = aInternalLink;
+		}
+
+		if (internalLink.startsWith(IAssistanceConstants.SPELL_LINK_PREFIX)) {
 
 			// Spell checker link
-			String spellInfo = aInternalLink
+			final String spellInfo = internalLink
 					.substring(IAssistanceConstants.SPELL_LINK_PREFIX.length());
 
 			return spellAction(aAssociatedData, spellInfo);
 
-		} else if (aInternalLink
+		} else if (internalLink
 				.startsWith(IAssistanceConstants.SAMPLE_LINK_PREFIX)) {
 
 			// Insert sample link
-			String directive = aInternalLink
+			final String directive = internalLink
 					.substring(IAssistanceConstants.SAMPLE_LINK_PREFIX.length());
 
 			return sampleInsertionAction(aAssociatedData, directive);

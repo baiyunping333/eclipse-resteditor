@@ -19,6 +19,7 @@ import java.util.Stack;
 
 import org.eclipse.jface.text.DefaultInformationControl.IInformationPresenter;
 import org.eclipse.jface.text.DefaultInformationControl.IInformationPresenterExtension;
+import org.eclipse.jface.text.IInformationControl;
 import org.eclipse.jface.text.TextPresentation;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
@@ -51,6 +52,9 @@ public class RestInformationPresenter implements IInformationPresenter,
 
 	/** Marker of the end of an HTML tag zone */
 	protected final static char TAG_END_MARKER = '/';
+
+	/** The presented information control */
+	private IInformationControl pInformationControl;
 
 	/** The associated hover data */
 	private final InternalHoverData pInternalHoverData;
@@ -352,6 +356,19 @@ public class RestInformationPresenter implements IInformationPresenter,
 		return builder.toString();
 	}
 
+	/**
+	 * Sets the presented information control. Allows the link listener to
+	 * dispose it.
+	 * 
+	 * @param aInformationControl
+	 *            The presented information control
+	 */
+	public void setInformationControl(
+			final IInformationControl aInformationControl) {
+
+		pInformationControl = aInformationControl;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -386,7 +403,7 @@ public class RestInformationPresenter implements IInformationPresenter,
 
 			// Set up the link listener
 			final StyledTextLinkListener listener = new StyledTextLinkListener(
-					pInternalHoverData);
+					pInformationControl, pInternalHoverData);
 			listener.registerTo((StyledText) aDrawable);
 
 			// Convert pseudo-HTML to TextPresentation styles

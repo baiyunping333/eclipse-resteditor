@@ -11,6 +11,7 @@
 
 package org.isandlatech.plugins.rest.editor.ui;
 
+import org.eclipse.jface.text.IInformationControl;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
@@ -35,17 +36,27 @@ public class StyledTextLinkListener implements Listener {
 	/** Hand cursor */
 	private final Cursor pHandCursor;
 
+	/** The associated information control */
+	private final IInformationControl pInformationControl;
+
 	/** Internal hover data */
 	private final InternalHoverData pInternalHoverData;
 
 	/**
 	 * Prepares the styled text link handler
 	 * 
+	 * @param aInformationControl
+	 *            Parent information control (to be disposed when a link is
+	 *            clicked)
+	 * 
 	 * @param aInternalHoverData
 	 *            Associated internal hover data (handles link notification)
 	 */
-	public StyledTextLinkListener(final InternalHoverData aInternalHoverData) {
+	public StyledTextLinkListener(
+			final IInformationControl aInformationControl,
+			final InternalHoverData aInternalHoverData) {
 
+		pInformationControl = aInformationControl;
 		pInternalHoverData = aInternalHoverData;
 
 		pDefaultCursor = new Cursor(Display.getDefault(), SWT.CURSOR_ARROW);
@@ -101,7 +112,15 @@ public class StyledTextLinkListener implements Listener {
 				if (pInternalHoverData != null
 						&& style.data instanceof CharSequence) {
 
-					pInternalHoverData.notifyListener(style.data.toString());
+					final boolean controlMustBeClosed = pInternalHoverData
+							.notifyListener(style.data.toString());
+
+					if (controlMustBeClosed && pInformationControl != null) {
+
+						// If the notification returns true, the tool tip must
+						// be closed
+						pInformationControl.dispose();
+					}
 				}
 
 				break;

@@ -235,9 +235,19 @@ public class RestTextHover implements ITextHover, ITextHoverExtension,
 			public IInformationControl createInformationControl(
 					final Shell aParent) {
 
-				return new DefaultInformationControl(aParent,
-						EditorsUI.getTooltipAffordanceString(),
-						new RestInformationPresenter(associatedData));
+				// Prepare the presenter
+				final RestInformationPresenter restPresenter = new RestInformationPresenter(
+						associatedData);
+
+				// Prepare the information control
+				final IInformationControl informationControl = new DefaultInformationControl(
+						aParent, EditorsUI.getTooltipAffordanceString(),
+						restPresenter);
+
+				// Link the presenter and the information control
+				restPresenter.setInformationControl(informationControl);
+
+				return informationControl;
 			}
 		};
 	}
