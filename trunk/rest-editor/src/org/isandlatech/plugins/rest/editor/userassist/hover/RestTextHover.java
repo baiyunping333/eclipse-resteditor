@@ -37,7 +37,7 @@ import org.eclipse.ui.texteditor.spelling.SpellingContext;
 import org.eclipse.ui.texteditor.spelling.SpellingProblem;
 import org.isandlatech.plugins.rest.RestPlugin;
 import org.isandlatech.plugins.rest.editor.scanners.RestPartitionScanner;
-import org.isandlatech.plugins.rest.editor.ui.RestInformationPresenter;
+import org.isandlatech.plugins.rest.editor.ui.tooltip.RestInformationPresenter;
 import org.isandlatech.plugins.rest.editor.userassist.BasicInternalLinkHandler;
 import org.isandlatech.plugins.rest.editor.userassist.HelpMessagesUtil;
 import org.isandlatech.plugins.rest.editor.userassist.IInternalLinkListener;

@@ -9,7 +9,7 @@
  *    Thomas Calmant (isandlaTech) - initial API and implementation
  *******************************************************************************/
 
-package org.isandlatech.plugins.rest.editor.ui;
+package org.isandlatech.plugins.rest.editor.ui.tooltip;
 
 import java.util.HashMap;
 import java.util.Map;
