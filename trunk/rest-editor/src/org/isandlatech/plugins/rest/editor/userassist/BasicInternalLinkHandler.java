@@ -16,6 +16,7 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.ui.texteditor.spelling.SpellingProblem;
+import org.isandlatech.plugins.rest.BrowserController;
 import org.isandlatech.plugins.rest.RestPlugin;
 
 /**
@@ -24,7 +25,7 @@ import org.isandlatech.plugins.rest.RestPlugin;
  * 
  * @author Thomas Calmant
  */
-public class BasicInternalLinkHandler implements IInternalBrowserListener {
+public class BasicInternalLinkHandler implements IInternalLinkListener {
 
 	/**
 	 * Simple way to make an internal link
@@ -80,24 +81,51 @@ public class BasicInternalLinkHandler implements IInternalBrowserListener {
 	 */
 	@Override
 	public boolean hoverInternalLinkClicked(final String aInternalLink,
-			final InternalBrowserData aAssociatedData) {
+			final InternalHoverData aAssociatedData) {
 
-		if (aInternalLink.startsWith(IAssistanceConstants.SPELL_LINK_PREFIX)) {
+		final String internalLink;
+
+		if (aInternalLink.startsWith(IAssistanceConstants.INTERNAL_PREFIX)) {
+			// Remove internal link prefix
+			internalLink = aInternalLink
+					.substring(IAssistanceConstants.INTERNAL_PREFIX.length());
+
+		} else {
+			// Use raw argument
+			internalLink = aInternalLink;
+		}
+
+		if (internalLink.startsWith(IAssistanceConstants.SPELL_LINK_PREFIX)) {
 
 			// Spell checker link
-			String spellInfo = aInternalLink
+			final String spellInfo = internalLink
 					.substring(IAssistanceConstants.SPELL_LINK_PREFIX.length());
 
 			return spellAction(aAssociatedData, spellInfo);
 
-		} else if (aInternalLink
+		} else if (internalLink
 				.startsWith(IAssistanceConstants.SAMPLE_LINK_PREFIX)) {
 
 			// Insert sample link
-			String directive = aInternalLink
+			final String directive = internalLink
 					.substring(IAssistanceConstants.SAMPLE_LINK_PREFIX.length());
 
 			return sampleInsertionAction(aAssociatedData, directive);
+
+		} else {
+
+			try {
+				// Try to open the link with a browser
+				BrowserController.getController().openUrl(
+						IAssistanceConstants.INTERNAL_BROWSER_ID, internalLink);
+				return true;
+
+			} catch (Throwable th) {
+				// Error using the link : log it
+				RestPlugin.logError("Error trying to open the link '"
+						+ internalLink + "'", th);
+			}
+
 		}
 
 		// Link not treated
@@ -114,10 +142,15 @@ public class BasicInternalLinkHandler implements IInternalBrowserListener {
 	 * @return True on success, False on error
 	 */
 	protected boolean sampleInsertionAction(
-			final InternalBrowserData aAssociatedData, final String aDirective) {
+			final InternalHoverData aAssociatedData, final String aDirective) {
 
-		IDocument document = aAssociatedData.getDocument();
-		IRegion region = aAssociatedData.getHoverRegion();
+		final IDocument document = aAssociatedData.getDocument();
+		final IRegion region = aAssociatedData.getHoverRegion();
+
+		if (document == null || region == null) {
+			// Consider incomplete information state as a failure
+			return false;
+		}
 
 		String sample = HelpMessagesUtil.getDirectiveSample(aDirective);
 		if (sample == null) {
@@ -158,10 +191,15 @@ public class BasicInternalLinkHandler implements IInternalBrowserListener {
 	 *            offset/len/word.
 	 * @return True on success, False on error
 	 */
-	protected boolean spellAction(final InternalBrowserData aAssociatedData,
+	protected boolean spellAction(final InternalHoverData aAssociatedData,
 			final String aSpellURI) {
 
 		final IDocument document = aAssociatedData.getDocument();
+
+		if (document == null) {
+			// Consider incomplete information state as a failure
+			return false;
+		}
 
 		final int offset, length;
 		final String word;
@@ -169,7 +207,13 @@ public class BasicInternalLinkHandler implements IInternalBrowserListener {
 		String[] spellInfo = aSpellURI.split("/");
 		if (spellInfo.length == 1) {
 			// No region info in the URI
-			IRegion region = aAssociatedData.getHoverRegion();
+			final IRegion region = aAssociatedData.getHoverRegion();
+
+			if (region == null) {
+				// Incomplete information => failure
+				return false;
+			}
+
 			offset = region.getOffset();
 			length = region.getLength();
 			word = aSpellURI;

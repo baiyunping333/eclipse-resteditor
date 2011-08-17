@@ -19,22 +19,22 @@ import org.eclipse.jface.text.IRegion;
  * 
  * @author Thomas Calmant
  */
-public class InternalBrowserData {
+public class InternalHoverData {
 
 	/** Document associated to the hovering */
-	private IDocument pDocument;
+	private final IDocument pDocument;
 
 	/** Hover region */
-	private IRegion pHoverRegion;
+	private final IRegion pHoverRegion;
 
 	/** Hover control displayed information */
 	private String pInformation;
 
 	/** Data sender */
-	private IInternalBrowserListener pListener;
+	private final IInternalLinkListener pListener;
 
 	/** Does the region includes the directive suffix ('::') */
-	private boolean pRegionWithSuffix;
+	private final boolean pRegionWithSuffix;
 
 	/**
 	 * Sets up members
@@ -49,7 +49,7 @@ public class InternalBrowserData {
 	 *            Indicates if the aHoverRegion length includes the reST
 	 *            directive suffix ('::')
 	 */
-	public InternalBrowserData(final IInternalBrowserListener aSource,
+	public InternalHoverData(final IInternalLinkListener aSource,
 			final IDocument aDocument, final IRegion aHoverRegion,
 			final boolean aRegionWithSuffix) {
 
@@ -83,7 +83,7 @@ public class InternalBrowserData {
 	/**
 	 * @return the link listener
 	 */
-	public IInternalBrowserListener getListener() {
+	public IInternalLinkListener getListener() {
 		return pListener;
 	}
 
@@ -104,6 +104,7 @@ public class InternalBrowserData {
 	 * @return True if the event has been treated, else false
 	 */
 	public boolean notifyListener(final String aInternalLink) {
+
 		if (pListener != null) {
 			return pListener.hoverInternalLinkClicked(aInternalLink, this);
 		}

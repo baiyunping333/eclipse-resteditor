@@ -61,7 +61,8 @@ import org.isandlatech.plugins.rest.editor.scanners.RestScanner;
 import org.isandlatech.plugins.rest.editor.scanners.RestSectionBlockScanner;
 import org.isandlatech.plugins.rest.editor.scanners.RestSourceBlockScanner;
 import org.isandlatech.plugins.rest.editor.scanners.RestTableBlockScanner;
-import org.isandlatech.plugins.rest.editor.userassist.InternalBrowserInformationControl;
+import org.isandlatech.plugins.rest.editor.ui.tooltip.RestInformationPresenter;
+import org.isandlatech.plugins.rest.editor.userassist.BasicInternalLinkHandler;
 import org.isandlatech.plugins.rest.editor.userassist.contentassist.DeclarativeProposalProcessor;
 import org.isandlatech.plugins.rest.editor.userassist.contentassist.ProposalDispatcher;
 import org.isandlatech.plugins.rest.editor.userassist.hover.RestTextHover;
@@ -178,9 +179,8 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 			pAssistant = new ContentAssistant();
 
 			// Mandatory for contextual description
-			pAssistant
-					.setInformationControlCreator(InternalBrowserInformationControl
-							.getCreator());
+			pAssistant.setInformationControlCreator(RestInformationPresenter
+					.getCreator(new BasicInternalLinkHandler()));
 
 			// Document partitioning informations
 			pAssistant

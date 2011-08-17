@@ -33,11 +33,11 @@ import org.eclipse.ui.texteditor.spelling.SpellingContext;
 import org.eclipse.ui.texteditor.spelling.SpellingProblem;
 import org.isandlatech.plugins.rest.RestPlugin;
 import org.isandlatech.plugins.rest.editor.scanners.RestPartitionScanner;
+import org.isandlatech.plugins.rest.editor.ui.tooltip.RestInformationPresenter;
 import org.isandlatech.plugins.rest.editor.userassist.BasicInternalLinkHandler;
 import org.isandlatech.plugins.rest.editor.userassist.HelpMessagesUtil;
-import org.isandlatech.plugins.rest.editor.userassist.IInternalBrowserListener;
-import org.isandlatech.plugins.rest.editor.userassist.InternalBrowserData;
-import org.isandlatech.plugins.rest.editor.userassist.InternalBrowserInformationControl;
+import org.isandlatech.plugins.rest.editor.userassist.IInternalLinkListener;
+import org.isandlatech.plugins.rest.editor.userassist.InternalHoverData;
 
 /**
  * Text assistant : spell checker or directive helper
@@ -47,17 +47,20 @@ import org.isandlatech.plugins.rest.editor.userassist.InternalBrowserInformation
 public class RestTextHover implements ITextHover, ITextHoverExtension,
 		ITextHoverExtension2 {
 
+	/** Hover link handler */
+	private final IInternalLinkListener pInternalLinkListener;
+
+	/** Last generated hover data */
+	private InternalHoverData pLastHoverData;
+
+	/** Spell checking flag */
+	private boolean pSpellCheckingEnabled;
+
 	/** Spelling context to be used (standard text) */
 	private final SpellingContext pSpellingContext;
 
 	/** Spelling engine to use */
 	private final ISpellingEngine pSpellingEngine;
-
-	/** Hover link handler */
-	private final IInternalBrowserListener pBrowserListener;
-
-	/** Spell checking flag */
-	private boolean pSpellCheckingEnabled;
 
 	/**
 	 * Prepares the spell check hover
@@ -78,8 +81,8 @@ public class RestTextHover implements ITextHover, ITextHoverExtension,
 		pSpellingContext = new SpellingContext();
 		pSpellingContext.setContentType(contentType);
 
-		// Browser link handler
-		pBrowserListener = new BasicInternalLinkHandler();
+		// Internal link handler
+		pInternalLinkListener = new BasicInternalLinkHandler();
 	}
 
 	/**
@@ -144,7 +147,11 @@ public class RestTextHover implements ITextHover, ITextHoverExtension,
 		}
 
 		// Remove trailing "::"
-		directive = directive.substring(0, directive.length() - 2);
+		directive = directive.substring(0, directive.length() - 2).trim();
+
+		if (directive.isEmpty()) {
+			return null;
+		}
 
 		return HelpMessagesUtil.getDirectiveHelp(directive);
 	}
@@ -195,7 +202,7 @@ public class RestTextHover implements ITextHover, ITextHoverExtension,
 					correctionProposals += "<a href=\""
 							+ BasicInternalLinkHandler.makeSpellLink(problem,
 									proposal) + "\">" + displayedString
-							+ "</a>" + "<br />\n";
+							+ "</a><br />";
 				}
 			}
 
@@ -218,7 +225,9 @@ public class RestTextHover implements ITextHover, ITextHoverExtension,
 	 */
 	@Override
 	public IInformationControlCreator getHoverControlCreator() {
-		return InternalBrowserInformationControl.getCreator();
+
+		// Store the last generated hover data (can be null)
+		return RestInformationPresenter.getCreator(pLastHoverData);
 	}
 
 	/*
@@ -253,12 +262,13 @@ public class RestTextHover implements ITextHover, ITextHoverExtension,
 	 * .jface.text.ITextViewer, org.eclipse.jface.text.IRegion)
 	 */
 	@Override
-	public Object getHoverInfo2(final ITextViewer aTextViewer,
+	public synchronized Object getHoverInfo2(final ITextViewer aTextViewer,
 			final IRegion aHoverRegion) {
 
 		String info = getHoverInfo(aTextViewer, aHoverRegion);
 
 		if (info == null) {
+			pLastHoverData = null;
 			return null;
 		}
 
@@ -266,11 +276,11 @@ public class RestTextHover implements ITextHover, ITextHoverExtension,
 		 * As we searched for a valid word, getHoverRegion() omits the reST
 		 * directive suffix ('::')
 		 */
-		InternalBrowserData data = new InternalBrowserData(pBrowserListener,
+		pLastHoverData = new InternalHoverData(pInternalLinkListener,
 				aTextViewer.getDocument(), aHoverRegion, false);
-		data.setInformation(info);
+		pLastHoverData.setInformation(info);
 
-		return data;
+		return pLastHoverData;
 	}
 
 	/*

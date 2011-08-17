@@ -37,7 +37,7 @@
       <editor
             name="%editor.name"
             extensions="rst"
-            icon="icons/isandlatech_16.gif"
+            icon="icons/rst_icon.png"
             contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
             class="org.isandlatech.plugins.rest.editor.RestEditor"
             id="org.isandlatech.plugins.rest.editor.RestEditor">
@@ -70,7 +70,7 @@
       <wizard
             category="org.isandlatech.plugins.rest.wizards"
             class="org.isandlatech.plugins.rest.wizards.NewSphinxProject"
-            icon="icons/isandlatech_16.gif"
+            icon="icons/rst_icon.png"
             id="org.isandlatech.plugins.rest.wizards.NewSphinxProject"
             name="%wizard.name"
             project="true">
@@ -192,7 +192,7 @@
       <shortcut
             class="org.isandlatech.plugins.rest.launch.SphinxHtmlShortcut"
             description="Runs Sphinx to compile HTML"
-            icon="icons/isandlatech_16.gif"
+            icon="icons/rst_icon.png"
             id="org.isandlatech.plugins.rest.launch.shortcuts.html"
             label="%runner.shortcut.html"
             modes="run">
@@ -216,7 +216,7 @@
       <shortcut
             class="org.isandlatech.plugins.rest.launch.SphinxPdfShortcut"
             description="Runs Sphinx to compile PDF"
-            icon="icons/isandlatech_16.gif"
+            icon="icons/rst_icon.png"
             id="org.isandlatech.plugins.rest.launch.shortcuts.pdf"
             label="%runner.shortcut.pdf"
             modes="run">
@@ -236,6 +236,14 @@
             </contextualLaunch>
             <configurationType id="org.isandlatech.plugins.rest.launch.makefile" />
       </shortcut>
+   </extension>
+   <extension
+         point="org.eclipse.debug.ui.launchConfigurationTypeImages">
+      <launchConfigurationTypeImage
+            configTypeID="org.isandlatech.plugins.rest.launch.makefile"
+            icon="icons/rst_icon.png"
+            id="org.isandlatech.plugins.rest.launch.makefileImage">
+      </launchConfigurationTypeImage>
    </extension>
 
 </plugin>
