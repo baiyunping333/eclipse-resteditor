@@ -3,6 +3,21 @@
 What's new
 ##########
 
+Version 1.0.5d
+**************
+
+Fixed
+=====
+
+* Bug #3371105 : Indigo crashes on Linux
+
+
+Added
+=====
+
+* New file icon, proposed by Robert Niederreiter
+
+
 Version 1.0.5c
 **************
 
