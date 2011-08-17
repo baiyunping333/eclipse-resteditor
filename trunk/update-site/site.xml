@@ -6,7 +6,7 @@
    <feature url="features/org.isandlatech.theme.mapper_1.0.0.qualifier.jar" id="org.isandlatech.theme.mapper" version="1.0.0.qualifier">
       <category name="rest"/>
    </feature>
-   <feature url="features/org.psem2m.eclipse.rest.editor_1.0.6.qualifier.jar" id="org.psem2m.eclipse.rest.editor" version="1.0.6.qualifier">
+   <feature url="features/org.psem2m.eclipse.rest.editor_1.0.5.qualifier.jar" id="org.psem2m.eclipse.rest.editor" version="1.0.5.qualifier">
       <category name="rest"/>
    </feature>
    <category-def name="rest" label="ReST Editor Plugin">
