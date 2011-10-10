@@ -267,7 +267,27 @@ public class RestViewerConfiguration extends TextSourceViewerConfiguration {
 	@Override
 	public String[] getIndentPrefixes(final ISourceViewer aSourceViewer,
 			final String aContentType) {
-		return new String[] { "   ", "\t", "" };
+
+		// Preferred tab width
+		final int tabWidth = getTabWidth(aSourceViewer);
+
+		// Result preparation
+		final List<String> resultList = new ArrayList<String>();
+
+		// Prepare the indentation strings, based on preferred width
+		char[] array;
+		for (int i = tabWidth; i > 0; i--) {
+			array = new char[i];
+			Arrays.fill(array, ' ');
+
+			resultList.add(new String(array));
+		}
+
+		// Add the "classic" values
+		resultList.add("\t");
+		resultList.add("");
+
+		return resultList.toArray(new String[resultList.size()]);
 	}
 
 	@Override
